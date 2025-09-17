@@ -484,8 +484,33 @@ function addImageToGallery(imageData) {
     imageItem.dataset.imageId = imageData.id;
 
     imageItem.innerHTML = `
-        <img src="${imageData.url}" alt="Concept Art" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22150%22 height=%22150%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%23666%22 stroke-width=%222%22%3E%3Crect x=%223%22 y=%223%22 width=%2218%22 height=%2218%22 rx=%222%22/%3E%3Cline x1=%223%22 y1=%223%22 x2=%2221%22 y2=%2221%22/%3E%3Cline x1=%2221%22 y1=%223%22 x2=%223%22 y2=%2221%22/%3E%3C/svg%3E'">
-        <button class="delete-btn" onclick="deleteImage(${imageData.id})">×</button>
+        <img src="${imageData.url}" alt="Concept Art"
+             onclick="openImageViewer('${imageData.url}', ${imageData.id})"
+             onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22150%22 height=%22150%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%23666%22 stroke-width=%222%22%3E%3Crect x=%223%22 y=%223%22 width=%2218%22 height=%2218%22 rx=%222%22/%3E%3Cline x1=%223%22 y1=%223%22 x2=%2221%22 y2=%2221%22/%3E%3Cline x1=%2221%22 y1=%223%22 x2=%223%22 y2=%2221%22/%3E%3C/svg%3E'">
+        <div class="image-controls">
+            ${!imageData.saved ?
+                `<button class="control-btn save-btn" onclick="saveImagePermanently(${imageData.id})" title="갤러리에 저장">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+                        <polyline points="17 21 17 13 7 13 7 21"/>
+                        <polyline points="7 3 7 8 15 8"/>
+                    </svg>
+                </button>` :
+                `<button class="control-btn save-btn saved" disabled title="저장됨">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="20 6 9 17 4 12"/>
+                    </svg>
+                </button>`
+            }
+            <button class="control-btn download-btn" onclick="downloadSingleImage('${imageData.url}', '${imageData.id}')" title="다운로드">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                    <polyline points="7 10 12 15 17 10"/>
+                    <line x1="12" y1="15" x2="12" y2="3"/>
+                </svg>
+            </button>
+            <button class="control-btn delete-btn" onclick="deleteImage(${imageData.id})">×</button>
+        </div>
     `;
 
     gallery.appendChild(imageItem);
