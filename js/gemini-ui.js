@@ -22,7 +22,7 @@ function updateAPIStatusInMenu() {
         // Add a visual indicator if API is connected
         const textNode = Array.from(apiMenuItem.childNodes).find(node => node.nodeType === 3);
         if (textNode) {
-            textNode.textContent = 'API 연동 ✅';
+            textNode.textContent = '';
         }
     }
 }

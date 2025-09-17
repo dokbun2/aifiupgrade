@@ -1,7 +1,7 @@
 /* Profile Page Styles */
 
 .profile-container {
-    padding: 80px 40px 40px;
+    padding: 20px 40px 40px;
     min-height: 100vh;
 }
 
@@ -212,20 +212,29 @@
     display: flex;
     justify-content: flex-end;
     gap: 12px;
-    margin-top: 12px;
+    margin-top: 20px;
 }
 
 /* Buttons */
-.btn-primary {
-    padding: 10px 20px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
+.btn-primary,
+.btn-secondary {
+    padding: 8px 24px;
     border: none;
     border-radius: var(--radius);
     font-size: 14px;
     font-weight: 500;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: all 0.2s ease;
+    min-width: 100px;
+    height: 36px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
 }
 
 .btn-primary:hover {
@@ -234,15 +243,9 @@
 }
 
 .btn-secondary {
-    padding: 10px 20px;
     background: var(--secondary);
     color: var(--foreground);
     border: 1px solid var(--border);
-    border-radius: var(--radius);
-    font-size: 14px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s;
 }
 
 .btn-secondary:hover {
@@ -469,7 +472,7 @@
 
 @media (max-width: 768px) {
     .profile-container {
-        padding: 80px 20px 40px;
+        padding: 20px 20px 40px;
     }
     .profile-grid {
         grid-template-columns: 1fr;
@@ -495,11 +498,15 @@
     }
 
     .form-actions {
-        flex-direction: column;
+        flex-direction: row;
+        justify-content: center;
+        gap: 8px;
     }
 
-    .form-actions button {
-        width: 100%;
+    .form-actions .btn-primary,
+    .form-actions .btn-secondary {
+        min-width: 90px;
+        padding: 8px 20px;
     }
 }
 

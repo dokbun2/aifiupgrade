@@ -335,10 +335,19 @@ function updatePromptDisplay() {
         promptParts.push(parameters.value.trim());
     }
 
-    const prompt = promptParts.join('; ');
+    const prompt = promptParts.join(', ');
+
+    // Update generated prompt display
     const generatedPromptElement = document.getElementById('generated-prompt');
     if (generatedPromptElement) {
         generatedPromptElement.textContent = prompt || '프롬프트가 여기에 표시됩니다...';
+    }
+
+    // Also update universal prompt for image generation
+    const universalPromptElement = document.getElementById('universal-prompt');
+    if (universalPromptElement && prompt) {
+        universalPromptElement.textContent = prompt;
+        conceptData.universal = prompt;
     }
 
     // Save current character data
@@ -485,30 +494,9 @@ function addImageToGallery(imageData) {
 
     imageItem.innerHTML = `
         <img src="${imageData.url}" alt="Concept Art"
-             onclick="openImageViewer('${imageData.url}', ${imageData.id})"
+             onclick="openImageViewer('${imageData.url}', ${imageData.id}, ${imageData.saved || false})"
              onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22150%22 height=%22150%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%23666%22 stroke-width=%222%22%3E%3Crect x=%223%22 y=%223%22 width=%2218%22 height=%2218%22 rx=%222%22/%3E%3Cline x1=%223%22 y1=%223%22 x2=%2221%22 y2=%2221%22/%3E%3Cline x1=%2221%22 y1=%223%22 x2=%223%22 y2=%2221%22/%3E%3C/svg%3E'">
         <div class="image-controls">
-            ${!imageData.saved ?
-                `<button class="control-btn save-btn" onclick="saveImagePermanently(${imageData.id})" title="갤러리에 저장">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
-                        <polyline points="17 21 17 13 7 13 7 21"/>
-                        <polyline points="7 3 7 8 15 8"/>
-                    </svg>
-                </button>` :
-                `<button class="control-btn save-btn saved" disabled title="저장됨">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <polyline points="20 6 9 17 4 12"/>
-                    </svg>
-                </button>`
-            }
-            <button class="control-btn download-btn" onclick="downloadSingleImage('${imageData.url}', '${imageData.id}')" title="다운로드">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                    <polyline points="7 10 12 15 17 10"/>
-                    <line x1="12" y1="15" x2="12" y2="3"/>
-                </svg>
-            </button>
             <button class="control-btn delete-btn" onclick="deleteImage(${imageData.id})">×</button>
         </div>
     `;
@@ -974,6 +962,294 @@ function copyToClipboard(text, buttonElement) {
     });
 }
 
+// 이미지 뷰어 열기
+function openImageViewer(imageUrl, imageId, isSaved = false) {
+    const modal = document.getElementById('imageViewerModal');
+    const modalImg = document.getElementById('modalImage');
+    modalImg.src = imageUrl;
+    modalImg.dataset.imageId = imageId;
+    modalImg.dataset.isSaved = isSaved;
+
+    // 저장 버튼 추가/업데이트
+    updateModalSaveButton(imageId, isSaved);
+
+    modal.style.display = 'flex';
+}
+
+// 모달에 저장 버튼 업데이트
+function updateModalSaveButton(imageId, isSaved) {
+    const modalControls = document.querySelector('.modal-controls');
+    if (!modalControls) return;
+
+    // 기존 저장 버튼 제거
+    const existingSaveBtn = modalControls.querySelector('.save-modal-btn');
+    if (existingSaveBtn) {
+        existingSaveBtn.remove();
+    }
+
+    // 새로운 저장 버튼 생성
+    const saveBtn = document.createElement('button');
+    saveBtn.className = isSaved ? 'btn btn-secondary save-modal-btn' : 'btn btn-primary save-modal-btn';
+    saveBtn.onclick = function() { saveImageFromModal(imageId); };
+    saveBtn.innerHTML = isSaved ?
+        `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="20 6 9 17 4 12"/>
+        </svg>
+        저장됨` :
+        `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+            <polyline points="17 21 17 13 7 13 7 21"/>
+            <polyline points="7 3 7 8 15 8"/>
+        </svg>
+        저장하기`;
+
+    if (isSaved) {
+        saveBtn.disabled = true;
+    }
+
+    // 다운로드 버튼 앞에 삽입
+    const downloadBtn = modalControls.querySelector('.btn-primary');
+    if (downloadBtn && !isSaved) {
+        modalControls.insertBefore(saveBtn, downloadBtn);
+    } else if (!downloadBtn) {
+        // 다운로드 버튼이 없으면 파일 이름 span 다음에 추가
+        const filenameSpan = modalControls.querySelector('.image-filename');
+        if (filenameSpan && filenameSpan.nextSibling) {
+            modalControls.insertBefore(saveBtn, filenameSpan.nextSibling);
+        } else {
+            modalControls.appendChild(saveBtn);
+        }
+    }
+}
+
+// 모달에서 이미지 저장
+function saveImageFromModal(imageId) {
+    saveImagePermanently(imageId);
+    // 버튼 상태 업데이트
+    updateModalSaveButton(imageId, true);
+    // 데이터 속성 업데이트
+    const modalImg = document.getElementById('modalImage');
+    if (modalImg) {
+        modalImg.dataset.isSaved = 'true';
+    }
+}
+
+// 이미지 뷰어 닫기
+function closeImageViewer() {
+    const modal = document.getElementById('imageViewerModal');
+    modal.style.display = 'none';
+}
+
+// 모달에서 이미지 다운로드
+function downloadModalImage() {
+    const modalImg = document.getElementById('modalImage');
+    const imageId = modalImg.dataset.imageId;
+    downloadSingleImage(modalImg.src, imageId);
+}
+
+// 개별 이미지 다운로드
+async function downloadSingleImage(url, filename) {
+    try {
+        const response = await fetch(url);
+        const blob = await response.blob();
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = `concept-art-${filename}.png`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(a.href);
+    } catch (error) {
+        console.error('다운로드 실패:', error);
+        alert('이미지 다운로드에 실패했습니다.');
+    }
+}
+
+// 이미지 영구 저장 (JSON에 포함)
+function saveImagePermanently(imageId) {
+    let currentKey = null;
+    if (conceptData.currentType === 'character' && conceptData.currentCharacter) {
+        currentKey = conceptData.currentCharacter;
+    } else if (conceptData.currentType === 'location' && conceptData.currentLocation) {
+        currentKey = conceptData.currentLocation;
+    } else if (conceptData.currentType === 'props' && conceptData.currentProps) {
+        currentKey = conceptData.currentProps;
+    }
+
+    if (!currentKey) {
+        alert('먼저 캐릭터, 장소, 또는 소품을 선택해주세요.');
+        return;
+    }
+
+    // 이미지 찾기 및 saved 상태 업데이트
+    if (conceptData.images && conceptData.images[currentKey]) {
+        const image = conceptData.images[currentKey].find(img => img.id === imageId);
+        if (image) {
+            image.saved = true;
+            saveData();
+
+            // UI 업데이트
+            const imageItem = document.querySelector(`[data-image-id="${imageId}"]`);
+            if (imageItem) {
+                const saveBtn = imageItem.querySelector('.save-btn');
+                if (saveBtn) {
+                    saveBtn.className = 'control-btn save-btn saved';
+                    saveBtn.disabled = true;
+                    saveBtn.title = '저장됨';
+                    saveBtn.innerHTML = `
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="20 6 9 17 4 12"/>
+                        </svg>
+                    `;
+                }
+            }
+        }
+    }
+}
+
+// 이미지 생성 함수
+async function generateImageFromNanoBanana() {
+    const promptElement = document.getElementById('universal-prompt');
+    const prompt = promptElement ? promptElement.textContent : '';
+
+    if (!prompt || prompt === '기본 프롬프트가 여기에 표시됩니다...' || prompt.trim() === '') {
+        alert('먼저 프롬프트를 입력해주세요.');
+        return;
+    }
+
+    // Find the button that was clicked
+    const btn = event ? event.target.closest('.generate-btn') : document.querySelector('.generate-btn');
+    if (!btn) {
+        console.error('Generate button not found');
+        return;
+    }
+
+    const originalHTML = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = `
+        <svg class="animate-spin" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10" stroke-opacity="0.25"/>
+            <path d="M12 2a10 10 0 0 1 0 20" stroke-opacity="0.75"/>
+        </svg>
+        생성 중...
+    `;
+
+    try {
+        let imageUrl = '';
+
+        // Check if Gemini API is available and ready
+        if (window.geminiAPI && window.geminiAPI.isReady()) {
+            try {
+                console.log('Generating image with Nano Banana (Gemini 2.5 Flash Image Preview):', prompt);
+
+                // Use Nano Banana to generate image
+                const result = await window.geminiAPI.generateImage(prompt, {
+                    temperature: 1.0,
+                    topK: 40,
+                    topP: 0.95
+                });
+
+                if (result.success && result.imageUrl) {
+                    imageUrl = result.imageUrl;
+                    console.log('Nano Banana generated image successfully');
+
+                    // Show success notification
+                    if (typeof showToast === 'function') {
+                        showToast('이미지가 성공적으로 생성되었습니다!', 'success');
+                    }
+                } else {
+                    throw new Error('이미지 생성 실패: 응답에 이미지가 없습니다');
+                }
+            } catch (apiError) {
+                console.error('Nano Banana generation error:', apiError);
+
+                // Offer test mode as fallback
+                const useTestMode = confirm(
+                    `Nano Banana 이미지 생성 실패:\n${apiError.message}\n\n` +
+                    '테스트 모드로 진행하시겠습니까?'
+                );
+
+                if (useTestMode) {
+                    const timestamp = Date.now();
+                    const promptHash = btoa(prompt.substring(0, 100)).replace(/[^a-zA-Z0-9]/g, '').substring(0, 10);
+                    imageUrl = `https://picsum.photos/seed/${promptHash}-${timestamp}/1024/1024`;
+                } else {
+                    btn.disabled = false;
+                    btn.innerHTML = originalHTML;
+                    return;
+                }
+            }
+        } else {
+            // API가 설정되지 않은 경우
+            const useTestMode = confirm(
+                'Gemini API가 설정되지 않았습니다.\n' +
+                '메인 페이지에서 API를 설정하면 Nano Banana로 이미지를 생성할 수 있습니다.\n\n' +
+                '테스트 모드로 진행하시겠습니까?'
+            );
+
+            if (useTestMode) {
+                const timestamp = Date.now();
+                imageUrl = `https://picsum.photos/1024/1024?random=${timestamp}`;
+            } else {
+                // Try to open API modal if available
+                if (typeof openAPIModal === 'function') {
+                    openAPIModal();
+                }
+                btn.disabled = false;
+                btn.innerHTML = originalHTML;
+                return;
+            }
+        }
+
+        // 현재 선택 확인
+        let currentKey = null;
+        if (conceptData.currentType === 'character' && conceptData.currentCharacter) {
+            currentKey = conceptData.currentCharacter;
+        } else if (conceptData.currentType === 'location' && conceptData.currentLocation) {
+            currentKey = conceptData.currentLocation;
+        } else if (conceptData.currentType === 'props' && conceptData.currentProps) {
+            currentKey = conceptData.currentProps;
+        }
+
+        if (!currentKey) {
+            alert('먼저 캐릭터, 장소, 또는 소품을 선택해주세요.');
+            btn.disabled = false;
+            btn.innerHTML = originalHTML;
+            return;
+        }
+
+        // 이미지 데이터 생성
+        const imageData = {
+            id: Date.now(),
+            url: imageUrl,
+            saved: false,
+            type: conceptData.currentType,
+            itemId: currentKey,
+            timestamp: new Date().toISOString(),
+            prompt: prompt
+        };
+
+        // 이미지 배열에 추가
+        if (!conceptData.images) conceptData.images = {};
+        if (!conceptData.images[currentKey]) conceptData.images[currentKey] = [];
+
+        conceptData.images[currentKey].push(imageData);
+
+        // 갤러리에 이미지 추가
+        addImageToGallery(imageData);
+
+        // Success message
+        console.log('Image generated successfully:', imageUrl);
+
+    } catch (error) {
+        console.error('이미지 생성 실패:', error);
+        alert('이미지 생성에 실패했습니다.');
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = originalHTML;
+    }
+}
+
 // Make functions globally available
 window.toggleDropdown = toggleDropdown;
 window.selectItem = selectItem;
@@ -985,3 +1261,9 @@ window.deleteImage = deleteImage;
 window.loadJSON = loadJSON;
 window.downloadJSON = downloadJSON;
 window.resetData = resetData;
+window.openImageViewer = openImageViewer;
+window.closeImageViewer = closeImageViewer;
+window.downloadModalImage = downloadModalImage;
+window.downloadSingleImage = downloadSingleImage;
+window.saveImagePermanently = saveImagePermanently;
+window.generateImageFromNanoBanana = generateImageFromNanoBanana;

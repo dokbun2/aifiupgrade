@@ -1,7 +1,7 @@
 /* Projects Page Styles */
 
 .projects-container {
-    padding: 80px 40px 40px;
+    padding: 20px 40px 40px;
     min-height: 100vh;
 }
 
@@ -663,7 +663,7 @@
 
 @media (max-width: 768px) {
     .projects-container {
-        padding: 80px 20px 40px;
+        padding: 20px 20px 40px;
     }
     .projects-header-content {
         flex-direction: column;

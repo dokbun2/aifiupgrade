@@ -359,3 +359,272 @@ body.dark .alert-error {
         right: -50px;
     }
 }
+
+/* API Modal Button Styles */
+.form-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 24px;
+}
+
+.btn-secondary {
+    flex: 1;
+    padding: 12px 20px;
+    background: transparent;
+    color: var(--foreground);
+    border: 2px solid var(--border);
+    border-radius: var(--radius);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-secondary:hover {
+    border-color: #667eea;
+    color: #667eea;
+    background: rgba(102, 126, 234, 0.05);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.2);
+}
+
+.btn-secondary:active {
+    transform: translateY(0);
+}
+
+.btn-primary {
+    flex: 1;
+    margin-top: 0 !important;
+}
+
+.btn-danger-text {
+    background: transparent;
+    color: #ef4444;
+    border: none;
+    padding: 8px 16px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border-radius: var(--radius);
+}
+
+.btn-danger-text:hover {
+    background: rgba(239, 68, 68, 0.1);
+    color: #dc2626;
+    text-decoration: underline;
+}
+
+.btn-icon {
+    background: transparent;
+    border: 1px solid var(--border);
+    padding: 8px;
+    border-radius: var(--radius);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    color: var(--foreground);
+}
+
+.btn-icon:hover {
+    background: var(--accent);
+    border-color: var(--accent-foreground);
+    transform: scale(1.05);
+}
+
+/* Input with button */
+.input-with-button {
+    display: flex;
+    gap: 8px;
+}
+
+.input-with-button input {
+    flex: 1;
+}
+
+/* API Status Styles */
+.api-status {
+    background: var(--accent);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+    margin-top: 20px;
+}
+
+.status-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.status-item:last-child {
+    margin-bottom: 0;
+}
+
+.status-label {
+    font-size: 14px;
+    color: var(--muted-foreground);
+}
+
+.status-value {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--foreground);
+}
+
+.status-value.connected {
+    color: #10b981;
+}
+
+.status-value.disconnected {
+    color: #ef4444;
+}
+
+/* Test Result */
+.test-result {
+    margin-top: 20px;
+    padding: 16px;
+    background: var(--accent);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    animation: slideUp 0.3s ease;
+}
+
+.result-content {
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.result-content.success {
+    color: #10b981;
+}
+
+.result-content.error {
+    color: #ef4444;
+}
+
+/* API Models Info */
+.api-models-info {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+    margin-bottom: 24px;
+}
+
+.model-info-card {
+    background: var(--accent);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 12px;
+    position: relative;
+    transition: all 0.2s ease;
+}
+
+.model-info-card:hover {
+    border-color: #667eea;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+}
+
+.model-badge {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.model-info-card strong {
+    display: block;
+    margin-top: 20px;
+    margin-bottom: 4px;
+    color: var(--foreground);
+    font-size: 14px;
+}
+
+.model-info-card small {
+    color: var(--muted-foreground);
+    font-size: 12px;
+}
+
+.field-hint {
+    display: block;
+    margin-top: 8px;
+    font-size: 12px;
+    color: var(--muted-foreground);
+}
+
+.field-hint a {
+    color: #ff6b6b;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.field-hint a:hover {
+    color: #ff5252;
+    text-decoration: underline;
+}
+
+/* Loading state for buttons */
+.btn-loading {
+    position: relative;
+    pointer-events: none;
+}
+
+.btn-loading::after {
+    content: "";
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    top: 50%;
+    left: 50%;
+    margin-left: -8px;
+    margin-top: -8px;
+    border: 2px solid transparent;
+    border-radius: 50%;
+    border-top-color: currentColor;
+    animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Dark mode adjustments */
+body.dark .btn-secondary {
+    border-color: rgba(255, 255, 255, 0.2);
+    color: rgba(255, 255, 255, 0.9);
+}
+
+body.dark .btn-secondary:hover {
+    border-color: #667eea;
+    background: rgba(102, 126, 234, 0.1);
+}
+
+body.dark .model-info-card {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+body.dark .api-status {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+body.dark .test-result {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.1);
+}

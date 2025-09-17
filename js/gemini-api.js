@@ -11,7 +11,7 @@ class GeminiAPIManager {
         // Model configurations
         this.models = {
             text: 'gemini-2.5-flash',
-            image: 'gemini-2.5-flash-image-preview'
+            image: 'gemini-2.5-flash-image-preview'  // Nano Banana model for image generation
         };
 
         // API endpoints
@@ -253,7 +253,7 @@ class GeminiAPIManager {
     }
 
     /**
-     * Generate or edit image using Gemini 2.5 Flash Image Preview (Nano Banana)
+     * Generate image using Nano Banana (Gemini 2.5 Flash Image Preview)
      */
     async generateImage(prompt, options = {}) {
         if (!this.apiKey) {
@@ -262,32 +262,28 @@ class GeminiAPIManager {
 
         const endpoint = `${this.baseURL}/models/${this.models.image}:generateContent?key=${this.apiKey}`;
 
+        // Nano Banana expects specific prompt format for image generation
+        // Example: "Plot sin(x) from 0 to 2*pi. Generate the resulting graph image."
+        const imagePrompt = `${prompt}. Generate a high-quality image based on this description.`;
+
         const requestBody = {
             contents: [{
                 parts: [{
-                    text: prompt
+                    text: imagePrompt
                 }]
             }],
             generationConfig: {
                 temperature: options.temperature || 1.0,
                 topK: options.topK || 40,
                 topP: options.topP || 0.95,
-                maxOutputTokens: options.maxOutputTokens || 32768,
-                responseMimeType: options.responseMimeType || "text/plain"
+                maxOutputTokens: options.maxOutputTokens || 8192
+                // Note: Nano Banana doesn't support JSON mode, so we use default text/plain
             }
         };
 
-        // Add image input if provided
-        if (options.imageBase64) {
-            requestBody.contents[0].parts.unshift({
-                inline_data: {
-                    mime_type: options.imageMimeType || "image/jpeg",
-                    data: options.imageBase64
-                }
-            });
-        }
-
         try {
+            console.log('Generating image with Nano Banana:', imagePrompt);
+
             const response = await fetch(endpoint, {
                 method: 'POST',
                 headers: {
@@ -298,17 +294,74 @@ class GeminiAPIManager {
 
             if (!response.ok) {
                 const error = await response.json();
+                console.error('Nano Banana API error:', error);
                 throw new Error(error.error?.message || `HTTP ${response.status}`);
             }
 
             const data = await response.json();
-            this.usage.imageRequests++;
-            this.saveToSession();
+            console.log('Nano Banana response:', data);
 
-            return data;
+            // Parse the response to extract image data
+            if (data.candidates && data.candidates.length > 0) {
+                const content = data.candidates[0].content;
+                if (content && content.parts && content.parts.length > 0) {
+                    const part = content.parts[0];
+
+                    // Check if response contains image data
+                    if (part.inlineData) {
+                        // Base64 encoded image
+                        const imageData = part.inlineData.data;
+                        const mimeType = part.inlineData.mimeType || 'image/png';
+                        const imageUrl = `data:${mimeType};base64,${imageData}`;
+
+                        this.usage.imageRequests++;
+                        this.saveToSession();
+
+                        return {
+                            success: true,
+                            imageUrl: imageUrl,
+                            mimeType: mimeType
+                        };
+                    } else if (part.text) {
+                        // Check if text contains image URL or base64
+                        const text = part.text;
+
+                        // Try to parse as JSON in case it contains structured data
+                        try {
+                            const parsed = JSON.parse(text);
+                            if (parsed.imageUrl || parsed.image) {
+                                this.usage.imageRequests++;
+                                this.saveToSession();
+
+                                return {
+                                    success: true,
+                                    imageUrl: parsed.imageUrl || parsed.image
+                                };
+                            }
+                        } catch (e) {
+                            // Not JSON, might be direct URL or base64
+                            if (text.startsWith('http') || text.startsWith('data:')) {
+                                this.usage.imageRequests++;
+                                this.saveToSession();
+
+                                return {
+                                    success: true,
+                                    imageUrl: text
+                                };
+                            }
+                        }
+
+                        // If we get here, no image was generated
+                        console.log('No image in response, got text:', text);
+                        throw new Error('Nano Banana did not generate an image. Response: ' + text.substring(0, 200));
+                    }
+                }
+            }
+
+            throw new Error('Invalid response format from Nano Banana');
 
         } catch (error) {
-            console.error('Image generation failed:', error);
+            console.error('Nano Banana generation failed:', error);
             throw error;
         }
     }
