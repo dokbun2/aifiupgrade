@@ -99,3 +99,60 @@ Each page maintains consistent structure:
 - localStorage for persistent settings
 - Global function exposure for inline onclick handlers
 - Responsive checks via `window.innerWidth`
+
+## API Integration
+
+### Google Gemini API Configuration
+
+#### Models
+- **Text Generation**: `gemini-2.5-flash` - For text content generation
+- **Image Analysis**: `gemini-2.5-flash-image-preview` (Nano Banana) - For image analysis and description
+  - Note: Nano Banana is primarily for image analysis, not generation
+  - Returns text descriptions rather than actual images
+  - Cost: $0.039 per image (1290 tokens)
+
+#### API Setup
+```javascript
+// Initialize Gemini API
+window.geminiAPI = new GeminiAPIManager();
+window.geminiAPI.init('YOUR_API_KEY');
+
+// Test connection
+const result = await window.geminiAPI.testConnection();
+
+// API is stored in sessionStorage for persistence
+// Auto-loads on page refresh if previously configured
+```
+
+#### Key Files
+- `/js/gemini-api.js` - Main Gemini API manager
+- `/js/gemini-ui.js` - API modal UI and settings
+- `/js/nano-banana-api.js` - Specialized Nano Banana image handler
+
+#### API Modal Features
+- Connection test with immediate visual feedback
+- Save button enables after successful test
+- Settings persist in sessionStorage
+- Modal closes immediately on save (improved UX)
+- Success state shown with green button + animation
+
+#### Important Notes
+1. **API Key Storage**: Stored in sessionStorage (not localStorage) for security
+2. **Image Generation**: Nano Banana primarily analyzes images, actual generation requires external service
+3. **Test Mode**: Falls back to placeholder images when API unavailable
+4. **Error Handling**: Comprehensive error messages with Korean localization
+
+### External Image Services (Alternative Options)
+For actual image generation, consider:
+- Replicate API (Stable Diffusion, FLUX)
+- OpenAI DALL-E 3
+- Stability AI
+- Midjourney API
+
+### Environment Variables
+Create `.env` file (see `.env.example`):
+```env
+GEMINI_API_KEY=your_gemini_api_key
+SUPABASE_URL=your_supabase_url
+SUPABASE_ANON_KEY=your_supabase_anon_key
+```

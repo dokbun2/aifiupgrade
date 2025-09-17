@@ -254,6 +254,7 @@ class GeminiAPIManager {
 
     /**
      * Generate image using Nano Banana (Gemini 2.5 Flash Image Preview)
+     * This is the new image generation model from Google
      */
     async generateImage(prompt, options = {}) {
         if (!this.apiKey) {
@@ -262,9 +263,8 @@ class GeminiAPIManager {
 
         const endpoint = `${this.baseURL}/models/${this.models.image}:generateContent?key=${this.apiKey}`;
 
-        // Nano Banana expects specific prompt format for image generation
-        // Example: "Plot sin(x) from 0 to 2*pi. Generate the resulting graph image."
-        const imagePrompt = `${prompt}. Generate a high-quality image based on this description.`;
+        // Nano Banana 이미지 생성을 위한 프롬프트
+        const imagePrompt = `Generate an image: ${prompt}`;
 
         const requestBody = {
             contents: [{
@@ -276,8 +276,9 @@ class GeminiAPIManager {
                 temperature: options.temperature || 1.0,
                 topK: options.topK || 40,
                 topP: options.topP || 0.95,
-                maxOutputTokens: options.maxOutputTokens || 8192
-                // Note: Nano Banana doesn't support JSON mode, so we use default text/plain
+                maxOutputTokens: options.maxOutputTokens || 8192,
+                // Nano Banana 이미지 생성 설정
+                candidateCount: 1
             }
         };
 
