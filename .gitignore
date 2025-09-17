@@ -8,8 +8,10 @@ yarn-error.log*
 /build
 /dist
 
-# Large video files (commented out to include hero.mp4)
-# assets/video/*.mp4
+# Large video files
+assets/video/*.mp4
+assets/video/*.mov
+assets/video/*.avi
 
 # Environment variables
 .env
