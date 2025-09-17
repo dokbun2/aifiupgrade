@@ -1,3 +1,25 @@
+// Video Sound Toggle Functionality
+function toggleVideoSound() {
+    const video = document.getElementById('heroVideo');
+    const soundOnIcon = document.getElementById('soundOnIcon');
+    const soundOffIcon = document.getElementById('soundOffIcon');
+
+    if (video) {
+        if (video.muted) {
+            video.muted = false;
+            soundOnIcon.style.display = 'block';
+            soundOffIcon.style.display = 'none';
+        } else {
+            video.muted = true;
+            soundOnIcon.style.display = 'none';
+            soundOffIcon.style.display = 'block';
+        }
+    }
+}
+
+// Expose function globally
+window.toggleVideoSound = toggleVideoSound;
+
 // Theme Toggle Functionality
 const themeToggle = document.getElementById('theme-toggle');
 const body = document.body;

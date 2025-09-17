@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CONCEPT ART - AIFI FRAMEWORK</title>
     <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/auth.css">
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -20,12 +23,63 @@
                 </a>
             </div>
             <div class="header-right">
-                <a href="#" class="github-link">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                <!-- Login Button -->
+                <button class="login-btn" onclick="openAuthModal()">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
+                        <polyline points="10 17 15 12 10 7"></polyline>
+                        <line x1="15" y1="12" x2="3" y2="12"></line>
                     </svg>
-                    <span class="star-count">GitHub</span>
-                </a>
+                    <span>로그인</span>
+                </button>
+
+                <!-- User Menu (Hidden by default) -->
+                <div class="user-menu-container" style="display: none;">
+                    <div class="user-menu-dropdown">
+                        <button class="user-menu-trigger" onclick="toggleUserMenu()">
+                            <img src="" alt="User" class="user-avatar-img">
+                            <span class="user-name">사용자</span>
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="6 9 12 15 18 9"></polyline>
+                            </svg>
+                        </button>
+                        <div class="user-dropdown-content" id="userDropdown">
+                            <a href="../profile.html" class="dropdown-item">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                    <circle cx="12" cy="7" r="4"></circle>
+                                </svg>
+                                프로필 관리
+                            </a>
+                            <a href="../projects.html" class="dropdown-item">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M3 3h18v18H3z"/>
+                                    <rect x="7" y="7" width="3" height="3"/>
+                                    <rect x="14" y="7" width="3" height="3"/>
+                                    <rect x="7" y="14" width="3" height="3"/>
+                                    <rect x="14" y="14" width="3" height="3"/>
+                                </svg>
+                                내 프로젝트
+                            </a>
+                            <a href="#" class="dropdown-item" onclick="openPasswordModal(); return false;">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="5" y="11" width="14" height="11" rx="2" ry="2"></rect>
+                                    <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                                </svg>
+                                비밀번호 변경
+                            </a>
+                            <div class="dropdown-divider"></div>
+                            <a href="#" class="dropdown-item" onclick="handleLogout(); return false;">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                                    <polyline points="16 17 21 12 16 7"></polyline>
+                                    <line x1="21" y1="12" x2="9" y2="12"></line>
+                                </svg>
+                                로그아웃
+                            </a>
+                        </div>
+                    </div>
+                </div>
                 <button class="theme-toggle" id="theme-toggle">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="sun-icon">
                         <circle cx="12" cy="12" r="5"></circle>
@@ -266,6 +320,15 @@
                                 복사
                             </button>
 
+                            <button class="generate-btn" onclick="generateImageFromNanoBanana()">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                                    <circle cx="8.5" cy="8.5" r="1.5"/>
+                                    <polyline points="21 15 16 10 5 21"/>
+                                </svg>
+                                이미지 생성
+                            </button>
+
                             <div class="universal-prompt-item">
                                 <label>TRANSLATED</label>
                                 <div class="prompt-display" id="universal-prompt-translated">
@@ -361,7 +424,135 @@
         </a>
     </nav>
 
-    <script src="../js/main.js"></script>
+    
+    <!-- Auth Modal -->
+    <div id="authModal" class="auth-modal">
+        <div class="auth-modal-content">
+            <button class="modal-close" onclick="closeAuthModal()">×</button>
+
+            <div class="auth-container">
+                <div class="auth-header">
+                    <h2 id="authTitle">로그인</h2>
+                    <p id="authDescription">계정에 로그인하여 서비스를 이용하세요</p>
+                </div>
+
+                <!-- Login Form -->
+                <form id="loginForm" class="auth-form">
+                    <div class="form-group">
+                        <label for="loginEmail">이메일</label>
+                        <input type="email" id="loginEmail" required placeholder="your@email.com">
+                        <span class="error-message" id="loginEmailError"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="loginPassword">비밀번호</label>
+                        <input type="password" id="loginPassword" required placeholder="••••••••">
+                        <span class="error-message" id="loginPasswordError"></span>
+                    </div>
+                    <button type="submit" class="btn-primary">로그인</button>
+                    <div class="auth-links">
+                        <a href="#" onclick="showForgotPassword(); return false;">비밀번호를 잊으셨나요?</a>
+                    </div>
+                </form>
+
+                <!-- Sign Up Form -->
+                <form id="signupForm" class="auth-form" style="display: none;">
+                    <div class="form-group">
+                        <label for="signupName">이름</label>
+                        <input type="text" id="signupName" required placeholder="홍길동">
+                        <span class="error-message" id="signupNameError"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="signupNickname">닉네임</label>
+                        <input type="text" id="signupNickname" required placeholder="gildong">
+                        <span class="error-message" id="signupNicknameError"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="signupEmail">이메일</label>
+                        <input type="email" id="signupEmail" required placeholder="your@email.com">
+                        <span class="error-message" id="signupEmailError"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="signupPassword">비밀번호</label>
+                        <input type="password" id="signupPassword" required placeholder="최소 6자 이상">
+                        <span class="error-message" id="signupPasswordError"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="signupPasswordConfirm">비밀번호 확인</label>
+                        <input type="password" id="signupPasswordConfirm" required placeholder="비밀번호를 다시 입력하세요">
+                        <span class="error-message" id="signupPasswordConfirmError"></span>
+                    </div>
+                    <button type="submit" class="btn-primary">회원가입</button>
+                </form>
+
+                <!-- Forgot Password Form -->
+                <form id="forgotForm" class="auth-form" style="display: none;">
+                    <div class="form-group">
+                        <label for="forgotEmail">이메일</label>
+                        <input type="email" id="forgotEmail" required placeholder="your@email.com">
+                        <span class="error-message" id="forgotEmailError"></span>
+                    </div>
+                    <button type="submit" class="btn-primary">비밀번호 재설정 링크 보내기</button>
+                    <div class="auth-links">
+                        <a href="#" onclick="showLogin(); return false;">로그인으로 돌아가기</a>
+                    </div>
+                </form>
+
+                <div class="auth-footer" id="authFooter">
+                    <span>계정이 없으신가요?</span>
+                    <a href="#" onclick="showSignup(); return false;">회원가입</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Password Change Modal -->
+    <div id="passwordModal" class="auth-modal">
+        <div class="auth-modal-content small">
+            <button class="modal-close" onclick="closePasswordModal()">×</button>
+
+            <div class="auth-container">
+                <div class="auth-header">
+                    <h2>비밀번호 변경</h2>
+                    <p>새로운 비밀번호를 입력해주세요</p>
+                </div>
+
+                <form id="passwordChangeForm" class="auth-form">
+                    <div class="form-group">
+                        <label for="newPassword">새 비밀번호</label>
+                        <input type="password" id="newPassword" required placeholder="최소 6자 이상">
+                        <span class="error-message" id="newPasswordError"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="confirmNewPassword">새 비밀번호 확인</label>
+                        <input type="password" id="confirmNewPassword" required placeholder="비밀번호를 다시 입력하세요">
+                        <span class="error-message" id="confirmNewPasswordError"></span>
+                    </div>
+                    <button type="submit" class="btn-primary">비밀번호 변경</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- 이미지 뷰어 모달 -->
+    <div id="imageViewerModal" class="image-viewer-modal">
+        <span class="modal-close" onclick="closeImageViewer()">×</span>
+        <img id="modalImage" src="" alt="Original Image">
+        <div class="modal-controls">
+            <span class="image-filename"></span>
+            <button class="btn btn-primary" onclick="downloadModalImage()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                    <polyline points="7 10 12 15 17 10"/>
+                    <line x1="12" y1="15" x2="12" y2="3"/>
+                </svg>
+                다운로드
+            </button>
+        </div>
+    </div>
+
+<script src="../js/main.js"></script>
     <script src="../js/conceptart.js"></script>
+    <script src="../js/supabase-config.js"></script>
+    <script src="../js/auth.js"></script>
 </body>
 </html>

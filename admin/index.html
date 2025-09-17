@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - AIFI FRAMEWORK</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="admin.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="dark admin-body">
+    <!-- Header -->
+    <header class="admin-header">
+        <div class="header-content">
+            <div class="header-left">
+                <button class="sidebar-toggle" onclick="toggleAdminSidebar()">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="3" y1="12" x2="21" y2="12"></line>
+                        <line x1="3" y1="6" x2="21" y2="6"></line>
+                        <line x1="3" y1="18" x2="21" y2="18"></line>
+                    </svg>
+                </button>
+                <a href="../index.html" class="logo">
+                    <span class="logo-icon">◆</span>
+                    <span class="logo-text">AIFI ADMIN</span>
+                </a>
+            </div>
+            <div class="header-center">
+                <div class="search-bar">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <path d="M21 21l-4.35-4.35"></path>
+                    </svg>
+                    <input type="text" placeholder="Search..." class="search-input">
+                    <div class="search-shortcut">
+                        <span>⌘</span><span>K</span>
+                    </div>
+                </div>
+            </div>
+            <div class="header-right">
+                <button class="notification-button">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                        <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                    </svg>
+                    <span class="notification-badge">3</span>
+                </button>
+                <div class="user-avatar">
+                    <img src="https://ui-avatars.com/api/?name=Admin&background=6366f1&color=fff" alt="Admin">
+                </div>
+                <button class="theme-toggle" id="theme-toggle">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="sun-icon">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="moon-icon" style="display: none;">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Admin Layout Container -->
+    <div class="admin-container">
+        <!-- Sidebar -->
+        <aside class="admin-sidebar">
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <div class="nav-section-title">MAIN</div>
+                    <a href="#" class="nav-item active">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="3" width="7" height="7"></rect>
+                            <rect x="14" y="3" width="7" height="7"></rect>
+                            <rect x="14" y="14" width="7" height="7"></rect>
+                            <rect x="3" y="14" width="7" height="7"></rect>
+                        </svg>
+                        <span>Dashboard</span>
+                    </a>
+                    <a href="#" class="nav-item">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="9" cy="7" r="4"></circle>
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                        </svg>
+                        <span>Users</span>
+                    </a>
+                    <a href="#" class="nav-item">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                            <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+                            <line x1="12" y1="22.08" x2="12" y2="12"></line>
+                        </svg>
+                        <span>Products</span>
+                    </a>
+                    <a href="#" class="nav-item">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="12" y1="1" x2="12" y2="23"></line>
+                            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                        </svg>
+                        <span>Sales</span>
+                    </a>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-section-title">ANALYTICS</div>
+                    <a href="#" class="nav-item">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="18" y1="20" x2="18" y2="10"></line>
+                            <line x1="12" y1="20" x2="12" y2="4"></line>
+                            <line x1="6" y1="20" x2="6" y2="14"></line>
+                        </svg>
+                        <span>Reports</span>
+                    </a>
+                    <a href="#" class="nav-item">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+                        </svg>
+                        <span>Analytics</span>
+                    </a>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-section-title">SYSTEM</div>
+                    <a href="#" class="nav-item">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="3"></circle>
+                            <path d="M12 1v6m0 6v6m4.22-13.22l4.24 4.24M1.54 9.96l4.24 4.24M20.46 14.04l-4.24-4.24M1.54 14.04l4.24-4.24"></path>
+                        </svg>
+                        <span>Settings</span>
+                    </a>
+                    <a href="#" class="nav-item">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                            <polyline points="14 2 14 8 20 8"></polyline>
+                            <line x1="16" y1="13" x2="8" y2="13"></line>
+                            <line x1="16" y1="17" x2="8" y2="17"></line>
+                            <polyline points="10 9 9 9 8 9"></polyline>
+                        </svg>
+                        <span>Logs</span>
+                    </a>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="admin-main">
+            <!-- Page Header -->
+            <div class="page-header">
+                <div>
+                    <h1 class="page-title">Dashboard</h1>
+                    <p class="page-description">Welcome back! Here's what's happening with your business today.</p>
+                </div>
+                <div class="page-actions">
+                    <button class="btn btn-outline">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 2v20M2 12h20"></path>
+                        </svg>
+                        Download
+                    </button>
+                    <button class="btn btn-primary">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
+                        Add New
+                    </button>
+                </div>
+            </div>
+
+            <!-- Stats Cards -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <p class="stat-title">Total Revenue</p>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="stat-icon">
+                            <line x1="12" y1="1" x2="12" y2="23"></line>
+                            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                        </svg>
+                    </div>
+                    <div class="stat-content">
+                        <p class="stat-value">$45,231.89</p>
+                        <p class="stat-change positive">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
+                                <polyline points="17 6 23 6 23 12"></polyline>
+                            </svg>
+                            +20.1% from last month
+                        </p>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <p class="stat-title">Subscriptions</p>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="stat-icon">
+                            <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="8.5" cy="7" r="4"></circle>
+                            <line x1="20" y1="8" x2="20" y2="14"></line>
+                            <line x1="23" y1="11" x2="17" y2="11"></line>
+                        </svg>
+                    </div>
+                    <div class="stat-content">
+                        <p class="stat-value">+2,350</p>
+                        <p class="stat-change positive">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
+                                <polyline points="17 6 23 6 23 12"></polyline>
+                            </svg>
+                            +180.1% from last month
+                        </p>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <p class="stat-title">Sales</p>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="stat-icon">
+                            <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
+                            <line x1="1" y1="10" x2="23" y2="10"></line>
+                        </svg>
+                    </div>
+                    <div class="stat-content">
+                        <p class="stat-value">+12,234</p>
+                        <p class="stat-change positive">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
+                                <polyline points="17 6 23 6 23 12"></polyline>
+                            </svg>
+                            +19% from last month
+                        </p>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <p class="stat-title">Active Now</p>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="stat-icon">
+                            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+                        </svg>
+                    </div>
+                    <div class="stat-content">
+                        <p class="stat-value">+573</p>
+                        <p class="stat-change positive">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
+                                <polyline points="17 6 23 6 23 12"></polyline>
+                            </svg>
+                            +201 since last hour
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Content Grid -->
+            <div class="content-grid">
+                <!-- Chart Card -->
+                <div class="card chart-card">
+                    <div class="card-header">
+                        <h3 class="card-title">Overview</h3>
+                        <div class="card-actions">
+                            <button class="btn btn-ghost btn-sm">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="12" r="1"></circle>
+                                    <circle cx="12" cy="5" r="1"></circle>
+                                    <circle cx="12" cy="19" r="1"></circle>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-content">
+                        <div class="chart-container">
+                            <canvas id="overview-chart"></canvas>
+                            <!-- Placeholder for chart -->
+                            <div class="chart-placeholder">
+                                <svg viewBox="0 0 400 200" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M 0 150 Q 100 100 200 120 T 400 80" stroke="var(--primary)" stroke-width="2" fill="none" opacity="0.5"/>
+                                    <path d="M 0 180 Q 100 140 200 160 T 400 120" stroke="var(--muted-foreground)" stroke-width="2" fill="none" opacity="0.3"/>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Sales -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Recent Sales</h3>
+                        <p class="card-description">You made 265 sales this month.</p>
+                    </div>
+                    <div class="card-content">
+                        <div class="sales-list">
+                            <div class="sale-item">
+                                <div class="sale-avatar">
+                                    <img src="https://ui-avatars.com/api/?name=Olivia+Martin&background=6366f1&color=fff" alt="Olivia Martin">
+                                </div>
+                                <div class="sale-info">
+                                    <p class="sale-name">Olivia Martin</p>
+                                    <p class="sale-email">olivia.martin@email.com</p>
+                                </div>
+                                <div class="sale-amount">+$1,999.00</div>
+                            </div>
+                            <div class="sale-item">
+                                <div class="sale-avatar">
+                                    <img src="https://ui-avatars.com/api/?name=Jackson+Lee&background=10b981&color=fff" alt="Jackson Lee">
+                                </div>
+                                <div class="sale-info">
+                                    <p class="sale-name">Jackson Lee</p>
+                                    <p class="sale-email">jackson.lee@email.com</p>
+                                </div>
+                                <div class="sale-amount">+$39.00</div>
+                            </div>
+                            <div class="sale-item">
+                                <div class="sale-avatar">
+                                    <img src="https://ui-avatars.com/api/?name=Isabella+Nguyen&background=f59e0b&color=fff" alt="Isabella Nguyen">
+                                </div>
+                                <div class="sale-info">
+                                    <p class="sale-name">Isabella Nguyen</p>
+                                    <p class="sale-email">isabella.nguyen@email.com</p>
+                                </div>
+                                <div class="sale-amount">+$299.00</div>
+                            </div>
+                            <div class="sale-item">
+                                <div class="sale-avatar">
+                                    <img src="https://ui-avatars.com/api/?name=William+Kim&background=ec4899&color=fff" alt="William Kim">
+                                </div>
+                                <div class="sale-info">
+                                    <p class="sale-name">William Kim</p>
+                                    <p class="sale-email">will@email.com</p>
+                                </div>
+                                <div class="sale-amount">+$99.00</div>
+                            </div>
+                            <div class="sale-item">
+                                <div class="sale-avatar">
+                                    <img src="https://ui-avatars.com/api/?name=Sofia+Davis&background=8b5cf6&color=fff" alt="Sofia Davis">
+                                </div>
+                                <div class="sale-info">
+                                    <p class="sale-name">Sofia Davis</p>
+                                    <p class="sale-email">sofia.davis@email.com</p>
+                                </div>
+                                <div class="sale-amount">+$39.00</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Data Table -->
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Recent Orders</h3>
+                    <div class="card-actions">
+                        <button class="btn btn-outline btn-sm">Export</button>
+                    </div>
+                </div>
+                <div class="card-content">
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Order</th>
+                                    <th>Status</th>
+                                    <th>Customer</th>
+                                    <th>Date</th>
+                                    <th class="text-right">Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="font-medium">INV001</td>
+                                    <td><span class="badge badge-success">Paid</span></td>
+                                    <td>Olivia Martin</td>
+                                    <td>Feb 15, 2024</td>
+                                    <td class="text-right">$1,999.00</td>
+                                </tr>
+                                <tr>
+                                    <td class="font-medium">INV002</td>
+                                    <td><span class="badge badge-warning">Pending</span></td>
+                                    <td>Jackson Lee</td>
+                                    <td>Feb 14, 2024</td>
+                                    <td class="text-right">$150.00</td>
+                                </tr>
+                                <tr>
+                                    <td class="font-medium">INV003</td>
+                                    <td><span class="badge badge-success">Paid</span></td>
+                                    <td>Isabella Nguyen</td>
+                                    <td>Feb 13, 2024</td>
+                                    <td class="text-right">$350.00</td>
+                                </tr>
+                                <tr>
+                                    <td class="font-medium">INV004</td>
+                                    <td><span class="badge badge-success">Paid</span></td>
+                                    <td>William Kim</td>
+                                    <td>Feb 12, 2024</td>
+                                    <td class="text-right">$450.00</td>
+                                </tr>
+                                <tr>
+                                    <td class="font-medium">INV005</td>
+                                    <td><span class="badge badge-danger">Failed</span></td>
+                                    <td>Sofia Davis</td>
+                                    <td>Feb 11, 2024</td>
+                                    <td class="text-right">$550.00</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="../js/main.js"></script>
+    <script src="admin.js"></script>
+</body>
+</html>

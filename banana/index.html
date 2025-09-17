@@ -268,6 +268,116 @@
         </a>
     </nav>
 
-    <script src="../js/main.js"></script>
+    
+    <!-- Auth Modal -->
+    <div id="authModal" class="auth-modal">
+        <div class="auth-modal-content">
+            <button class="modal-close" onclick="closeAuthModal()">×</button>
+
+            <div class="auth-container">
+                <div class="auth-header">
+                    <h2 id="authTitle">로그인</h2>
+                    <p id="authDescription">계정에 로그인하여 서비스를 이용하세요</p>
+                </div>
+
+                <!-- Login Form -->
+                <form id="loginForm" class="auth-form">
+                    <div class="form-group">
+                        <label for="loginEmail">이메일</label>
+                        <input type="email" id="loginEmail" required placeholder="your@email.com">
+                        <span class="error-message" id="loginEmailError"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="loginPassword">비밀번호</label>
+                        <input type="password" id="loginPassword" required placeholder="••••••••">
+                        <span class="error-message" id="loginPasswordError"></span>
+                    </div>
+                    <button type="submit" class="btn-primary">로그인</button>
+                    <div class="auth-links">
+                        <a href="#" onclick="showForgotPassword(); return false;">비밀번호를 잊으셨나요?</a>
+                    </div>
+                </form>
+
+                <!-- Sign Up Form -->
+                <form id="signupForm" class="auth-form" style="display: none;">
+                    <div class="form-group">
+                        <label for="signupName">이름</label>
+                        <input type="text" id="signupName" required placeholder="홍길동">
+                        <span class="error-message" id="signupNameError"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="signupNickname">닉네임</label>
+                        <input type="text" id="signupNickname" required placeholder="gildong">
+                        <span class="error-message" id="signupNicknameError"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="signupEmail">이메일</label>
+                        <input type="email" id="signupEmail" required placeholder="your@email.com">
+                        <span class="error-message" id="signupEmailError"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="signupPassword">비밀번호</label>
+                        <input type="password" id="signupPassword" required placeholder="최소 6자 이상">
+                        <span class="error-message" id="signupPasswordError"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="signupPasswordConfirm">비밀번호 확인</label>
+                        <input type="password" id="signupPasswordConfirm" required placeholder="비밀번호를 다시 입력하세요">
+                        <span class="error-message" id="signupPasswordConfirmError"></span>
+                    </div>
+                    <button type="submit" class="btn-primary">회원가입</button>
+                </form>
+
+                <!-- Forgot Password Form -->
+                <form id="forgotForm" class="auth-form" style="display: none;">
+                    <div class="form-group">
+                        <label for="forgotEmail">이메일</label>
+                        <input type="email" id="forgotEmail" required placeholder="your@email.com">
+                        <span class="error-message" id="forgotEmailError"></span>
+                    </div>
+                    <button type="submit" class="btn-primary">비밀번호 재설정 링크 보내기</button>
+                    <div class="auth-links">
+                        <a href="#" onclick="showLogin(); return false;">로그인으로 돌아가기</a>
+                    </div>
+                </form>
+
+                <div class="auth-footer" id="authFooter">
+                    <span>계정이 없으신가요?</span>
+                    <a href="#" onclick="showSignup(); return false;">회원가입</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Password Change Modal -->
+    <div id="passwordModal" class="auth-modal">
+        <div class="auth-modal-content small">
+            <button class="modal-close" onclick="closePasswordModal()">×</button>
+
+            <div class="auth-container">
+                <div class="auth-header">
+                    <h2>비밀번호 변경</h2>
+                    <p>새로운 비밀번호를 입력해주세요</p>
+                </div>
+
+                <form id="passwordChangeForm" class="auth-form">
+                    <div class="form-group">
+                        <label for="newPassword">새 비밀번호</label>
+                        <input type="password" id="newPassword" required placeholder="최소 6자 이상">
+                        <span class="error-message" id="newPasswordError"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="confirmNewPassword">새 비밀번호 확인</label>
+                        <input type="password" id="confirmNewPassword" required placeholder="비밀번호를 다시 입력하세요">
+                        <span class="error-message" id="confirmNewPasswordError"></span>
+                    </div>
+                    <button type="submit" class="btn-primary">비밀번호 변경</button>
+                </form>
+            </div>
+        </div>
+    </div>
+<script src="../js/main.js"></script>
+    <script src="../js/supabase-config.js"></script>
+    <script src="../js/auth.js"></script>
 </body>
 </html>

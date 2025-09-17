@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Supabase Connection Test</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body {
+            font-family: 'Inter', -apple-system, system-ui, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #0a0a0b;
+            color: #fafafa;
+        }
+        .test-section {
+            background: #18181b;
+            border: 1px solid #27272a;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .status {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: 500;
+            margin-left: 10px;
+        }
+        .success {
+            background: #10b981;
+            color: white;
+        }
+        .error {
+            background: #ef4444;
+            color: white;
+        }
+        .pending {
+            background: #6366f1;
+            color: white;
+        }
+        button {
+            padding: 10px 20px;
+            background: #6366f1;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-right: 10px;
+            margin-top: 10px;
+        }
+        button:hover {
+            background: #4f46e5;
+        }
+        .log {
+            background: #0a0a0b;
+            padding: 10px;
+            border-radius: 4px;
+            margin-top: 10px;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        input {
+            padding: 8px;
+            margin: 5px;
+            border: 1px solid #27272a;
+            background: #0a0a0b;
+            color: #fafafa;
+            border-radius: 4px;
+            width: 200px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔧 Supabase 연결 테스트</h1>
+
+    <div class="test-section">
+        <h2>1. 연결 상태</h2>
+        <p>Supabase 프로젝트 연결: <span id="connectionStatus" class="status pending">확인 중...</span></p>
+        <div id="connectionLog" class="log"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>2. 테이블 확인</h2>
+        <button onclick="checkTables()">테이블 확인</button>
+        <button onclick="createTables()">테이블 생성 (SQL 실행)</button>
+        <div id="tableLog" class="log"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>3. 테스트 계정 생성</h2>
+        <input type="email" id="testEmail" placeholder="test@example.com">
+        <input type="password" id="testPassword" placeholder="password123">
+        <br>
+        <button onclick="createTestUser()">테스트 사용자 생성</button>
+        <button onclick="loginTestUser()">로그인 테스트</button>
+        <div id="userLog" class="log"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>4. Storage 테스트</h2>
+        <button onclick="checkStorage()">Storage 버킷 확인</button>
+        <button onclick="createStorageBucket()">avatars 버킷 생성</button>
+        <div id="storageLog" class="log"></div>
+    </div>
+
+    <script>
+        // Supabase 초기화
+        const SUPABASE_URL = 'https://dhilswazlggfgfyozikq.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRoaWxzd2F6bGdnZmdmeW96aWtxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgwNzg4MDEsImV4cCI6MjA3MzY1NDgwMX0.MKEQGF6Mwgg3L_hBpIOeKhMXHageGvG4aj_bqL4taHI';
+
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // 연결 테스트
+        async function testConnection() {
+            const status = document.getElementById('connectionStatus');
+            const log = document.getElementById('connectionLog');
+
+            try {
+                const { data, error } = await supabase.from('profiles').select('count', { count: 'exact', head: true });
+
+                if (error && error.code !== '42P01') { // 42P01 = table does not exist
+                    throw error;
+                }
+
+                status.className = 'status success';
+                status.textContent = '연결됨';
+                log.innerHTML = `✅ Supabase 프로젝트에 성공적으로 연결되었습니다.<br>URL: ${SUPABASE_URL}`;
+            } catch (error) {
+                status.className = 'status error';
+                status.textContent = '연결 실패';
+                log.innerHTML = `❌ 연결 오류: ${error.message}`;
+            }
+        }
+
+        // 테이블 확인
+        async function checkTables() {
+            const log = document.getElementById('tableLog');
+            log.innerHTML = '테이블 확인 중...';
+
+            try {
+                const { data: profiles, error: profileError } = await supabase
+                    .from('profiles')
+                    .select('*')
+                    .limit(1);
+
+                if (profileError && profileError.code === '42P01') {
+                    log.innerHTML = '❌ profiles 테이블이 존재하지 않습니다. "테이블 생성" 버튼을 클릭하세요.';
+                } else if (profileError) {
+                    log.innerHTML = `❌ 오류: ${profileError.message}`;
+                } else {
+                    log.innerHTML = '✅ profiles 테이블이 존재합니다.';
+                }
+            } catch (error) {
+                log.innerHTML = `❌ 오류: ${error.message}`;
+            }
+        }
+
+        // 테이블 생성
+        async function createTables() {
+            const log = document.getElementById('tableLog');
+            log.innerHTML = '⏳ SQL 스크립트를 실행하려면 Supabase 대시보드의 SQL Editor를 사용해야 합니다.<br>';
+            log.innerHTML += '1. <a href="https://app.supabase.com/project/dhilswazlggfgfyozikq/sql/new" target="_blank" style="color: #6366f1;">SQL Editor 열기</a><br>';
+            log.innerHTML += '2. supabase-init.sql 파일의 내용을 복사하여 붙여넣기<br>';
+            log.innerHTML += '3. "Run" 버튼 클릭<br>';
+            log.innerHTML += '4. 완료 후 이 페이지를 새로고침';
+        }
+
+        // 테스트 사용자 생성
+        async function createTestUser() {
+            const email = document.getElementById('testEmail').value;
+            const password = document.getElementById('testPassword').value;
+            const log = document.getElementById('userLog');
+
+            if (!email || !password) {
+                log.innerHTML = '❌ 이메일과 비밀번호를 입력하세요.';
+                return;
+            }
+
+            log.innerHTML = '사용자 생성 중...';
+
+            try {
+                const { data, error } = await supabase.auth.signUp({
+                    email: email,
+                    password: password,
+                    options: {
+                        data: {
+                            full_name: 'Test User',
+                            nickname: 'testuser'
+                        }
+                    }
+                });
+
+                if (error) throw error;
+
+                log.innerHTML = `✅ 사용자가 생성되었습니다!<br>`;
+                log.innerHTML += `Email: ${email}<br>`;
+                log.innerHTML += `User ID: ${data.user?.id}<br>`;
+                log.innerHTML += `⚠️ 이메일 확인이 필요할 수 있습니다.`;
+            } catch (error) {
+                log.innerHTML = `❌ 오류: ${error.message}`;
+            }
+        }
+
+        // 로그인 테스트
+        async function loginTestUser() {
+            const email = document.getElementById('testEmail').value;
+            const password = document.getElementById('testPassword').value;
+            const log = document.getElementById('userLog');
+
+            if (!email || !password) {
+                log.innerHTML = '❌ 이메일과 비밀번호를 입력하세요.';
+                return;
+            }
+
+            log.innerHTML = '로그인 시도 중...';
+
+            try {
+                const { data, error } = await supabase.auth.signInWithPassword({
+                    email: email,
+                    password: password
+                });
+
+                if (error) throw error;
+
+                log.innerHTML = `✅ 로그인 성공!<br>`;
+                log.innerHTML += `User: ${data.user?.email}<br>`;
+                log.innerHTML += `Session: ${data.session ? 'Active' : 'No session'}<br>`;
+
+                // 로그아웃
+                setTimeout(async () => {
+                    await supabase.auth.signOut();
+                    log.innerHTML += '자동 로그아웃됨';
+                }, 3000);
+            } catch (error) {
+                log.innerHTML = `❌ 로그인 실패: ${error.message}`;
+            }
+        }
+
+        // Storage 확인
+        async function checkStorage() {
+            const log = document.getElementById('storageLog');
+            log.innerHTML = 'Storage 버킷 확인 중...';
+
+            try {
+                const { data, error } = await supabase.storage.listBuckets();
+
+                if (error) throw error;
+
+                const avatarsBucket = data?.find(b => b.name === 'avatars');
+
+                if (avatarsBucket) {
+                    log.innerHTML = `✅ avatars 버킷이 존재합니다.<br>`;
+                    log.innerHTML += `Public: ${avatarsBucket.public ? 'Yes' : 'No'}<br>`;
+                    log.innerHTML += `Created: ${new Date(avatarsBucket.created_at).toLocaleString()}`;
+                } else {
+                    log.innerHTML = '❌ avatars 버킷이 존재하지 않습니다. "avatars 버킷 생성" 버튼을 클릭하세요.';
+                }
+            } catch (error) {
+                log.innerHTML = `❌ 오류: ${error.message}`;
+            }
+        }
+
+        // Storage 버킷 생성
+        async function createStorageBucket() {
+            const log = document.getElementById('storageLog');
+            log.innerHTML = '⏳ Storage 버킷 생성은 Supabase 대시보드에서 수행해야 합니다.<br>';
+            log.innerHTML += '1. <a href="https://app.supabase.com/project/dhilswazlggfgfyozikq/storage/buckets" target="_blank" style="color: #6366f1;">Storage 페이지 열기</a><br>';
+            log.innerHTML += '2. "New Bucket" 클릭<br>';
+            log.innerHTML += '3. Name: avatars<br>';
+            log.innerHTML += '4. Public bucket 체크<br>';
+            log.innerHTML += '5. "Create Bucket" 클릭';
+        }
+
+        // 페이지 로드 시 연결 테스트
+        window.onload = function() {
+            testConnection();
+        };
+    </script>
+</body>
+</html>

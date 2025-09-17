@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>프로필 관리 - AIFI FRAMEWORK</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/auth.css">
+    <link rel="stylesheet" href="css/profile.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body class="dark">
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <div class="header-left">
+                <a href="index.html" class="logo">
+                    <span class="logo-icon">◆</span>
+                    <span class="logo-text">AIFI FRAMEWORK</span>
+                </a>
+            </div>
+            <div class="header-right">
+                <!-- User Menu -->
+                <div class="user-menu-container">
+                    <div class="user-menu-dropdown">
+                        <button class="user-menu-trigger" onclick="toggleUserMenu()">
+                            <img src="" alt="User" class="user-avatar-img">
+                            <span class="user-name">사용자</span>
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="6 9 12 15 18 9"></polyline>
+                            </svg>
+                        </button>
+                        <div class="user-dropdown-content" id="userDropdown">
+                            <a href="profile.html" class="dropdown-item">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                    <circle cx="12" cy="7" r="4"></circle>
+                                </svg>
+                                프로필 관리
+                            </a>
+                            <a href="projects.html" class="dropdown-item">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M3 3h18v18H3z"/>
+                                    <rect x="7" y="7" width="3" height="3"/>
+                                    <rect x="14" y="7" width="3" height="3"/>
+                                    <rect x="7" y="14" width="3" height="3"/>
+                                    <rect x="14" y="14" width="3" height="3"/>
+                                </svg>
+                                내 프로젝트
+                            </a>
+                            <div class="dropdown-divider"></div>
+                            <a href="#" class="dropdown-item" onclick="handleLogout(); return false;">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                                    <polyline points="16 17 21 12 16 7"></polyline>
+                                    <line x1="21" y1="12" x2="9" y2="12"></line>
+                                </svg>
+                                로그아웃
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="theme-toggle" id="theme-toggle">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="sun-icon">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="moon-icon" style="display: none;">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Profile Container -->
+    <div class="profile-container">
+        <div class="profile-header">
+            <div class="profile-header-content">
+                <div>
+                    <h1>프로필 관리</h1>
+                    <p>계정 정보를 관리하고 설정을 변경하세요</p>
+                </div>
+                <button class="btn-close" onclick="window.location.href='index.html'" title="닫기">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <div class="profile-grid">
+            <!-- Profile Card -->
+            <div class="profile-card">
+                <div class="profile-card-header">
+                    <h2>프로필 정보</h2>
+                </div>
+                <div class="profile-card-content">
+                    <div class="profile-avatar-section">
+                        <div class="profile-avatar">
+                            <img src="" alt="Profile" id="profileAvatar">
+                            <label for="avatarUpload" class="avatar-upload-btn">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+                                    <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                                    <line x1="12" y1="19" x2="12" y2="23"></line>
+                                    <line x1="8" y1="23" x2="16" y2="23"></line>
+                                </svg>
+                                <span>사진 변경</span>
+                            </label>
+                            <input type="file" id="avatarUpload" accept="image/*" style="display: none;" onchange="handleAvatarUpload(event)">
+                        </div>
+                        <div class="avatar-info">
+                            <p class="avatar-hint">프로필 사진을 클릭하여 변경하세요</p>
+                            <p class="avatar-size">최대 5MB (JPG, PNG)</p>
+                        </div>
+                    </div>
+
+                    <form id="profileForm" class="profile-form">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="profileName">이름</label>
+                                <input type="text" id="profileName" placeholder="홍길동">
+                            </div>
+                            <div class="form-group">
+                                <label for="profileNickname">닉네임</label>
+                                <input type="text" id="profileNickname" placeholder="gildong">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="profileEmail">이메일</label>
+                            <input type="email" id="profileEmail" disabled>
+                            <span class="field-hint">이메일은 변경할 수 없습니다</span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="profileBio">자기소개</label>
+                            <textarea id="profileBio" rows="4" placeholder="간단한 자기소개를 작성해주세요"></textarea>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="button" class="btn-secondary" onclick="loadProfile()">취소</button>
+                            <button type="submit" class="btn-primary">저장</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Security Card -->
+            <div class="profile-card">
+                <div class="profile-card-header">
+                    <h2>보안 설정</h2>
+                </div>
+                <div class="profile-card-content">
+                    <div class="security-section">
+                        <div class="security-item">
+                            <div class="security-icon">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="5" y="11" width="14" height="11" rx="2" ry="2"></rect>
+                                    <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                                </svg>
+                            </div>
+                            <div class="security-info">
+                                <h3>비밀번호</h3>
+                                <p>계정 보안을 위해 정기적으로 비밀번호를 변경하세요</p>
+                                <button class="btn-outline" onclick="openPasswordModal()">비밀번호 변경</button>
+                            </div>
+                        </div>
+
+                        <div class="security-item">
+                            <div class="security-icon">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                                    <polyline points="22,6 12,13 2,6"></polyline>
+                                </svg>
+                            </div>
+                            <div class="security-info">
+                                <h3>이메일 인증</h3>
+                                <p id="emailVerificationStatus">이메일 인증이 완료되었습니다</p>
+                                <button class="btn-outline" id="verifyEmailBtn" style="display: none;">이메일 인증</button>
+                            </div>
+                        </div>
+
+                        <div class="security-item">
+                            <div class="security-icon">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                                </svg>
+                            </div>
+                            <div class="security-info">
+                                <h3>2단계 인증</h3>
+                                <p>추가 보안을 위해 2단계 인증을 활성화하세요</p>
+                                <button class="btn-outline" disabled>곧 출시 예정</button>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <!-- Activity Card -->
+            <div class="profile-card">
+                <div class="profile-card-header">
+                    <h2>계정 활동</h2>
+                </div>
+                <div class="profile-card-content">
+                    <div class="activity-list">
+                        <div class="activity-item">
+                            <div class="activity-icon">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="12" r="10"></circle>
+                                    <polyline points="12 6 12 12 16 14"></polyline>
+                                </svg>
+                            </div>
+                            <div class="activity-info">
+                                <span class="activity-label">가입일</span>
+                                <span class="activity-value" id="joinDate">-</span>
+                            </div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-icon">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                                </svg>
+                            </div>
+                            <div class="activity-info">
+                                <span class="activity-label">마지막 업데이트</span>
+                                <span class="activity-value" id="lastUpdate">-</span>
+                            </div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-icon">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                    <circle cx="9" cy="7" r="4"></circle>
+                                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                                    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                                </svg>
+                            </div>
+                            <div class="activity-info">
+                                <span class="activity-label">계정 상태</span>
+                                <span class="activity-value status-active">활성</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Danger Zone -->
+            <div class="profile-card danger-zone">
+                <div class="profile-card-header">
+                    <h2>위험 구역</h2>
+                </div>
+                <div class="profile-card-content">
+                    <div class="danger-item">
+                        <div class="danger-info">
+                            <h3>계정 삭제</h3>
+                            <p>계정을 삭제하면 모든 데이터가 영구적으로 삭제되며 복구할 수 없습니다</p>
+                        </div>
+                        <button class="btn-danger" onclick="confirmDeleteAccount()">계정 삭제</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Password Change Modal -->
+    <div id="passwordModal" class="auth-modal">
+        <div class="auth-modal-content small">
+            <button class="modal-close" onclick="closePasswordModal()">×</button>
+
+            <div class="auth-container">
+                <div class="auth-header">
+                    <h2>비밀번호 변경</h2>
+                    <p>새로운 비밀번호를 입력해주세요</p>
+                </div>
+
+                <form id="passwordChangeForm" class="auth-form">
+                    <div class="form-group">
+                        <label for="newPassword">새 비밀번호</label>
+                        <input type="password" id="newPassword" required placeholder="최소 6자 이상">
+                        <span class="error-message" id="newPasswordError"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="confirmNewPassword">새 비밀번호 확인</label>
+                        <input type="password" id="confirmNewPassword" required placeholder="비밀번호를 다시 입력하세요">
+                        <span class="error-message" id="confirmNewPasswordError"></span>
+                    </div>
+                    <button type="submit" class="btn-primary">비밀번호 변경</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/main.js"></script>
+    <script src="js/supabase-config.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/gemini-api.js"></script>
+    <script src="js/profile.js"></script>
+</body>
+</html>

@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>내 프로젝트 - AIFI FRAMEWORK</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/auth.css">
+    <link rel="stylesheet" href="css/projects.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body class="dark">
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <div class="header-left">
+                <a href="index.html" class="logo">
+                    <span class="logo-icon">◆</span>
+                    <span class="logo-text">AIFI FRAMEWORK</span>
+                </a>
+            </div>
+            <div class="header-right">
+                <!-- User Menu -->
+                <div class="user-menu-container" style="display: none;">
+                    <div class="user-menu-dropdown">
+                        <button class="user-menu-trigger" onclick="toggleUserMenu()">
+                            <img src="" alt="User" class="user-avatar-img">
+                            <span class="user-name">사용자</span>
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="6 9 12 15 18 9"></polyline>
+                            </svg>
+                        </button>
+                        <div class="user-dropdown-content" id="userDropdown">
+                            <a href="profile.html" class="dropdown-item">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                    <circle cx="12" cy="7" r="4"></circle>
+                                </svg>
+                                프로필 관리
+                            </a>
+                            <a href="projects.html" class="dropdown-item">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M3 3h18v18H3z"/>
+                                    <rect x="7" y="7" width="3" height="3"/>
+                                    <rect x="14" y="7" width="3" height="3"/>
+                                    <rect x="7" y="14" width="3" height="3"/>
+                                    <rect x="14" y="14" width="3" height="3"/>
+                                </svg>
+                                내 프로젝트
+                            </a>
+                            <a href="#" class="dropdown-item" onclick="openPasswordModal(); return false;">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="5" y="11" width="14" height="11" rx="2" ry="2"></rect>
+                                    <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                                </svg>
+                                비밀번호 변경
+                            </a>
+                            <div class="dropdown-divider"></div>
+                            <a href="#" class="dropdown-item" onclick="handleLogout(); return false;">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                                    <polyline points="16 17 21 12 16 7"></polyline>
+                                    <line x1="21" y1="12" x2="9" y2="12"></line>
+                                </svg>
+                                로그아웃
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="theme-toggle" id="theme-toggle">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="sun-icon">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="moon-icon" style="display: none;">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Projects Container -->
+    <div class="projects-container">
+        <!-- Projects Header -->
+        <div class="projects-header">
+            <div class="projects-header-content">
+                <div class="projects-title-section">
+                    <h1>내 프로젝트 관리</h1>
+                    <p>스토리보드와 컨셉아트 프로젝트를 백업하고 관리하세요</p>
+                    <div class="project-stats">
+                        <div class="stat-item">
+                            <span class="stat-label">전체 프로젝트</span>
+                            <span class="stat-value" id="totalProjects">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">스토리보드</span>
+                            <span class="stat-value" id="storyboardCount">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">컨셉아트</span>
+                            <span class="stat-value" id="conceptArtCount">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">총 용량</span>
+                            <span class="stat-value" id="totalSize">0 KB</span>
+                        </div>
+                    </div>
+                </div>
+                <button class="btn-close" onclick="window.location.href='profile.html'" title="닫기">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Action Bar -->
+        <div class="action-bar">
+            <div class="action-left">
+                <div class="search-box">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <path d="m21 21-4.35-4.35"></path>
+                    </svg>
+                    <input type="text" id="searchInput" placeholder="프로젝트 검색..." onkeyup="searchProjects()">
+                </div>
+                <select id="filterType" onchange="filterProjects()">
+                    <option value="all">모든 프로젝트</option>
+                    <option value="storyboard">스토리보드</option>
+                    <option value="conceptart">컨셉아트</option>
+                </select>
+                <select id="sortBy" onchange="sortProjects()">
+                    <option value="date-desc">최신순</option>
+                    <option value="date-asc">오래된순</option>
+                    <option value="name-asc">이름순 (가-하)</option>
+                    <option value="name-desc">이름순 (하-가)</option>
+                    <option value="size-desc">크기 큰순</option>
+                    <option value="size-asc">크기 작은순</option>
+                </select>
+            </div>
+            <div class="action-right">
+                <button class="btn-action btn-backup" onclick="openBackupModal()">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        <polyline points="14 2 14 8 20 8"></polyline>
+                        <line x1="12" y1="18" x2="12" y2="12"></line>
+                        <line x1="9" y1="15" x2="15" y2="15"></line>
+                    </svg>
+                    <span>새 백업</span>
+                </button>
+                <button class="btn-action btn-export" onclick="exportAllProjects()">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="7 10 12 15 17 10"></polyline>
+                        <line x1="12" y1="15" x2="12" y2="3"></line>
+                    </svg>
+                    <span>전체 내보내기</span>
+                </button>
+                <button class="btn-action btn-import" onclick="document.getElementById('importFile').click()">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="17 8 12 3 7 8"></polyline>
+                        <line x1="12" y1="3" x2="12" y2="15"></line>
+                    </svg>
+                    <span>가져오기</span>
+                </button>
+                <input type="file" id="importFile" accept=".json,.zip" style="display: none;" onchange="importProjects(event)">
+            </div>
+        </div>
+
+        <!-- Projects Grid -->
+        <div class="projects-grid" id="projectsGrid">
+            <!-- Project cards will be dynamically loaded here -->
+            <div class="empty-state" id="emptyState">
+                <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path>
+                    <polyline points="13 2 13 9 20 9"></polyline>
+                </svg>
+                <h3>프로젝트가 없습니다</h3>
+                <p>스토리보드나 컨셉아트에서 프로젝트를 백업하세요</p>
+                <button class="btn-primary" onclick="openBackupModal()">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 5v14"></path>
+                        <path d="M5 12h14"></path>
+                    </svg>
+                    첫 프로젝트 백업하기
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Backup Modal -->
+    <div id="backupModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>새 백업 만들기</h2>
+                <button class="modal-close" onclick="closeBackupModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="backup-form">
+                    <div class="form-group">
+                        <label for="backupName">백업 이름</label>
+                        <input type="text" id="backupName" placeholder="프로젝트 백업 2024">
+                    </div>
+                    <div class="form-group">
+                        <label for="backupType">백업 유형</label>
+                        <select id="backupType">
+                            <option value="storyboard">스토리보드</option>
+                            <option value="conceptart">컨셉아트</option>
+                            <option value="both">둘 다</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="backupDescription">설명 (선택)</label>
+                        <textarea id="backupDescription" rows="3" placeholder="백업에 대한 설명을 입력하세요"></textarea>
+                    </div>
+                    <div class="backup-info">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="12" y1="16" x2="12" y2="12"></line>
+                            <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                        </svg>
+                        <p>현재 localStorage에 저장된 스토리보드와 컨셉아트 데이터를 백업합니다</p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="closeBackupModal()">취소</button>
+                <button class="btn-primary" onclick="createBackup()">백업 생성</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Project Details Modal -->
+    <div id="projectModal" class="modal">
+        <div class="modal-content large">
+            <div class="modal-header">
+                <h2 id="projectModalTitle">프로젝트 상세</h2>
+                <button class="modal-close" onclick="closeProjectModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="project-details">
+                    <div class="project-meta">
+                        <div class="meta-item">
+                            <span class="meta-label">생성일</span>
+                            <span class="meta-value" id="projectDate">-</span>
+                        </div>
+                        <div class="meta-item">
+                            <span class="meta-label">유형</span>
+                            <span class="meta-value" id="projectType">-</span>
+                        </div>
+                        <div class="meta-item">
+                            <span class="meta-label">크기</span>
+                            <span class="meta-value" id="projectSize">-</span>
+                        </div>
+                        <div class="meta-item">
+                            <span class="meta-label">항목 수</span>
+                            <span class="meta-value" id="projectItems">-</span>
+                        </div>
+                    </div>
+                    <div class="project-description">
+                        <h3>설명</h3>
+                        <p id="projectDescription">-</p>
+                    </div>
+                    <div class="project-preview">
+                        <h3>데이터 미리보기</h3>
+                        <pre id="projectPreview" class="json-preview"></pre>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="closeProjectModal()">닫기</button>
+                <button class="btn-warning" onclick="restoreProject()">복원</button>
+                <button class="btn-primary" onclick="downloadProject()">다운로드</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Password Change Modal -->
+    <div id="passwordModal" class="auth-modal">
+        <div class="auth-modal-content small">
+            <button class="modal-close" onclick="closePasswordModal()">×</button>
+
+            <div class="auth-container">
+                <div class="auth-header">
+                    <h2>비밀번호 변경</h2>
+                    <p>새로운 비밀번호를 입력해주세요</p>
+                </div>
+
+                <form id="passwordChangeForm" class="auth-form">
+                    <div class="form-group">
+                        <label for="newPassword">새 비밀번호</label>
+                        <input type="password" id="newPassword" required placeholder="최소 6자 이상">
+                        <span class="error-message" id="newPasswordError"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="confirmNewPassword">새 비밀번호 확인</label>
+                        <input type="password" id="confirmNewPassword" required placeholder="비밀번호를 다시 입력하세요">
+                        <span class="error-message" id="confirmNewPasswordError"></span>
+                    </div>
+                    <button type="submit" class="btn-primary">비밀번호 변경</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast"></div>
+
+    <script src="js/main.js"></script>
+    <script src="js/supabase-config.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/projects.js"></script>
+</body>
+</html>
