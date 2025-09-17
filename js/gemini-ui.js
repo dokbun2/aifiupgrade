@@ -153,8 +153,15 @@ async function testAPIConnection() {
             `;
             testResult.style.display = 'block';
 
-            // Enable save button
+            // Enable save button with visual feedback
             saveBtn.disabled = false;
+            saveBtn.classList.add('btn-success');
+            saveBtn.innerHTML = `✅ 저장 가능`;
+
+            // Reset button text after 2 seconds
+            setTimeout(() => {
+                saveBtn.innerHTML = '저장';
+            }, 2000);
 
             // Update status
             loadAPIStatus();
@@ -202,17 +209,15 @@ document.getElementById('apiSettingForm')?.addEventListener('submit', async func
     // Save to session
     window.geminiAPI.saveToSession();
 
-    // Show success
+    // Show success with faster UI response
     showToast('API 설정이 저장되었습니다', 'success');
 
     // Update UI
     loadAPIStatus();
     updateAPIStatusInMenu();
 
-    // Close modal after delay
-    setTimeout(() => {
-        closeAPIModal();
-    }, 1500);
+    // Close modal immediately for better UX
+    closeAPIModal();
 });
 
 // Clear API Key
