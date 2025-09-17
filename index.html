@@ -130,8 +130,10 @@
                 </div>
                 <div class="hero-video">
                     <video id="heroVideo" autoplay muted loop playsinline class="hero-video-player">
-                        <source src="https://raw.githubusercontent.com/dokbun2/aifiupgrade/main/assets/video/hero.mp4" type="video/mp4">
-                        <source src="https://dokbun2.github.io/aifiupgrade/assets/video/hero.mp4" type="video/mp4">
+                        <!-- Dropbox hosted hero video -->
+                        <source src="https://www.dropbox.com/scl/fi/rcuy5q48fmf8y8nka3qpf/hero.mp4?rlkey=bp5a3ui35477z3lk4ihe01kli&st=7axgf0q5&raw=1" type="video/mp4">
+                        <!-- Fallback video -->
+                        <source src="https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/720/Big_Buck_Bunny_720_10s_1MB.mp4" type="video/mp4">
                         Your browser does not support the video tag.
                     </video>
                     <button class="video-sound-toggle" onclick="toggleVideoSound()" title="소리 켜기/끄기">
