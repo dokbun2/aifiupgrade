@@ -155,6 +155,30 @@ function initializeEventListeners() {
             });
         }
     });
+
+    // Auto-convert Dropbox URLs on paste
+    const urlInput = document.getElementById('image-url');
+    if (urlInput) {
+        urlInput.addEventListener('paste', (e) => {
+            setTimeout(() => {
+                const pastedUrl = urlInput.value;
+                const convertedUrl = convertDropboxUrl(pastedUrl);
+                if (pastedUrl !== convertedUrl) {
+                    urlInput.value = convertedUrl;
+                    console.log('Dropbox URL auto-converted:', convertedUrl);
+                }
+            }, 10);
+        });
+
+        // Also convert on blur (when user clicks away)
+        urlInput.addEventListener('blur', () => {
+            const currentUrl = urlInput.value;
+            const convertedUrl = convertDropboxUrl(currentUrl);
+            if (currentUrl !== convertedUrl) {
+                urlInput.value = convertedUrl;
+            }
+        });
+    }
 }
 
 // Toggle dropdown menu
@@ -430,12 +454,32 @@ function copyPrompt() {
     }
 }
 
+// Convert Dropbox URL from dl=0 to raw=1 for direct image access
+function convertDropboxUrl(url) {
+    // Check if it's a Dropbox URL
+    if (url.includes('dropbox.com')) {
+        // Replace dl=0 with raw=1
+        if (url.includes('dl=0')) {
+            url = url.replace('dl=0', 'raw=1');
+        }
+        // If no dl parameter, add raw=1
+        else if (!url.includes('raw=1')) {
+            // Check if URL already has parameters
+            const separator = url.includes('?') ? '&' : '?';
+            url = url + separator + 'raw=1';
+        }
+    }
+    return url;
+}
+
 // Add image from URL
 function addImage() {
     const urlInput = document.getElementById('image-url');
-    const url = urlInput.value.trim();
+    let url = urlInput.value.trim();
 
     if (url) {
+        // Auto-convert Dropbox URLs
+        url = convertDropboxUrl(url);
         // Get current selection key based on the latest selection type
         let currentKey = null;
         if (conceptData.currentType === 'character' && conceptData.currentCharacter) {

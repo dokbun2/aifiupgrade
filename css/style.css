@@ -590,6 +590,10 @@ body:has(.hero-section) .sidebar-toggle {
 
 .hero-text {
     max-width: 600px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
 }
 
 .hero-title {
@@ -626,15 +630,16 @@ body:has(.hero-section) .sidebar-toggle {
 .hero-start-button {
     display: inline-flex;
     align-items: center;
-    gap: 12px;
-    padding: 16px 40px;
-    background: var(--secondary);
-    border: 1px solid var(--border);
-    border-radius: 12px;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 32px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
     color: var(--foreground);
-    font-size: 16px;
-    font-weight: 600;
-    letter-spacing: 1px;
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
     cursor: pointer;
     transition: all 0.3s ease;
     text-decoration: none;
@@ -655,11 +660,11 @@ body:has(.hero-section) .sidebar-toggle {
 }
 
 .hero-start-button:hover {
-    transform: translateY(-2px);
-    border-color: var(--foreground);
-    background: var(--accent);
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2),
-                0 0 40px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px) scale(1.02);
+    border-color: rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2),
+                0 0 30px rgba(102, 126, 234, 0.1);
 }
 
 .hero-start-button:hover::before {
@@ -675,6 +680,8 @@ body:has(.hero-section) .sidebar-toggle {
     position: relative;
     z-index: 1;
     transition: transform 0.3s ease;
+    width: 16px;
+    height: 16px;
 }
 
 .hero-start-button:hover svg {
