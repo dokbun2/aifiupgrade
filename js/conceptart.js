@@ -64,10 +64,14 @@ function loadSavedData() {
                     });
                 }
 
-                // Auto-select the first character after DOM is ready
+                // Auto-select the current character if saved, otherwise first character
                 setTimeout(() => {
-                    const firstCharacter = conceptData.characters[0];
-                    selectItem('character', firstCharacter.id);
+                    if (conceptData.currentCharacter) {
+                        selectItem('character', conceptData.currentCharacter);
+                    } else if (conceptData.characters.length > 0) {
+                        const firstCharacter = conceptData.characters[0];
+                        selectItem('character', firstCharacter.id);
+                    }
                 }, 100);
             }
 
@@ -199,11 +203,17 @@ function toggleDropdown(dropdownId) {
 
 // Select item from dropdown
 function selectItem(type, value) {
+    console.log(`Selecting ${type}: ${value}`);
+
     // Set the current type to track latest selection
     conceptData.currentType = type;
 
     if (type === 'character') {
         conceptData.currentCharacter = value;
+        // Clear other selections
+        conceptData.currentLocation = null;
+        conceptData.currentProps = null;
+
         // Update button text
         const button = document.querySelector('#character-dropdown')?.previousElementSibling;
         if (button) {
@@ -215,6 +225,10 @@ function selectItem(type, value) {
         loadDataByTypeAndId('character', value);
     } else if (type === 'location') {
         conceptData.currentLocation = value;
+        // Clear other selections
+        conceptData.currentCharacter = null;
+        conceptData.currentProps = null;
+
         // Update button text
         const button = document.querySelector('#location-dropdown')?.previousElementSibling;
         if (button) {
@@ -226,6 +240,10 @@ function selectItem(type, value) {
         loadDataByTypeAndId('location', value);
     } else if (type === 'props') {
         conceptData.currentProps = value;
+        // Clear other selections
+        conceptData.currentCharacter = null;
+        conceptData.currentLocation = null;
+
         // Update button text
         const button = document.querySelector('#props-dropdown')?.previousElementSibling;
         if (button) {
@@ -234,7 +252,7 @@ function selectItem(type, value) {
         }
 
         // Load data based on type
-        loadDataByTypeAndId('prop', value);
+        loadDataByTypeAndId('props', value);
     }
 
     // Close dropdown
@@ -250,24 +268,32 @@ function selectItem(type, value) {
 
 // Load data by type and ID
 function loadDataByTypeAndId(type, id) {
+    console.log(`Loading data for ${type}: ${id}`);
+
     if (!conceptData.prompts || !conceptData.prompts[id]) {
         console.log(`No data found for ${type}: ${id}`);
         return;
     }
 
     const data = conceptData.prompts[id];
+    console.log(`Found data for ${id}:`, data);
 
-    // Check if the data type matches
-    if (data.type !== type) {
-        console.log(`Type mismatch: expected ${type}, got ${data.type}`);
-        return;
+    // Check if the data type matches - handle both 'character' and 'prop' vs 'props'
+    const normalizedType = type === 'props' ? 'prop' : type;
+    if (data.type && data.type !== normalizedType && data.type !== type) {
+        console.log(`Type mismatch warning: expected ${type}, got ${data.type} - continuing anyway`);
     }
+
+    // Clear previous data before loading new data
+    conceptData.universal = null;
+    conceptData.universal_translated = null;
 
     // Load universal prompts
     if (data.universal) {
         const universalElement = document.getElementById('universal-prompt');
         if (universalElement) {
             universalElement.textContent = data.universal;
+            console.log(`Updated universal prompt for ${id}`);
         }
         conceptData.universal = data.universal;
     }
@@ -374,13 +400,23 @@ function updatePromptDisplay() {
         conceptData.universal = prompt;
     }
 
-    // Save current character data
-    if (conceptData.currentCharacter) {
+    // Save current data based on selection type
+    let currentKey = null;
+    if (conceptData.currentType === 'character' && conceptData.currentCharacter) {
+        currentKey = conceptData.currentCharacter;
+    } else if (conceptData.currentType === 'location' && conceptData.currentLocation) {
+        currentKey = conceptData.currentLocation;
+    } else if (conceptData.currentType === 'props' && conceptData.currentProps) {
+        currentKey = conceptData.currentProps;
+    }
+
+    if (currentKey) {
         if (!conceptData.prompts) conceptData.prompts = {};
 
         const dataToSave = {
-            id: conceptData.currentCharacter,
-            universal: conceptData.universal,
+            id: currentKey,
+            type: conceptData.currentType,
+            universal: conceptData.universal || prompt,
             universal_translated: conceptData.universal_translated
         };
 
@@ -397,36 +433,23 @@ function updatePromptDisplay() {
             const originalElement = document.getElementById(`${htmlFieldName}-original`);
             const translatedElement = document.getElementById(`${htmlFieldName}-translated`);
 
-            if (originalElement) dataToSave[field] = originalElement.value;
-            if (translatedElement) dataToSave[`${field}_translated`] = translatedElement.value;
+            if (originalElement && originalElement.value) {
+                dataToSave[field] = originalElement.value;
+            }
+            if (translatedElement && translatedElement.value) {
+                dataToSave[`${field}_translated`] = translatedElement.value;
+            }
         });
 
         // Save parameters
-        if (parameters) dataToSave.PARAMETERS = parameters.value;
-
-        conceptData.prompts[conceptData.currentCharacter] = dataToSave;
-
-        // Save location data if selected
-        if (conceptData.currentLocation) {
-            const locationKey = `location_${conceptData.currentLocation}`;
-            const locationData = {
-                BACKGROUND: document.getElementById('background-original')?.value || '',
-                BACKGROUND_translated: document.getElementById('background-translated')?.value || '',
-                LIGHTING: document.getElementById('lighting-original')?.value || '',
-                LIGHTING_translated: document.getElementById('lighting-translated')?.value || ''
-            };
-            conceptData.prompts[locationKey] = locationData;
+        if (parameters && parameters.value) {
+            dataToSave.PARAMETERS = parameters.value;
         }
 
-        // Save props data if selected
-        if (conceptData.currentProps) {
-            const propsKey = `props_${conceptData.currentProps}`;
-            const propsData = {
-                PROPS: document.getElementById('props-original')?.value || '',
-                PROPS_translated: document.getElementById('props-translated')?.value || ''
-            };
-            conceptData.prompts[propsKey] = propsData;
-        }
+        // Save with the current key
+        conceptData.prompts[currentKey] = dataToSave;
+        console.log(`Saved data for ${currentKey}:`, dataToSave);
+
         saveData();
     }
 }
@@ -631,7 +654,7 @@ function transformSamuraiKidData(data) {
         characters: [],
         locations: [],
         props: [],
-        prompts: []
+        prompts: {}  // Changed from array to object
     };
 
     // Transform characters
@@ -647,7 +670,8 @@ function transformSamuraiKidData(data) {
                 universal_translated: char.prompts?.universal_translated || '',
                 ...char.csv_data
             };
-            transformed.prompts.push(prompt);
+            // Store in prompts object with ID as key
+            transformed.prompts[char.name] = prompt;
         });
     }
 
@@ -664,7 +688,8 @@ function transformSamuraiKidData(data) {
                 universal_translated: loc.prompts?.universal_translated || '',
                 ...loc.csv_data
             };
-            transformed.prompts.push(prompt);
+            // Store in prompts object with ID as key
+            transformed.prompts[loc.name] = prompt;
         });
     }
 
@@ -676,12 +701,13 @@ function transformSamuraiKidData(data) {
             // Add prop prompts with type
             const prompt = {
                 id: prop.name,
-                type: 'prop',
+                type: 'props',
                 universal: prop.prompts?.universal || '',
                 universal_translated: prop.prompts?.universal_translated || '',
                 ...prop.csv_data
             };
-            transformed.prompts.push(prompt);
+            // Store in prompts object with ID as key
+            transformed.prompts[prop.name] = prompt;
         });
     }
 
@@ -760,6 +786,21 @@ function loadJSON() {
                         // prompts가 이미 객체인 경우 그대로 사용
                         if (typeof jsonData.prompts === 'object' && !Array.isArray(jsonData.prompts)) {
                             conceptData.prompts = jsonData.prompts;
+
+                            // Fix type information for each prompt if missing
+                            Object.keys(conceptData.prompts).forEach(key => {
+                                const prompt = conceptData.prompts[key];
+                                if (!prompt.type) {
+                                    // Determine type based on which array contains this ID
+                                    if (jsonData.characters?.find(c => c.id === key)) {
+                                        prompt.type = 'character';
+                                    } else if (jsonData.locations?.find(l => l.id === key)) {
+                                        prompt.type = 'location';
+                                    } else if (jsonData.props?.find(p => p.id === key)) {
+                                        prompt.type = 'props';
+                                    }
+                                }
+                            });
                         }
                         // prompts가 배열인 경우 객체로 변환
                         else if (Array.isArray(jsonData.prompts)) {
@@ -774,7 +815,7 @@ function loadJSON() {
                                     } else if (jsonData.locations?.find(l => l.id === prompt.id)) {
                                         prompt.type = 'location';
                                     } else if (jsonData.props?.find(p => p.id === prompt.id)) {
-                                        prompt.type = 'prop';
+                                        prompt.type = 'props';  // Use 'props' instead of 'prop'
                                     }
                                 }
 
@@ -881,7 +922,7 @@ function downloadJSON() {
                 } else if (conceptData.locations?.find(l => l.id === key)) {
                     prompt.type = 'location';
                 } else if (conceptData.props?.find(p => p.id === key)) {
-                    prompt.type = 'prop';
+                    prompt.type = 'props';
                 }
             }
 
