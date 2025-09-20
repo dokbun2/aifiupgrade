@@ -1242,14 +1242,63 @@ async function generateImageFromNanoBanana() {
 // 프롬프트 편집 모달 함수들
 let currentEditType = null;  // 'universal' or 'translated'
 
+// Define prompt fields
+const PROMPT_FIELDS = [
+    { key: 'STYLE', label: 'STYLE', placeholder: '예: 3D render, cinematic dark fantasy' },
+    { key: 'MEDIUM', label: 'MEDIUM', placeholder: '예: hyperrealistic 3D render' },
+    { key: 'CHARACTER', label: 'CHARACTER', placeholder: '예: Korean male late 20s' },
+    { key: 'CAMERA', label: 'CAMERA', placeholder: '예: full body shots various angles' },
+    { key: 'GAZE', label: 'GAZE', placeholder: '예: consistent neutral expression' },
+    { key: 'CHARACTER_SHEET', label: 'CHARACTER_SHEET', placeholder: '예: detailed character sheet' },
+    { key: 'BODY_TYPE', label: 'BODY_TYPE', placeholder: '예: lean athletic build 180cm' },
+    { key: 'HAIR', label: 'HAIR', placeholder: '예: black short stylishly messy hair' },
+    { key: 'FACE_SHAPE', label: 'FACE_SHAPE', placeholder: '예: sharp angular jaw' },
+    { key: 'FACIAL_FEATURES', label: 'FACIAL_FEATURES', placeholder: '예: sharp intense eyes' },
+    { key: 'SKIN', label: 'SKIN', placeholder: '예: fair skin' },
+    { key: 'EXPRESSION', label: 'EXPRESSION', placeholder: '예: neutral, confident' },
+    { key: 'CLOTHING', label: 'CLOTHING', placeholder: '예: white t-shirt, dark hoodie' },
+    { key: 'ACCESSORIES', label: 'ACCESSORIES', placeholder: '예: faint purple aura' },
+    { key: 'POSE', label: 'POSE', placeholder: '예: multiple poses for character sheet' },
+    { key: 'BACKGROUND', label: 'BACKGROUND', placeholder: '예: pure white studio background' },
+    { key: 'LIGHTING', label: 'LIGHTING', placeholder: '예: even studio lighting' },
+    { key: 'QUALITY', label: 'QUALITY', placeholder: '예: cinematic ultra detailed' },
+    { key: 'PARAMETERS', label: 'PARAMETERS', placeholder: '예: --ar 16:9 --v 6' }
+];
+
+function parsePromptToFields(promptText) {
+    const fields = {};
+
+    if (!promptText) return fields;
+
+    // Split by semicolon
+    const parts = promptText.split(';').map(p => p.trim()).filter(p => p);
+
+    parts.forEach(part => {
+        // Find the first colon
+        const colonIndex = part.indexOf(':');
+        if (colonIndex > -1) {
+            const key = part.substring(0, colonIndex).trim();
+            const value = part.substring(colonIndex + 1).trim();
+            fields[key] = value;
+        } else {
+            // Handle PARAMETERS or other fields without colon
+            if (part.includes('--')) {
+                fields['PARAMETERS'] = part;
+            }
+        }
+    });
+
+    return fields;
+}
+
 function editPrompt(type) {
     currentEditType = type;
     const modal = document.getElementById('promptEditModal');
-    const textarea = document.getElementById('promptEditTextarea');
+    const container = modal?.querySelector('.prompt-fields-container');
 
-    if (!modal || !textarea) return;
+    if (!modal || !container) return;
 
-    // Get current prompt text (use original unformatted text from conceptData)
+    // Get current prompt text
     let currentText = '';
     if (type === 'universal') {
         currentText = conceptData.universal || '';
@@ -1259,14 +1308,38 @@ function editPrompt(type) {
         if (currentText === '번역된 프롬프트가 여기에 표시됩니다...') currentText = '';
     }
 
-    // Format the text for display in textarea (add line breaks after semicolons)
-    if (currentText) {
-        currentText = formatPromptForDisplay(currentText);
-    }
+    // Parse prompt to fields
+    const fieldValues = parsePromptToFields(currentText);
 
-    textarea.value = currentText;
+    // Generate field inputs
+    container.innerHTML = '';
+    PROMPT_FIELDS.forEach(field => {
+        const fieldDiv = document.createElement('div');
+        fieldDiv.className = 'prompt-field-row';
+
+        const label = document.createElement('label');
+        label.className = 'prompt-field-label';
+        label.textContent = field.label + ':';
+
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.className = 'prompt-field-input';
+        input.id = `field-${field.key}`;
+        input.placeholder = field.placeholder;
+        input.value = fieldValues[field.key] || '';
+
+        fieldDiv.appendChild(label);
+        fieldDiv.appendChild(input);
+        container.appendChild(fieldDiv);
+    });
+
     modal.style.display = 'flex';
-    textarea.focus();
+
+    // Focus first input
+    setTimeout(() => {
+        const firstInput = container.querySelector('.prompt-field-input');
+        if (firstInput) firstInput.focus();
+    }, 100);
 }
 
 function closePromptEdit() {
@@ -1278,27 +1351,27 @@ function closePromptEdit() {
 }
 
 function savePromptEdit() {
-    const textarea = document.getElementById('promptEditTextarea');
-    if (!textarea) return;
+    const modal = document.getElementById('promptEditModal');
+    const container = modal?.querySelector('.prompt-fields-container');
+    if (!container) return;
 
-    let newText = textarea.value.trim();
-
-    // Convert formatted text back to single line (remove line breaks, keep semicolons)
-    if (newText) {
-        // Split by newlines, trim each part, filter empty lines, and join with semicolon+space
-        const parts = newText.split('\n').map(part => part.trim()).filter(part => part);
-
-        // Remove trailing semicolons from each part to avoid duplicates
-        const cleanedParts = parts.map(part => {
-            if (part.endsWith(';')) {
-                return part.slice(0, -1).trim();
+    // Collect field values
+    const fieldParts = [];
+    PROMPT_FIELDS.forEach(field => {
+        const input = container.querySelector(`#field-${field.key}`);
+        if (input && input.value.trim()) {
+            const value = input.value.trim();
+            if (field.key === 'PARAMETERS') {
+                // PARAMETERS doesn't need a colon
+                fieldParts.push(value);
+            } else {
+                fieldParts.push(`${field.key}: ${value}`);
             }
-            return part.trim();
-        });
+        }
+    });
 
-        // Join with semicolon and space
-        newText = cleanedParts.join('; ');
-    }
+    // Join all parts with semicolon
+    const newText = fieldParts.join('; ');
 
     if (currentEditType === 'universal') {
         const element = document.getElementById('universal-prompt');
