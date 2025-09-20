@@ -105,17 +105,17 @@ function loadSavedData() {
                 }
             }
 
-            // Load universal prompts if they exist
+            // Load universal prompts if they exist with formatting
             if (conceptData.universal) {
                 const universalElement = document.getElementById('universal-prompt');
                 if (universalElement) {
-                    universalElement.textContent = conceptData.universal;
+                    universalElement.innerHTML = formatPromptForDisplay(conceptData.universal).replace(/\n/g, '<br>');
                 }
             }
             if (conceptData.universal_translated) {
                 const universalTransElement = document.getElementById('universal-prompt-translated');
                 if (universalTransElement) {
-                    universalTransElement.textContent = conceptData.universal_translated;
+                    universalTransElement.innerHTML = formatPromptForDisplay(conceptData.universal_translated).replace(/\n/g, '<br>');
                 }
             }
 
@@ -266,6 +266,28 @@ function selectItem(type, value) {
     saveData();
 }
 
+// Format prompt for display
+function formatPromptForDisplay(promptText) {
+    if (!promptText || promptText === '기본 프롬프트가 여기에 표시됩니다...' || promptText === '번역된 프롬프트가 여기에 표시됩니다...') {
+        return promptText;
+    }
+
+    // Split by semicolon and format each part
+    const parts = promptText.split(';').map(part => part.trim()).filter(part => part);
+
+    // Join with proper formatting - each item on new line with semicolon
+    const formatted = parts.map((part, index) => {
+        // Don't add semicolon to the last item if it's parameters
+        if (index === parts.length - 1 && part.includes('PARAMETERS')) {
+            return part;
+        }
+        // Add semicolon back
+        return part + ';';
+    }).join('\n');
+
+    return formatted;
+}
+
 // Load data by type and ID
 function loadDataByTypeAndId(type, id) {
     console.log(`Loading data for ${type}: ${id}`);
@@ -288,11 +310,11 @@ function loadDataByTypeAndId(type, id) {
     conceptData.universal = null;
     conceptData.universal_translated = null;
 
-    // Load universal prompts
+    // Load universal prompts with formatting
     if (data.universal) {
         const universalElement = document.getElementById('universal-prompt');
         if (universalElement) {
-            universalElement.textContent = data.universal;
+            universalElement.innerHTML = formatPromptForDisplay(data.universal).replace(/\n/g, '<br>');
             console.log(`Updated universal prompt for ${id}`);
         }
         conceptData.universal = data.universal;
@@ -300,63 +322,13 @@ function loadDataByTypeAndId(type, id) {
     if (data.universal_translated) {
         const universalTransElement = document.getElementById('universal-prompt-translated');
         if (universalTransElement) {
-            universalTransElement.textContent = data.universal_translated;
+            universalTransElement.innerHTML = formatPromptForDisplay(data.universal_translated).replace(/\n/g, '<br>');
         }
         conceptData.universal_translated = data.universal_translated;
     }
 
-    // Load all fields
-    const fieldMapping = {
-        'STYLE': 'style',
-        'MEDIUM': 'medium',
-        'CHARACTER': 'character',
-        'CAMERA': 'camera',
-        'GAZE': 'gaze',
-        'BODY_TYPE': 'body',
-        'HAIR': 'hair',
-        'FACE_SHAPE': 'face-shape',
-        'FACIAL_FEATURES': 'facial-features',
-        'SKIN': 'skin',
-        'EXPRESSION': 'expression',
-        'CLOTHING': 'clothing',
-        'ACCESSORIES': 'accessories',
-        'PROPS': 'props',
-        'POSE': 'pose',
-        'BACKGROUND': 'background',
-        'LIGHTING': 'lighting',
-        'QUALITY': 'quality'
-    };
-
-    // Clear all fields first
-    Object.keys(fieldMapping).forEach(jsonField => {
-        const htmlField = fieldMapping[jsonField];
-        const originalElement = document.getElementById(`${htmlField}-original`);
-        const translatedElement = document.getElementById(`${htmlField}-translated`);
-        if (originalElement) originalElement.value = '';
-        if (translatedElement) translatedElement.value = '';
-    });
-
-    // Fill fields from data
-    Object.keys(fieldMapping).forEach(jsonField => {
-        const htmlField = fieldMapping[jsonField];
-
-        if (data[jsonField]) {
-            const element = document.getElementById(`${htmlField}-original`);
-            if (element) element.value = data[jsonField];
-        }
-
-        const translatedField = jsonField === 'BODY_TYPE' ? 'BODY_TYPE_translated' : `${jsonField}_translated`;
-        if (data[translatedField]) {
-            const element = document.getElementById(`${htmlField}-translated`);
-            if (element) element.value = data[translatedField];
-        }
-    });
-
-    // Parameters field
-    if (data.PARAMETERS) {
-        const element = document.getElementById('parameters');
-        if (element) element.value = data.PARAMETERS;
-    }
+    // HTML에 input 필드가 없으므로 필드 매핑 로직 제거
+    // 데이터는 conceptData.prompts에 저장되고 표시만 함
 
     updatePromptDisplay();
 }
@@ -364,115 +336,47 @@ function loadDataByTypeAndId(type, id) {
 
 // Update prompt display
 function updatePromptDisplay() {
-    const fields = [
-        'style', 'medium', 'character', 'camera', 'gaze', 'body',
-        'hair', 'face-shape', 'facial-features', 'skin', 'expression',
-        'clothing', 'accessories', 'props', 'pose', 'background',
-        'lighting', 'quality'
-    ];
-    let promptParts = [];
-
-    fields.forEach(field => {
-        const input = document.getElementById(`${field}-original`);
-        if (input && input.value.trim()) {
-            promptParts.push(input.value.trim());
-        }
-    });
-
-    // Add parameters at the end if exists
-    const parameters = document.getElementById('parameters');
-    if (parameters && parameters.value.trim()) {
-        promptParts.push(parameters.value.trim());
-    }
-
-    const prompt = promptParts.join(', ');
-
-    // Update generated prompt display
-    const generatedPromptElement = document.getElementById('generated-prompt');
-    if (generatedPromptElement) {
-        generatedPromptElement.textContent = prompt || '프롬프트가 여기에 표시됩니다...';
-    }
-
-    // Also update universal prompt for image generation
+    // HTML에 input 필드가 없으므로 conceptData에서 직접 가져옴
     const universalPromptElement = document.getElementById('universal-prompt');
-    if (universalPromptElement && prompt) {
-        universalPromptElement.textContent = prompt;
-        conceptData.universal = prompt;
+    const universalTransElement = document.getElementById('universal-prompt-translated');
+
+    // universal prompt가 있으면 포맷팅하여 표시
+    if (universalPromptElement && conceptData.universal) {
+        universalPromptElement.innerHTML = formatPromptForDisplay(conceptData.universal).replace(/\n/g, '<br>');
     }
 
-    // Save current data based on selection type
-    let currentKey = null;
-    if (conceptData.currentType === 'character' && conceptData.currentCharacter) {
-        currentKey = conceptData.currentCharacter;
-    } else if (conceptData.currentType === 'location' && conceptData.currentLocation) {
-        currentKey = conceptData.currentLocation;
-    } else if (conceptData.currentType === 'props' && conceptData.currentProps) {
-        currentKey = conceptData.currentProps;
+    if (universalTransElement && conceptData.universal_translated) {
+        universalTransElement.innerHTML = formatPromptForDisplay(conceptData.universal_translated).replace(/\n/g, '<br>');
     }
 
-    if (currentKey) {
-        if (!conceptData.prompts) conceptData.prompts = {};
-
-        const dataToSave = {
-            id: currentKey,
-            type: conceptData.currentType,
-            universal: conceptData.universal || prompt,
-            universal_translated: conceptData.universal_translated
-        };
-
-        // Save all fields
-        const fieldList = [
-            'STYLE', 'MEDIUM', 'CHARACTER', 'CAMERA', 'GAZE', 'BODY_TYPE',
-            'HAIR', 'FACE_SHAPE', 'FACIAL_FEATURES', 'SKIN', 'EXPRESSION',
-            'CLOTHING', 'ACCESSORIES', 'PROPS', 'POSE', 'BACKGROUND',
-            'LIGHTING', 'QUALITY'
-        ];
-
-        fieldList.forEach(field => {
-            const htmlFieldName = field.toLowerCase().replace('_', '-');
-            const originalElement = document.getElementById(`${htmlFieldName}-original`);
-            const translatedElement = document.getElementById(`${htmlFieldName}-translated`);
-
-            if (originalElement && originalElement.value) {
-                dataToSave[field] = originalElement.value;
-            }
-            if (translatedElement && translatedElement.value) {
-                dataToSave[`${field}_translated`] = translatedElement.value;
-            }
-        });
-
-        // Save parameters
-        if (parameters && parameters.value) {
-            dataToSave.PARAMETERS = parameters.value;
-        }
-
-        // Save with the current key
-        conceptData.prompts[currentKey] = dataToSave;
-        console.log(`Saved data for ${currentKey}:`, dataToSave);
-
-        saveData();
-    }
+    // 데이터는 이미 conceptData.prompts에 저장되어 있음
+    // 추가 저장 로직 불필요
 }
 
 // Copy prompt to clipboard
 function copyPrompt() {
-    const promptText = document.getElementById('generated-prompt').textContent;
+    const universalPromptElement = document.getElementById('universal-prompt');
+    if (!universalPromptElement) return;
 
-    if (promptText && promptText !== '프롬프트가 여기에 표시됩니다...') {
+    const promptText = universalPromptElement.textContent;
+
+    if (promptText && promptText !== '기본 프롬프트가 여기에 표시됩니다...') {
         navigator.clipboard.writeText(promptText).then(() => {
             // Change button text temporarily
-            const copyBtn = document.querySelector('.copy-btn');
-            const originalHTML = copyBtn.innerHTML;
-            copyBtn.innerHTML = `
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <polyline points="20 6 9 17 4 12"></polyline>
-                </svg>
-                복사됨!
-            `;
+            const copyBtn = event.target.closest('.copy-btn');
+            if (copyBtn) {
+                const originalHTML = copyBtn.innerHTML;
+                copyBtn.innerHTML = `
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                    복사됨!
+                `;
 
-            setTimeout(() => {
-                copyBtn.innerHTML = originalHTML;
-            }, 2000);
+                setTimeout(() => {
+                    copyBtn.innerHTML = originalHTML;
+                }, 2000);
+            }
         });
     }
 }
@@ -826,14 +730,14 @@ function loadJSON() {
                                     conceptData.universal = prompt.universal;
                                     const universalElement = document.getElementById('universal-prompt');
                                     if (universalElement) {
-                                        universalElement.textContent = prompt.universal;
+                                        universalElement.innerHTML = formatPromptForDisplay(prompt.universal).replace(/\n/g, '<br>');
                                     }
                                 }
                                 if (prompt.universal_translated && !conceptData.universal_translated) {
                                     conceptData.universal_translated = prompt.universal_translated;
                                     const universalTransElement = document.getElementById('universal-prompt-translated');
                                     if (universalTransElement) {
-                                        universalTransElement.textContent = prompt.universal_translated;
+                                        universalTransElement.innerHTML = formatPromptForDisplay(prompt.universal_translated).replace(/\n/g, '<br>');
                                     }
                                 }
                             }
@@ -1335,6 +1239,361 @@ async function generateImageFromNanoBanana() {
     }
 }
 
+// 프롬프트 편집 모달 함수들
+let currentEditType = null;  // 'universal' or 'translated'
+
+function editPrompt(type) {
+    currentEditType = type;
+    const modal = document.getElementById('promptEditModal');
+    const textarea = document.getElementById('promptEditTextarea');
+
+    if (!modal || !textarea) return;
+
+    // Get current prompt text (use original unformatted text from conceptData)
+    let currentText = '';
+    if (type === 'universal') {
+        currentText = conceptData.universal || '';
+        if (currentText === '기본 프롬프트가 여기에 표시됩니다...') currentText = '';
+    } else if (type === 'translated') {
+        currentText = conceptData.universal_translated || '';
+        if (currentText === '번역된 프롬프트가 여기에 표시됩니다...') currentText = '';
+    }
+
+    // Format the text for display in textarea (add line breaks after semicolons)
+    if (currentText) {
+        currentText = formatPromptForDisplay(currentText);
+    }
+
+    textarea.value = currentText;
+    modal.style.display = 'flex';
+    textarea.focus();
+}
+
+function closePromptEdit() {
+    const modal = document.getElementById('promptEditModal');
+    if (modal) {
+        modal.style.display = 'none';
+    }
+    currentEditType = null;
+}
+
+function savePromptEdit() {
+    const textarea = document.getElementById('promptEditTextarea');
+    if (!textarea) return;
+
+    let newText = textarea.value.trim();
+
+    // Convert formatted text back to single line (remove line breaks, keep semicolons)
+    if (newText) {
+        // Split by newlines, trim each part, filter empty lines, and join with semicolon+space
+        const parts = newText.split('\n').map(part => part.trim()).filter(part => part);
+
+        // Remove trailing semicolons from each part to avoid duplicates
+        const cleanedParts = parts.map(part => {
+            if (part.endsWith(';')) {
+                return part.slice(0, -1).trim();
+            }
+            return part.trim();
+        });
+
+        // Join with semicolon and space
+        newText = cleanedParts.join('; ');
+    }
+
+    if (currentEditType === 'universal') {
+        const element = document.getElementById('universal-prompt');
+        if (element) {
+            if (newText) {
+                element.innerHTML = formatPromptForDisplay(newText).replace(/\n/g, '<br>');
+            } else {
+                element.textContent = '기본 프롬프트가 여기에 표시됩니다...';
+            }
+            conceptData.universal = newText;
+
+            // 현재 선택된 항목에 프롬프트 저장
+            let currentKey = null;
+            if (conceptData.currentType === 'character' && conceptData.currentCharacter) {
+                currentKey = conceptData.currentCharacter;
+            } else if (conceptData.currentType === 'location' && conceptData.currentLocation) {
+                currentKey = conceptData.currentLocation;
+            } else if (conceptData.currentType === 'props' && conceptData.currentProps) {
+                currentKey = conceptData.currentProps;
+            }
+
+            if (currentKey && conceptData.prompts[currentKey]) {
+                conceptData.prompts[currentKey].universal = newText;
+            }
+        }
+    } else if (currentEditType === 'translated') {
+        const element = document.getElementById('universal-prompt-translated');
+        if (element) {
+            if (newText) {
+                element.innerHTML = formatPromptForDisplay(newText).replace(/\n/g, '<br>');
+            } else {
+                element.textContent = '번역된 프롬프트가 여기에 표시됩니다...';
+            }
+            conceptData.universal_translated = newText;
+
+            // 현재 선택된 항목에 프롬프트 저장
+            let currentKey = null;
+            if (conceptData.currentType === 'character' && conceptData.currentCharacter) {
+                currentKey = conceptData.currentCharacter;
+            } else if (conceptData.currentType === 'location' && conceptData.currentLocation) {
+                currentKey = conceptData.currentLocation;
+            } else if (conceptData.currentType === 'props' && conceptData.currentProps) {
+                currentKey = conceptData.currentProps;
+            }
+
+            if (currentKey && conceptData.prompts[currentKey]) {
+                conceptData.prompts[currentKey].universal_translated = newText;
+            }
+        }
+    }
+
+    saveData();
+    closePromptEdit();
+}
+
+// 새 섹션 추가 함수
+function addNewSection() {
+    const selectElement = document.getElementById('section-type-select');
+    if (!selectElement) return;
+
+    const sectionType = selectElement.value;
+    if (!sectionType) {
+        alert('섹션 종류를 선택해주세요.');
+        return;
+    }
+
+    // 섹션 이름 입력받기
+    const sectionName = prompt(`새 ${sectionType === 'character' ? '캐릭터' : sectionType === 'location' ? '장소' : '소품'} 이름을 입력하세요:`);
+    if (!sectionName || sectionName.trim() === '') return;
+
+    const trimmedName = sectionName.trim();
+
+    // 중복 체크
+    let isDuplicate = false;
+    if (sectionType === 'character') {
+        isDuplicate = conceptData.characters.some(c => c.id === trimmedName);
+    } else if (sectionType === 'location') {
+        isDuplicate = conceptData.locations.some(l => l.id === trimmedName);
+    } else if (sectionType === 'props') {
+        isDuplicate = conceptData.props.some(p => p.id === trimmedName);
+    }
+
+    if (isDuplicate) {
+        alert(`이미 존재하는 ${sectionType === 'character' ? '캐릭터' : sectionType === 'location' ? '장소' : '소품'} 이름입니다.`);
+        return;
+    }
+
+    // 새 섹션 데이터 생성
+    const newSection = { id: trimmedName };
+    const newPromptData = {
+        id: trimmedName,
+        type: sectionType === 'props' ? 'props' : sectionType,
+        universal: '',
+        universal_translated: ''
+    };
+
+    // 데이터에 추가
+    if (sectionType === 'character') {
+        conceptData.characters.push(newSection);
+
+        // 드롭다운에 추가
+        const dropdown = document.getElementById('character-dropdown');
+        if (dropdown) {
+            const item = document.createElement('div');
+            item.className = 'dropdown-item';
+            item.onclick = () => selectItem('character', trimmedName);
+            item.textContent = trimmedName;
+            dropdown.appendChild(item);
+        }
+    } else if (sectionType === 'location') {
+        conceptData.locations.push(newSection);
+
+        // 드롭다운에 추가
+        const dropdown = document.getElementById('location-dropdown');
+        if (dropdown) {
+            const item = document.createElement('div');
+            item.className = 'dropdown-item';
+            item.onclick = () => selectItem('location', trimmedName);
+            item.textContent = trimmedName;
+            dropdown.appendChild(item);
+        }
+    } else if (sectionType === 'props') {
+        conceptData.props.push(newSection);
+
+        // 드롭다운에 추가
+        const dropdown = document.getElementById('props-dropdown');
+        if (dropdown) {
+            const item = document.createElement('div');
+            item.className = 'dropdown-item';
+            item.onclick = () => selectItem('props', trimmedName);
+            item.textContent = trimmedName;
+            dropdown.appendChild(item);
+        }
+    }
+
+    // prompts 객체에 추가
+    if (!conceptData.prompts) conceptData.prompts = {};
+    conceptData.prompts[trimmedName] = newPromptData;
+
+    // 저장
+    saveData();
+
+    // 선택 드롭다운 초기화
+    selectElement.value = '';
+
+    // 새로 추가한 섹션 자동 선택
+    selectItem(sectionType, trimmedName);
+
+    // 프롬프트 입력 모달 열기
+    setTimeout(() => {
+        const openPromptModal = confirm(`"${trimmedName}" 섹션이 추가되었습니다.\n프롬프트를 입력하시겠습니까?`);
+        if (openPromptModal) {
+            editPrompt('universal');
+        }
+    }, 100);
+}
+
+// 현재 선택된 섹션 삭제 함수
+function deleteCurrentSection() {
+    // 현재 선택된 항목 확인
+    let currentKey = null;
+    let sectionType = null;
+    let sectionName = null;
+
+    if (conceptData.currentType === 'character' && conceptData.currentCharacter) {
+        currentKey = conceptData.currentCharacter;
+        sectionType = 'character';
+        sectionName = '캐릭터';
+    } else if (conceptData.currentType === 'location' && conceptData.currentLocation) {
+        currentKey = conceptData.currentLocation;
+        sectionType = 'location';
+        sectionName = '장소';
+    } else if (conceptData.currentType === 'props' && conceptData.currentProps) {
+        currentKey = conceptData.currentProps;
+        sectionType = 'props';
+        sectionName = '소품';
+    }
+
+    if (!currentKey) {
+        alert('삭제할 섹션을 먼저 선택해주세요.');
+        return;
+    }
+
+    // 확인 메시지
+    if (!confirm(`"${currentKey}" ${sectionName}을(를) 삭제하시겠습니까?\n\n이 작업은 되돌릴 수 없으며, 관련된 모든 프롬프트와 이미지가 삭제됩니다.`)) {
+        return;
+    }
+
+    // 데이터에서 삭제
+    if (sectionType === 'character') {
+        // 배열에서 제거
+        conceptData.characters = conceptData.characters.filter(c => c.id !== currentKey);
+
+        // 드롭다운에서 제거
+        const dropdown = document.getElementById('character-dropdown');
+        if (dropdown) {
+            const items = dropdown.querySelectorAll('.dropdown-item');
+            items.forEach(item => {
+                if (item.textContent === currentKey) {
+                    item.remove();
+                }
+            });
+        }
+
+        // 버튼 텍스트 초기화
+        const button = document.querySelector('#character-dropdown')?.previousElementSibling;
+        if (button) {
+            const span = button.querySelector('span');
+            if (span) span.textContent = '캐릭터';
+        }
+
+        conceptData.currentCharacter = null;
+    } else if (sectionType === 'location') {
+        // 배열에서 제거
+        conceptData.locations = conceptData.locations.filter(l => l.id !== currentKey);
+
+        // 드롭다운에서 제거
+        const dropdown = document.getElementById('location-dropdown');
+        if (dropdown) {
+            const items = dropdown.querySelectorAll('.dropdown-item');
+            items.forEach(item => {
+                if (item.textContent === currentKey) {
+                    item.remove();
+                }
+            });
+        }
+
+        // 버튼 텍스트 초기화
+        const button = document.querySelector('#location-dropdown')?.previousElementSibling;
+        if (button) {
+            const span = button.querySelector('span');
+            if (span) span.textContent = '장소';
+        }
+
+        conceptData.currentLocation = null;
+    } else if (sectionType === 'props') {
+        // 배열에서 제거
+        conceptData.props = conceptData.props.filter(p => p.id !== currentKey);
+
+        // 드롭다운에서 제거
+        const dropdown = document.getElementById('props-dropdown');
+        if (dropdown) {
+            const items = dropdown.querySelectorAll('.dropdown-item');
+            items.forEach(item => {
+                if (item.textContent === currentKey) {
+                    item.remove();
+                }
+            });
+        }
+
+        // 버튼 텍스트 초기화
+        const button = document.querySelector('#props-dropdown')?.previousElementSibling;
+        if (button) {
+            const span = button.querySelector('span');
+            if (span) span.textContent = '소품';
+        }
+
+        conceptData.currentProps = null;
+    }
+
+    // prompts 객체에서 제거
+    if (conceptData.prompts && conceptData.prompts[currentKey]) {
+        delete conceptData.prompts[currentKey];
+    }
+
+    // images 객체에서 제거
+    if (conceptData.images && conceptData.images[currentKey]) {
+        delete conceptData.images[currentKey];
+    }
+
+    // 현재 타입 초기화
+    conceptData.currentType = null;
+
+    // universal 프롬프트 표시 초기화
+    const universalElement = document.getElementById('universal-prompt');
+    if (universalElement) {
+        universalElement.textContent = '기본 프롬프트가 여기에 표시됩니다...';
+    }
+    const universalTransElement = document.getElementById('universal-prompt-translated');
+    if (universalTransElement) {
+        universalTransElement.textContent = '번역된 프롬프트가 여기에 표시됩니다...';
+    }
+
+    conceptData.universal = null;
+    conceptData.universal_translated = null;
+
+    // 이미지 갤러리 업데이트
+    updateImageGallery();
+
+    // 데이터 저장
+    saveData();
+
+    alert(`"${currentKey}" ${sectionName}이(가) 삭제되었습니다.`);
+}
+
 // Make functions globally available
 window.toggleDropdown = toggleDropdown;
 window.selectItem = selectItem;
@@ -1352,3 +1611,8 @@ window.downloadModalImage = downloadModalImage;
 window.downloadSingleImage = downloadSingleImage;
 window.saveImagePermanently = saveImagePermanently;
 window.generateImageFromNanoBanana = generateImageFromNanoBanana;
+window.editPrompt = editPrompt;
+window.closePromptEdit = closePromptEdit;
+window.savePromptEdit = savePromptEdit;
+window.addNewSection = addNewSection;
+window.deleteCurrentSection = deleteCurrentSection;
