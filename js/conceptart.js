@@ -159,8 +159,6 @@ function loadSavedData() {
                 }
             }
 
-            updateImageGallery();
-
             // Load the current selected item's data if available
             setTimeout(() => {
                 if (conceptData.currentType && conceptData.prompts) {
@@ -178,6 +176,16 @@ function loadSavedData() {
                         // Call loadDataByTypeAndId to properly load the data
                         loadDataByTypeAndId(conceptData.currentType, currentItemId);
                     }
+                }
+
+                // Update image gallery after loading data
+                console.log('Updating image gallery with loaded data');
+                updateImageGallery();
+
+                // Check if images exist for current selection
+                if (conceptData.images && conceptData.currentCharacter) {
+                    const currentImages = conceptData.images[conceptData.currentCharacter];
+                    console.log(`Images for ${conceptData.currentCharacter}:`, currentImages ? currentImages.length : 0);
                 }
             }, 200); // Wait a bit for DOM to be ready
 
@@ -1056,7 +1064,17 @@ function loadJSON() {
                             // Already in new object format
                             conceptData.images = jsonData.images;
                         }
-                        updateImageGallery();
+
+                        // Log loaded images for debugging
+                        console.log('Images loaded:', conceptData.images);
+                        const totalImages = Object.values(conceptData.images || {}).reduce((sum, arr) => sum + (arr ? arr.length : 0), 0);
+                        console.log('Total images loaded:', totalImages);
+
+                        // Force update image gallery after a delay
+                        setTimeout(() => {
+                            updateImageGallery();
+                            console.log('Image gallery updated after JSON load');
+                        }, 500);
                     }
 
                     // currentCharacter, currentLocation, currentProps 복원
