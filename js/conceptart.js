@@ -135,6 +135,183 @@ function saveData() {
     }
 }
 
+// 드래그 앤 드롭 초기화 함수
+function initializeDragAndDrop(urlInput) {
+    const dropZone = urlInput.parentElement; // image-upload div
+
+    // 드래그 이벤트 방지 (기본 동작 막기)
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+        dropZone.addEventListener(eventName, preventDefaults, false);
+        document.body.addEventListener(eventName, preventDefaults, false);
+    });
+
+    // 드래그 오버 시 하이라이트
+    ['dragenter', 'dragover'].forEach(eventName => {
+        dropZone.addEventListener(eventName, () => {
+            dropZone.classList.add('drag-over');
+            urlInput.style.borderColor = '#ff6b6b';
+            urlInput.style.backgroundColor = 'rgba(255, 107, 107, 0.05)';
+            urlInput.placeholder = '이미지를 여기에 놓으세요...';
+        }, false);
+    });
+
+    // 드래그 리브 시 하이라이트 제거
+    ['dragleave', 'drop'].forEach(eventName => {
+        dropZone.addEventListener(eventName, () => {
+            dropZone.classList.remove('drag-over');
+            urlInput.style.borderColor = '';
+            urlInput.style.backgroundColor = '';
+            urlInput.placeholder = '이미지 URL을 입력하세요...';
+        }, false);
+    });
+
+    // 드롭 이벤트 처리
+    dropZone.addEventListener('drop', handleDrop, false);
+
+    function preventDefaults(e) {
+        e.preventDefault();
+        e.stopPropagation();
+    }
+
+    async function handleDrop(e) {
+        const dt = e.dataTransfer;
+
+        // 텍스트 데이터 처리 (URL 드래그)
+        const text = dt.getData('text/plain');
+        if (text && (text.startsWith('http://') || text.startsWith('https://'))) {
+            urlInput.value = convertDropboxUrl(text);
+            return;
+        }
+
+        // HTML 데이터 처리 (이미지 태그 드래그)
+        const html = dt.getData('text/html');
+        if (html) {
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = html;
+            const img = tempDiv.querySelector('img');
+            if (img && img.src) {
+                urlInput.value = convertDropboxUrl(img.src);
+                return;
+            }
+        }
+
+        // 파일 처리
+        const files = dt.files;
+        if (files && files.length > 0) {
+            handleFiles(files);
+        }
+    }
+
+    function handleFiles(files) {
+        ([...files]).forEach(uploadFile);
+    }
+
+    function uploadFile(file) {
+        // 이미지 파일인지 확인
+        if (!file.type.match('image.*')) {
+            alert('이미지 파일만 업로드 가능합니다.');
+            return;
+        }
+
+        // 파일 크기 확인 (10MB 제한)
+        const maxSize = 10 * 1024 * 1024; // 10MB
+        if (file.size > maxSize) {
+            alert('파일 크기는 10MB를 초과할 수 없습니다.');
+            return;
+        }
+
+        // FileReader를 사용해 데이터 URL로 변환
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const dataUrl = e.target.result;
+
+            // 이미지 직접 추가
+            addImageFromDataUrl(dataUrl, file.name);
+
+            // URL 입력란 초기화
+            urlInput.value = '';
+
+            // 성공 피드백
+            showUploadSuccess(file.name);
+        };
+
+        reader.onerror = function() {
+            alert('파일을 읽는 중 오류가 발생했습니다.');
+        };
+
+        reader.readAsDataURL(file);
+    }
+
+    // 업로드 성공 피드백 표시
+    function showUploadSuccess(filename) {
+        const toast = document.createElement('div');
+        toast.className = 'upload-toast';
+        toast.textContent = `"${filename}" 업로드 완료!`;
+        toast.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 10000;
+            animation: slideIn 0.3s ease-out;
+        `;
+
+        document.body.appendChild(toast);
+
+        setTimeout(() => {
+            toast.style.animation = 'slideOut 0.3s ease-out';
+            setTimeout(() => toast.remove(), 300);
+        }, 3000);
+    }
+}
+
+// 데이터 URL로부터 이미지 추가
+function addImageFromDataUrl(dataUrl, filename) {
+    // 현재 선택된 항목 확인
+    let currentKey = null;
+    if (conceptData.currentType === 'character' && conceptData.currentCharacter) {
+        currentKey = conceptData.currentCharacter;
+    } else if (conceptData.currentType === 'location' && conceptData.currentLocation) {
+        currentKey = conceptData.currentLocation;
+    } else if (conceptData.currentType === 'props' && conceptData.currentProps) {
+        currentKey = conceptData.currentProps;
+    }
+
+    if (!currentKey) {
+        alert('캐릭터, 장소, 또는 소품을 먼저 선택해주세요.');
+        return;
+    }
+
+    const imageId = Date.now();
+    const imageData = {
+        id: imageId,
+        url: dataUrl,
+        type: conceptData.currentType,
+        itemId: currentKey,
+        timestamp: new Date().toISOString(),
+        filename: filename || 'uploaded-image',
+        isLocal: true // 로컬 파일 표시
+    };
+
+    // Initialize images object if it doesn't exist
+    if (!conceptData.images) {
+        conceptData.images = {};
+    }
+
+    // Initialize array for current key if it doesn't exist
+    if (!conceptData.images[currentKey]) {
+        conceptData.images[currentKey] = [];
+    }
+
+    conceptData.images[currentKey].push(imageData);
+    addImageToGallery(imageData);
+    saveData();
+}
+
 // Initialize event listeners
 function initializeEventListeners() {
     // Input field listeners for prompt generation
@@ -182,6 +359,9 @@ function initializeEventListeners() {
                 urlInput.value = convertedUrl;
             }
         });
+
+        // 드래그 앤 드롭 기능 추가
+        initializeDragAndDrop(urlInput);
     }
 }
 
