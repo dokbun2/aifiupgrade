@@ -925,6 +925,22 @@ function loadJSON() {
                         }
                     }
 
+                    // Universal prompts 처리
+                    if (jsonData.universal) {
+                        conceptData.universal = jsonData.universal;
+                        const universalElement = document.getElementById('universal-prompt');
+                        if (universalElement) {
+                            universalElement.innerHTML = formatPromptForDisplay(jsonData.universal).replace(/\n/g, '<br>');
+                        }
+                    }
+                    if (jsonData.universal_translated) {
+                        conceptData.universal_translated = jsonData.universal_translated;
+                        const universalTransElement = document.getElementById('universal-prompt-translated');
+                        if (universalTransElement) {
+                            universalTransElement.innerHTML = formatPromptForDisplay(jsonData.universal_translated).replace(/\n/g, '<br>');
+                        }
+                    }
+
                     // 이미지 데이터 로드
                     if (jsonData.images) {
                         // Check if images is in old array format or new object format
@@ -961,6 +977,20 @@ function loadJSON() {
                             conceptData.images = jsonData.images;
                         }
                         updateImageGallery();
+                    }
+
+                    // currentCharacter, currentLocation, currentProps 복원
+                    if (jsonData.currentCharacter) {
+                        conceptData.currentCharacter = jsonData.currentCharacter;
+                    }
+                    if (jsonData.currentLocation) {
+                        conceptData.currentLocation = jsonData.currentLocation;
+                    }
+                    if (jsonData.currentProps) {
+                        conceptData.currentProps = jsonData.currentProps;
+                    }
+                    if (jsonData.currentType) {
+                        conceptData.currentType = jsonData.currentType;
                     }
 
                     // Save all data to localStorage

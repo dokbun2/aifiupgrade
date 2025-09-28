@@ -149,23 +149,27 @@ async function testAPIConnection() {
             testResultContent.innerHTML = `
                 <strong>✅ 연결 성공!</strong><br>
                 테스트 응답: "${result.response}"<br>
-                <small>모델: gemini-2.5-flash, gemini-2.5-flash-image-preview</small>
+                <small>모델: gemini-2.5-flash</small>
             `;
             testResult.style.display = 'block';
 
-            // Enable save button with visual feedback
+            // Auto-save and close modal after success
             saveBtn.disabled = false;
             saveBtn.classList.add('btn-success');
-            saveBtn.innerHTML = `✅ 저장 가능`;
+            saveBtn.innerHTML = `✅ 자동 저장 중...`;
 
-            // Reset button text after 2 seconds
-            setTimeout(() => {
-                saveBtn.innerHTML = '저장';
-            }, 2000);
+            // Save to session automatically
+            window.geminiAPI.saveToSession();
 
             // Update status
             loadAPIStatus();
             updateAPIStatusInMenu();
+
+            // Show success toast and close modal after short delay
+            setTimeout(() => {
+                showToast('API 키가 성공적으로 저장되었습니다', 'success');
+                closeAPIModal();
+            }, 1000);
 
         } else {
             // Show error
