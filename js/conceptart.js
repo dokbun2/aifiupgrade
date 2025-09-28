@@ -15,7 +15,20 @@ let conceptData = {
 
 // Initialize page
 document.addEventListener('DOMContentLoaded', () => {
+    console.log('=== DOMContentLoaded - Initializing ConceptArt page ===');
+
+    // Load saved data first
     loadSavedData();
+    console.log('After loadSavedData - conceptData summary:', {
+        characters: conceptData.characters?.length || 0,
+        locations: conceptData.locations?.length || 0,
+        props: conceptData.props?.length || 0,
+        currentSelection: conceptData.currentCharacter || conceptData.currentLocation || conceptData.currentProps || 'None',
+        currentType: conceptData.currentType || 'None',
+        promptsCount: Object.keys(conceptData.prompts || {}).length,
+        hasUniversal: !!conceptData.universal
+    });
+
     initializeEventListeners();
     setDefaultDropdownValues();
     updatePromptDisplay();
@@ -46,9 +59,11 @@ function setDefaultDropdownValues() {
 // Load saved data from localStorage
 function loadSavedData() {
     const saved = localStorage.getItem('conceptArtData');
+    console.log('loadSavedData - Raw data from localStorage:', saved ? 'Found' : 'Not found');
     if (saved) {
         try {
             conceptData = JSON.parse(saved);
+            console.log('loadSavedData - Parsed conceptData:', conceptData);
 
             // Rebuild dropdowns if data exists
             if (conceptData.characters && conceptData.characters.length > 0) {
@@ -67,7 +82,14 @@ function loadSavedData() {
                 // Auto-select the current character if saved, otherwise first character
                 setTimeout(() => {
                     if (conceptData.currentCharacter) {
+                        console.log('Selecting saved character:', conceptData.currentCharacter);
                         selectItem('character', conceptData.currentCharacter);
+                        // Update dropdown button text
+                        const characterBtn = document.querySelector('#character-dropdown')?.previousElementSibling;
+                        if (characterBtn) {
+                            const span = characterBtn.querySelector('span');
+                            if (span) span.textContent = conceptData.currentCharacter;
+                        }
                     } else if (conceptData.characters.length > 0) {
                         const firstCharacter = conceptData.characters[0];
                         selectItem('character', firstCharacter.id);
@@ -88,6 +110,15 @@ function loadSavedData() {
                         locationDropdown.appendChild(item);
                     });
                 }
+
+                // Update button text if location was selected
+                if (conceptData.currentLocation) {
+                    const locationBtn = document.querySelector('#location-dropdown')?.previousElementSibling;
+                    if (locationBtn) {
+                        const span = locationBtn.querySelector('span');
+                        if (span) span.textContent = conceptData.currentLocation;
+                    }
+                }
             }
 
             // Rebuild props dropdown
@@ -102,6 +133,15 @@ function loadSavedData() {
                         item.textContent = prop.id;
                         propsDropdown.appendChild(item);
                     });
+                }
+
+                // Update button text if props was selected
+                if (conceptData.currentProps) {
+                    const propsBtn = document.querySelector('#props-dropdown')?.previousElementSibling;
+                    if (propsBtn) {
+                        const span = propsBtn.querySelector('span');
+                        if (span) span.textContent = conceptData.currentProps;
+                    }
                 }
             }
 
@@ -120,18 +160,49 @@ function loadSavedData() {
             }
 
             updateImageGallery();
+
+            // Load the current selected item's data if available
+            setTimeout(() => {
+                if (conceptData.currentType && conceptData.prompts) {
+                    let currentItemId = null;
+                    if (conceptData.currentType === 'character' && conceptData.currentCharacter) {
+                        currentItemId = conceptData.currentCharacter;
+                    } else if (conceptData.currentType === 'location' && conceptData.currentLocation) {
+                        currentItemId = conceptData.currentLocation;
+                    } else if (conceptData.currentType === 'props' && conceptData.currentProps) {
+                        currentItemId = conceptData.currentProps;
+                    }
+
+                    if (currentItemId && conceptData.prompts[currentItemId]) {
+                        console.log('Loading data for current selection:', currentItemId);
+                        // Call loadDataByTypeAndId to properly load the data
+                        loadDataByTypeAndId(conceptData.currentType, currentItemId);
+                    }
+                }
+            }, 200); // Wait a bit for DOM to be ready
+
+            console.log('loadSavedData - Successfully loaded all data');
         } catch (e) {
-            console.error('Failed to load saved data');
+            console.error('Failed to load saved data:', e);
+            console.error('Error details:', e.stack);
         }
+    } else {
+        console.log('loadSavedData - No saved data found in localStorage');
     }
 }
 
 // Save data to localStorage
 function saveData() {
     try {
-        localStorage.setItem('conceptArtData', JSON.stringify(conceptData));
+        const dataToSave = JSON.stringify(conceptData);
+        console.log('saveData - Saving data, size:', dataToSave.length, 'bytes');
+        localStorage.setItem('conceptArtData', dataToSave);
+        console.log('saveData - Data saved successfully');
     } catch (e) {
-        console.error('Failed to save data');
+        console.error('Failed to save data:', e);
+        if (e.name === 'QuotaExceededError') {
+            console.error('localStorage quota exceeded!');
+        }
     }
 }
 
@@ -474,6 +545,15 @@ function loadDataByTypeAndId(type, id) {
 
     if (!conceptData.prompts || !conceptData.prompts[id]) {
         console.log(`No data found for ${type}: ${id}`);
+        // Clear the display when no data
+        const universalElement = document.getElementById('universal-prompt');
+        const universalTransElement = document.getElementById('universal-prompt-translated');
+        if (universalElement) {
+            universalElement.innerHTML = '기본 프롬프트가 여기에 표시됩니다...';
+        }
+        if (universalTransElement) {
+            universalTransElement.innerHTML = '번역된 프롬프트가 여기에 표시됩니다...';
+        }
         return;
     }
 
@@ -486,9 +566,9 @@ function loadDataByTypeAndId(type, id) {
         console.log(`Type mismatch warning: expected ${type}, got ${data.type} - continuing anyway`);
     }
 
-    // Clear previous data before loading new data
-    conceptData.universal = null;
-    conceptData.universal_translated = null;
+    // Update conceptData with the prompt data
+    conceptData.universal = data.universal || null;
+    conceptData.universal_translated = data.universal_translated || null;
 
     // Load universal prompts with formatting
     if (data.universal) {
@@ -994,7 +1074,24 @@ function loadJSON() {
                     }
 
                     // Save all data to localStorage
+                    console.log('Before saveData - conceptData:', conceptData);
                     saveData();
+
+                    // Verify save
+                    const savedData = localStorage.getItem('conceptArtData');
+                    console.log('After saveData - localStorage data exists:', savedData ? 'Yes' : 'No');
+                    if (savedData) {
+                        const parsed = JSON.parse(savedData);
+                        console.log('Saved data summary:', {
+                            characters: parsed.characters?.length || 0,
+                            locations: parsed.locations?.length || 0,
+                            props: parsed.props?.length || 0,
+                            prompts: Object.keys(parsed.prompts || {}).length,
+                            images: Object.keys(parsed.images || {}).length,
+                            hasUniversal: !!parsed.universal,
+                            hasTranslated: !!parsed.universal_translated
+                        });
+                    }
 
                     // Alert success
                     alert('JSON 파일이 성공적으로 로드되었습니다!');
