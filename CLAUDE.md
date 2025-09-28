@@ -7,23 +7,41 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-AIFI FRAMEWORK - A modern, responsive web application with a shadcn/ui-inspired design system featuring dark/light theme support and mobile-first responsive layout.
+AIFI FRAMEWORK - AI-powered concept art generation and creative workflow management system with Node.js backend and Google Gemini integration.
 
 ## Development Commands
 
-### Local Development Server
+### Frontend Development
 ```bash
 # Python 3 (recommended for simple static serving)
 python3 -m http.server 8000
 
 # Node.js alternative
 npx http-server -p 8000 -c-1
-
-# VSCode Live Server extension
-# Set port to 8000 in settings
 ```
+Access at: `http://localhost:8000`
 
-Access the site at `http://localhost:8000`
+### Backend Development
+```bash
+# Start backend server
+npm start
+
+# Development mode with auto-reload
+npm run dev
+
+# Initialize SQLite database
+npm run init-db
+
+# Seed database with sample data
+npm run seed
+```
+Backend runs on port 3000 by default.
+
+### Deployment
+```bash
+# Deploy to Cloudflare Pages
+./deploy.sh
+```
 
 ### Asset Management
 - **Videos**: Place in `assets/video/` (e.g., hero.mp4)
@@ -155,4 +173,51 @@ Create `.env` file (see `.env.example`):
 GEMINI_API_KEY=your_gemini_api_key
 SUPABASE_URL=your_supabase_url
 SUPABASE_ANON_KEY=your_supabase_anon_key
+JWT_SECRET=your_jwt_secret_key
+PORT=3000
 ```
+
+## Backend Architecture
+
+### Database (SQLite)
+- **Database File**: `database.db`
+- **Schema**: Users, sessions, generated content tracking
+- **Initialization**: Run `npm run init-db` to create tables
+- **Seeding**: Run `npm run seed` for sample data
+
+### API Endpoints (`server.js`)
+- **Auth Routes** (`/api/auth/*`): User registration, login, JWT management
+- **Content Routes** (`/api/content/*`): Image generation, gallery management
+- **User Routes** (`/api/users/*`): Profile management
+
+### Middleware
+- **JWT Authentication**: `middleware/auth.js`
+- **CORS**: Configured for local development and production
+- **Rate Limiting**: Applied to API endpoints
+- **Helmet**: Security headers
+
+## Critical Implementation Details
+
+### Gemini API Integration
+- **Model Selection**: `gemini-2.5-flash` for text, `gemini-2.5-flash-image-preview` for image analysis
+- **Session Storage**: API keys stored in sessionStorage (not localStorage) for security
+- **Fallback Mode**: Placeholder images when API unavailable
+- **Error Messages**: Korean localization for user-facing errors
+
+### Authentication Flow
+1. Client-side: `js/auth.js` handles login/signup forms
+2. Server validates credentials against SQLite database
+3. JWT token issued and stored in localStorage
+4. Token included in API request headers
+
+### Image Generation Pipeline
+1. User input processed in `js/conceptart.js`
+2. Request sent to Gemini API via `js/gemini-api.js`
+3. Nano Banana model analyzes prompts (not generates images)
+4. Results displayed with fallback to placeholder images
+
+### Responsive Design Strategy
+- **Breakpoints**: 1280px, 1024px, 768px, 640px, 480px
+- **Mobile Navigation**: Bottom nav appears <768px
+- **Sidebar**: Transforms to overlay on mobile
+- **Grid Layouts**: Auto-adjust columns (3→2→1)

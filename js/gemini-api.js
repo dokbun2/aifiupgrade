@@ -44,7 +44,7 @@ class GeminiAPIManager {
         this.apiKey = apiKey.trim();
         this.saveToSession();
 
-        console.log('Gemini API initialized with models:', this.models);
+        // API initialized with models
     }
 
     /**
@@ -63,7 +63,7 @@ class GeminiAPIManager {
 
         try {
             sessionStorage.setItem('gemini_api_state', JSON.stringify(state));
-            console.log('Gemini API state saved to session');
+            // API state saved to session
         } catch (error) {
             console.error('Failed to save API state:', error);
         }
@@ -83,7 +83,7 @@ class GeminiAPIManager {
                 this.lastTestDate = state.lastTestDate;
                 this.usage = state.usage || this.usage;
 
-                console.log('Gemini API state loaded from session');
+                // API state loaded from session
                 return true;
             }
         } catch (error) {
@@ -107,7 +107,7 @@ class GeminiAPIManager {
             lastReset: Date.now()
         };
 
-        console.log('Gemini API state cleared');
+        // API state cleared
     }
 
     /**
@@ -126,7 +126,7 @@ class GeminiAPIManager {
                 temperature: 0.1
             });
 
-            console.log('API Response:', response);
+            // API Response received
 
             if (response && response.candidates && response.candidates.length > 0) {
                 const candidate = response.candidates[0];
@@ -143,7 +143,7 @@ class GeminiAPIManager {
                 this.lastTestDate = Date.now();
                 this.saveToSession();
 
-                console.log('API connection test successful:', responseText);
+                // API connection test successful
                 return {
                     success: true,
                     message: '연결 테스트 성공!',
@@ -211,7 +211,7 @@ class GeminiAPIManager {
         };
 
         try {
-            console.log('Sending request to Gemini API...');
+            // Sending request to Gemini API
             const response = await fetch(endpoint, {
                 method: 'POST',
                 headers: {
@@ -220,7 +220,7 @@ class GeminiAPIManager {
                 body: JSON.stringify(requestBody)
             });
 
-            console.log('Response status:', response.status);
+            // Response received
 
             if (!response.ok) {
                 let errorMessage = `HTTP ${response.status}`;
@@ -235,11 +235,7 @@ class GeminiAPIManager {
             }
 
             const data = await response.json();
-            console.log('API Success Response structure:', {
-                hasData: !!data,
-                hasCandidates: !!(data && data.candidates),
-                candidatesLength: data?.candidates?.length
-            });
+            // API Success Response validated
 
             this.usage.textRequests++;
             this.saveToSession();
@@ -283,7 +279,7 @@ class GeminiAPIManager {
         };
 
         try {
-            console.log('Generating image with Nano Banana:', imagePrompt);
+            // Generating image with Nano Banana
 
             const response = await fetch(endpoint, {
                 method: 'POST',
@@ -300,7 +296,7 @@ class GeminiAPIManager {
             }
 
             const data = await response.json();
-            console.log('Nano Banana response:', data);
+            // Nano Banana response received
 
             // Parse the response to extract image data
             if (data.candidates && data.candidates.length > 0) {
@@ -353,7 +349,7 @@ class GeminiAPIManager {
                         }
 
                         // If we get here, no image was generated
-                        console.log('No image in response, got text:', text);
+                        // No image in response, text received
                         throw new Error('Nano Banana did not generate an image. Response: ' + text.substring(0, 200));
                     }
                 }
@@ -382,7 +378,7 @@ class GeminiAPIManager {
      * Get user-friendly error message
      */
     getErrorMessage(error) {
-        console.log('Error details:', error);
+        console.error('Error details:', error);
 
         // Check if it's a response error with status
         if (error.message) {
@@ -462,7 +458,7 @@ window.geminiAPI = new GeminiAPIManager();
 // Auto-initialize on DOM ready
 document.addEventListener('DOMContentLoaded', () => {
     if (window.geminiAPI.loadFromSession()) {
-        console.log('Gemini API auto-loaded from session');
+        // Gemini API auto-loaded from session
 
         // Dispatch custom event for other modules
         window.dispatchEvent(new CustomEvent('geminiAPIReady', {
