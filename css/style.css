@@ -880,6 +880,17 @@ body:has(.hero-section) .sidebar-toggle {
     margin-bottom: 60px;
 }
 
+/* START 페이지의 2개 카드 레이아웃 */
+.stage-grid[style*="repeat(2, 1fr)"] {
+    grid-template-columns: repeat(2, 1fr) !important;
+    max-width: 800px !important;
+    margin: 0 auto 60px !important;
+}
+
+.stage-grid[style*="repeat(2, 1fr)"] .stage-card {
+    min-height: 200px;
+}
+
 .stage-card {
     position: relative;
     display: flex;

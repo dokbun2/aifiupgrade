@@ -116,7 +116,7 @@ function initializeTabs() {
             // 현재 탭 저장
             shotDetailManager.currentTab = targetTab;
 
-            // 타임라인 섹션 표시/숨김 (언출 블록에서만 표시)
+            // 타임라인 섹션 표시/숨김 (연출 블록에서만 표시)
             const timelineSection = document.querySelector('.timeline-section');
             if (timelineSection) {
                 timelineSection.style.display = targetTab === 'scene' ? 'block' : 'none';
