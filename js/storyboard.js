@@ -104,8 +104,12 @@ class StoryboardManager {
     }
 
     detectFileType(data) {
+        // stage1 타입 감지 (visual_blocks가 있으면 stage1)
+        if (data.visual_blocks) {
+            return 'stage1';
+        }
         // stage1 타입 감지 (current_work.treatment.sequences 구조)
-        if (data.current_work && data.current_work.treatment && data.current_work.scenario) {
+        else if (data.current_work && data.current_work.treatment && data.current_work.scenario) {
             return 'stage1';
         }
         // concept_art 타입 감지
@@ -250,8 +254,118 @@ class StoryboardManager {
         return merged;
     }
 
+    // Stage1 데이터를 컨셉아트 형식으로 변환
+    transformAndSaveConceptArtData(stage1Data) {
+        const conceptArtData = {
+            characters: [],
+            locations: [],
+            props: [],
+            prompts: {},
+            images: {},
+            universal: stage1Data.universal || stage1Data.universal_translated || null,
+            universal_translated: stage1Data.universal_translated || null
+        };
+
+        // Process characters
+        if (stage1Data.visual_blocks && stage1Data.visual_blocks.characters) {
+            stage1Data.visual_blocks.characters.forEach(char => {
+                const charData = {
+                    id: char.id,
+                    name: char.name || char.id,
+                    blocks: char.blocks || {},
+                    appearance_summary: char.appearance_summary || null,
+                    voice_style: char.voice_style || null
+                };
+
+                // Store the character data
+                conceptArtData.characters.push(charData);
+
+                // Store the blocks as prompts for this character
+                conceptArtData.prompts[char.id] = {
+                    id: char.id,
+                    type: 'character',
+                    ...char.blocks,
+                    appearance_summary: char.appearance_summary || null,
+                    voice_style: char.voice_style || null,
+                    universal: conceptArtData.universal,
+                    universal_translated: conceptArtData.universal_translated
+                };
+            });
+        }
+
+        // Process locations
+        if (stage1Data.visual_blocks && stage1Data.visual_blocks.locations) {
+            stage1Data.visual_blocks.locations.forEach(loc => {
+                const locData = {
+                    id: loc.id,
+                    name: loc.name || loc.id,
+                    blocks: loc.blocks || {},
+                    appearance_summary: loc.appearance_summary || null,
+                    voice_style: loc.voice_style || null
+                };
+
+                conceptArtData.locations.push(locData);
+
+                conceptArtData.prompts[loc.id] = {
+                    id: loc.id,
+                    type: 'location',
+                    ...loc.blocks,
+                    appearance_summary: loc.appearance_summary || null,
+                    voice_style: loc.voice_style || null,
+                    universal: conceptArtData.universal,
+                    universal_translated: conceptArtData.universal_translated
+                };
+            });
+        }
+
+        // Process props
+        if (stage1Data.visual_blocks && stage1Data.visual_blocks.props) {
+            stage1Data.visual_blocks.props.forEach(prop => {
+                const propData = {
+                    id: prop.id,
+                    name: prop.name || prop.id,
+                    blocks: prop.blocks || {},
+                    appearance_summary: prop.appearance_summary || null,
+                    voice_style: prop.voice_style || null
+                };
+
+                conceptArtData.props.push(propData);
+
+                conceptArtData.prompts[prop.id] = {
+                    id: prop.id,
+                    type: 'props',
+                    ...prop.blocks,
+                    appearance_summary: prop.appearance_summary || null,
+                    voice_style: prop.voice_style || null,
+                    universal: conceptArtData.universal,
+                    universal_translated: conceptArtData.universal_translated
+                };
+            });
+        }
+
+        // Also store film metadata if available
+        if (stage1Data.film_metadata) {
+            conceptArtData.film_metadata = stage1Data.film_metadata;
+        }
+
+        // localStorage에 컨셉아트 데이터 저장
+        localStorage.setItem('conceptArtData', JSON.stringify(conceptArtData));
+
+        console.log('Stage1 data transformed and saved for concept art:', {
+            characters: conceptArtData.characters.length,
+            locations: conceptArtData.locations.length,
+            props: conceptArtData.props.length,
+            totalPrompts: Object.keys(conceptArtData.prompts).length
+        });
+
+        return conceptArtData;
+    }
+
     processStage1Data(stage1) {
         console.log('Processing stage1 data...');
+
+        // Stage1 데이터를 컨셉아트 형식으로 변환하여 저장
+        this.transformAndSaveConceptArtData(stage1);
 
         const scenes = [];
         const stage1Scenes = stage1.current_work?.scenario?.scenes || [];
@@ -281,6 +395,7 @@ class StoryboardManager {
         return {
             film_metadata: stage1.film_metadata || {},
             treatment: stage1.current_work?.treatment || {},
+            visual_blocks: stage1.visual_blocks || {},
             scenes: scenes
         };
     }

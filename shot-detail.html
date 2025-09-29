@@ -43,7 +43,7 @@
                             <div class="block-column labels-column">
                                 <h4 class="column-header">블록 라벨명</h4>
                                 <div class="label-list">
-                                    <div class="label-item active" data-block="style">
+                                    <div class="label-item" data-block="style">
                                         <span class="label-text">아트 스타일</span>
                                         <button class="label-tag">STYLE</button>
                                     </div>
@@ -78,61 +78,33 @@
                             <div class="block-column prompt-column">
                                 <h4 class="column-header">프롬프트</h4>
                                 <div class="prompt-blocks">
-                                    <div class="prompt-block active" data-block="style">
-                                        <div class="prompt-field">
-                                            <input type="text" class="x-input" placeholder="x" value="x" readonly>
-                                            <select class="prompt-dropdown">
-                                                <option>▼</option>
-                                            </select>
-                                        </div>
+                                    <!-- 아트 스타일 -->
+                                    <div class="prompt-row-item" data-block="style">
+                                        <input type="text" class="prompt-input" placeholder="" value="">
                                     </div>
-                                    <div class="prompt-block" data-block="artist">
-                                        <div class="prompt-field">
-                                            <input type="text" class="x-input" placeholder="x" value="x" readonly>
-                                            <select class="prompt-dropdown">
-                                                <option>▼</option>
-                                            </select>
-                                        </div>
+                                    <!-- 아티스트 -->
+                                    <div class="prompt-row-item" data-block="artist">
+                                        <input type="text" class="prompt-input" placeholder="" value="">
                                     </div>
-                                    <div class="prompt-block" data-block="medium">
-                                        <div class="prompt-field">
-                                            <input type="text" class="x-input" placeholder="x" value="x" readonly>
-                                            <select class="prompt-dropdown">
-                                                <option>▼</option>
-                                            </select>
-                                        </div>
+                                    <!-- 매체 -->
+                                    <div class="prompt-row-item" data-block="medium">
+                                        <input type="text" class="prompt-input" placeholder="" value="">
                                     </div>
-                                    <div class="prompt-block" data-block="genre">
-                                        <div class="prompt-field">
-                                            <input type="text" class="x-input" placeholder="x" value="x" readonly>
-                                            <select class="prompt-dropdown">
-                                                <option>▼</option>
-                                            </select>
-                                        </div>
+                                    <!-- 장르 -->
+                                    <div class="prompt-row-item" data-block="genre">
+                                        <input type="text" class="prompt-input" placeholder="" value="">
                                     </div>
-                                    <div class="prompt-block" data-block="era">
-                                        <div class="prompt-field">
-                                            <input type="text" class="x-input" placeholder="x" value="x" readonly>
-                                            <select class="prompt-dropdown">
-                                                <option>▼</option>
-                                            </select>
-                                        </div>
+                                    <!-- 시대 -->
+                                    <div class="prompt-row-item" data-block="era">
+                                        <input type="text" class="prompt-input" placeholder="" value="">
                                     </div>
-                                    <div class="prompt-block" data-block="quality">
-                                        <div class="prompt-field">
-                                            <input type="text" class="x-input" placeholder="x" value="x" readonly>
-                                            <select class="prompt-dropdown">
-                                                <option>▼</option>
-                                            </select>
-                                        </div>
+                                    <!-- 품질 -->
+                                    <div class="prompt-row-item" data-block="quality">
+                                        <input type="text" class="prompt-input" placeholder="" value="">
                                     </div>
-                                    <div class="prompt-block" data-block="parameter">
-                                        <div class="prompt-field">
-                                            <input type="text" class="x-input" placeholder="x" value="x" readonly>
-                                            <select class="prompt-dropdown">
-                                                <option>▼</option>
-                                            </select>
-                                        </div>
+                                    <!-- 매개변수 -->
+                                    <div class="prompt-row-item" data-block="parameter">
+                                        <input type="text" class="prompt-input" placeholder="" value="">
                                     </div>
                                 </div>
 
@@ -143,20 +115,46 @@
                                 </div>
                             </div>
 
-                            <!-- Column 3: 변경 요청 & 번역 -->
+                            <!-- Column 3: 변경 요청 -->
                             <div class="block-column request-column">
                                 <h4 class="column-header">변경 요청</h4>
-                                <div class="change-request-section">
-                                    <textarea class="change-request-input" placeholder="변경하고 싶은 내용을 입력하세요..."></textarea>
-                                    <button class="apply-change-btn">변경 적용</button>
-                                </div>
-
-                                <h4 class="column-header" style="margin-top: 20px;">번역</h4>
-                                <div class="translation-section">
-                                    <div class="translated-text">
-                                        번역된 내용이 여기에 표시됩니다...
+                                <div class="request-blocks">
+                                    <!-- 각 블록별 변경 요청 -->
+                                    <div class="request-row-item" data-block="style">
+                                        <select class="request-dropdown">
+                                            <option value="">▼</option>
+                                        </select>
                                     </div>
-                                    <button class="translate-btn">번역하기</button>
+                                    <div class="request-row-item" data-block="artist">
+                                        <select class="request-dropdown">
+                                            <option value="">▼</option>
+                                        </select>
+                                    </div>
+                                    <div class="request-row-item" data-block="medium">
+                                        <select class="request-dropdown">
+                                            <option value="">▼</option>
+                                        </select>
+                                    </div>
+                                    <div class="request-row-item" data-block="genre">
+                                        <select class="request-dropdown">
+                                            <option value="">▼</option>
+                                        </select>
+                                    </div>
+                                    <div class="request-row-item" data-block="era">
+                                        <select class="request-dropdown">
+                                            <option value="">▼</option>
+                                        </select>
+                                    </div>
+                                    <div class="request-row-item" data-block="quality">
+                                        <select class="request-dropdown">
+                                            <option value="">▼</option>
+                                        </select>
+                                    </div>
+                                    <div class="request-row-item" data-block="parameter">
+                                        <select class="request-dropdown">
+                                            <option value="">▼</option>
+                                        </select>
+                                    </div>
                                 </div>
                             </div>
                         </div>

@@ -66,12 +66,21 @@ function showNotification(message, type = 'info') {
 document.addEventListener('DOMContentLoaded', () => {
     console.log('=== DOMContentLoaded - Initializing ConceptArt page ===');
 
-    // Check for storyboard data first
-    const storyboardData = localStorage.getItem('mergedData') || localStorage.getItem('storyboardData');
+    // 우선순위: conceptArtData (스토리보드에서 변환한 데이터) > mergedData > storyboardData
     const savedConceptData = localStorage.getItem('conceptArtData');
+    const storyboardData = localStorage.getItem('mergedData') || localStorage.getItem('storyboardData');
 
-    if (storyboardData) {
-        // 스토리보드 데이터가 있으면 항상 우선적으로 사용
+    if (savedConceptData) {
+        // 컨셉아트 데이터가 있으면 바로 로드 (이미 변환된 데이터)
+        try {
+            console.log('Loading concept art data from localStorage');
+            loadSavedData();
+            showNotification('컨셉아트 데이터가 자동으로 로드되었습니다!', 'success');
+        } catch (error) {
+            console.error('Failed to load concept art data:', error);
+        }
+    } else if (storyboardData) {
+        // 컨셉아트 데이터가 없고 스토리보드 데이터만 있으면 변환 후 사용
         try {
             let jsonData = JSON.parse(storyboardData);
             console.log('Auto-loading data from storyboard:', jsonData);
@@ -79,14 +88,7 @@ document.addEventListener('DOMContentLoaded', () => {
             showNotification('스토리보드 데이터가 자동으로 로드되었습니다!', 'success');
         } catch (error) {
             console.error('Failed to auto-load storyboard data:', error);
-            // 실패하면 기존 컨셉아트 데이터 로드
-            if (savedConceptData) {
-                loadSavedData();
-            }
         }
-    } else if (savedConceptData) {
-        // 스토리보드 데이터가 없고 컨셉아트 데이터만 있으면 로드
-        loadSavedData();
     }
 
     console.log('After data load - conceptData summary:', {
