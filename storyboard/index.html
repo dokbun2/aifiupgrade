@@ -265,50 +265,47 @@
         <!-- Content -->
         <main class="content">
             <div class="content-wrapper">
-                <!-- Page Header -->
-                <div class="page-header">
-                    <div class="page-header-content">
-                        <div class="page-header-top">
-                            <h1 class="page-title">STORYBOARD</h1>
+                <!-- Page Header with Metadata -->
+                <div class="page-header-with-metadata">
+                    <!-- Page Header -->
+                    <div class="page-header">
+                        <div class="page-header-content">
+                            <div class="page-header-top">
+                                <h1 class="page-title">STORYBOARD</h1>
+                            </div>
+                            <p class="page-description">프로젝트의 스토리보드와 시나리오를 관리하고 시각화합니다.</p>
                         </div>
-                        <p class="page-description">프로젝트의 스토리보드와 시나리오를 관리하고 시각화합니다.</p>
                     </div>
-                </div>
 
-                <!-- Film Metadata Header -->
-                <div class="film-metadata" id="filmMetadata" style="display: none;">
-                    <div class="metadata-content">
-                        <div class="metadata-main">
-                            <h2 class="film-title" id="filmTitle">-</h2>
-                            <div class="film-info">
-                                <span class="info-item">
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <rect x="2" y="7" width="20" height="15" rx="2" ry="2"></rect>
-                                        <polyline points="17 2 12 7 7 2"></polyline>
-                                    </svg>
-                                    <span id="filmGenre">-</span>
-                                </span>
-                                <span class="info-item">
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <circle cx="12" cy="12" r="10"></circle>
-                                        <polyline points="12 6 12 12 16 14"></polyline>
-                                    </svg>
-                                    <span id="filmDuration">-</span>
-                                </span>
-                                <span class="info-item">
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                                        <polyline points="22 4 12 14.01 9 11.01"></polyline>
-                                    </svg>
-                                    <span id="filmProgress">0/0 샷 완료</span>
-                                </span>
+                    <!-- Film Metadata Header -->
+                    <div class="film-metadata" id="filmMetadata" style="display: none;">
+                        <div class="metadata-content">
+                            <div class="metadata-main">
+                                <h2 class="film-title" id="filmTitle">-</h2>
+                                <div class="film-info">
+                                    <span class="info-item">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <rect x="2" y="7" width="20" height="15" rx="2" ry="2"></rect>
+                                            <polyline points="17 2 12 7 7 2"></polyline>
+                                        </svg>
+                                        <span id="filmGenre">-</span>
+                                    </span>
+                                    <span class="info-item">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <circle cx="12" cy="12" r="10"></circle>
+                                            <polyline points="12 6 12 12 16 14"></polyline>
+                                        </svg>
+                                        <span id="filmDuration">-</span>
+                                    </span>
+                                    <span class="info-item">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                                            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                                        </svg>
+                                        <span id="filmProgress">0/0 샷 완료</span>
+                                    </span>
+                                </div>
                             </div>
-                        </div>
-                        <div class="metadata-actions">
-                            <div class="progress-bar">
-                                <div class="progress-fill" id="progressFill" style="width: 0%"></div>
-                            </div>
-                            <span class="progress-text" id="progressText">0%</span>
                         </div>
                     </div>
                 </div>
@@ -557,14 +554,9 @@
                 </div>
                 <div class="api-models-info">
                     <div class="model-info-card">
-                        <span class="model-badge">Text</span>
-                        <strong>Gemini 2.5 Flash</strong>
-                        <small>텍스트 생성 및 대화</small>
-                    </div>
-                    <div class="model-info-card">
-                        <span class="model-badge">Image</span>
-                        <strong>Nano Banana</strong>
-                        <small>이미지 생성 및 편집</small>
+                        <span class="model-badge">AI</span>
+                        <strong>Google Gemini API</strong>
+                        <small>텍스트 생성, 이미지 분석, AI 대화</small>
                     </div>
                 </div>
                 <form id="apiSettingForm" class="auth-form">

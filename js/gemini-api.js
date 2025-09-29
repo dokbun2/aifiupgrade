@@ -411,6 +411,15 @@ class GeminiAPIManager {
     }
 
     /**
+     * Check if API is initialized (alias for isReady)
+     */
+    isInitialized() {
+        // API 키만 있어도 초기화된 것으로 간주
+        // isConnected는 testConnection 후에만 true가 되므로
+        return !!this.apiKey;
+    }
+
+    /**
      * Get current connection status
      */
     getStatus() {

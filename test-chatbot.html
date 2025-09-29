@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot Test</title>
+    <link rel="stylesheet" href="css/chatbot.css">
+    <style>
+        body {
+            background: #1a1a1a;
+            color: white;
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+        .status {
+            margin: 20px 0;
+            padding: 20px;
+            background: #333;
+            border-radius: 8px;
+        }
+        .success {
+            color: #4CAF50;
+        }
+        .error {
+            color: #f44336;
+        }
+    </style>
+</head>
+<body>
+    <h1>챗봇 테스트 페이지</h1>
+
+    <div class="status">
+        <h2>상태 체크:</h2>
+        <div id="status-container"></div>
+    </div>
+
+    <button onclick="testChatbot()">챗봇 수동 생성</button>
+    <button onclick="checkElements()">요소 확인</button>
+
+    <script src="js/chatbot.js"></script>
+
+    <script>
+        // 페이지 로드 상태 확인
+        window.addEventListener('DOMContentLoaded', () => {
+            const statusContainer = document.getElementById('status-container');
+            let status = '';
+
+            // 1. AIChatbot 클래스 확인
+            if (typeof AIChatbot !== 'undefined') {
+                status += '<p class="success">✅ AIChatbot 클래스 로드됨</p>';
+            } else {
+                status += '<p class="error">❌ AIChatbot 클래스 없음</p>';
+            }
+
+            // 2. aiChatbot 인스턴스 확인
+            setTimeout(() => {
+                if (window.aiChatbot) {
+                    status += '<p class="success">✅ aiChatbot 인스턴스 생성됨</p>';
+
+                    // 3. 플로팅 버튼 확인
+                    const floatingBtn = document.querySelector('.chatbot-floating-btn');
+                    if (floatingBtn) {
+                        status += '<p class="success">✅ 플로팅 버튼 존재</p>';
+                        status += `<p>버튼 위치: bottom: ${floatingBtn.style.bottom || '20px'}, right: ${floatingBtn.style.right || '20px'}</p>`;
+                    } else {
+                        status += '<p class="error">❌ 플로팅 버튼 없음</p>';
+                    }
+
+                    // 4. 챗봇 컨테이너 확인
+                    const container = document.querySelector('.chatbot-container');
+                    if (container) {
+                        status += '<p class="success">✅ 챗봇 컨테이너 존재</p>';
+                    } else {
+                        status += '<p class="error">❌ 챗봇 컨테이너 없음</p>';
+                    }
+                } else {
+                    status += '<p class="error">❌ aiChatbot 인스턴스 없음</p>';
+                }
+
+                statusContainer.innerHTML = status;
+            }, 100);
+        });
+
+        function testChatbot() {
+            if (window.aiChatbot) {
+                alert('이미 챗봇이 존재합니다');
+            } else {
+                window.aiChatbot = new AIChatbot();
+                alert('챗봇이 생성되었습니다');
+                location.reload();
+            }
+        }
+
+        function checkElements() {
+            const elements = {
+                '플로팅 버튼': '.chatbot-floating-btn',
+                '챗봇 컨테이너': '.chatbot-container',
+                '챗봇 헤더': '.chatbot-header',
+                '챗봇 메시지': '.chatbot-messages'
+            };
+
+            let result = '요소 확인:\n\n';
+
+            for (const [name, selector] of Object.entries(elements)) {
+                const el = document.querySelector(selector);
+                if (el) {
+                    result += `✅ ${name}: 있음\n`;
+                    if (name === '플로팅 버튼') {
+                        const computed = window.getComputedStyle(el);
+                        result += `  - display: ${computed.display}\n`;
+                        result += `  - visibility: ${computed.visibility}\n`;
+                        result += `  - position: ${computed.position}\n`;
+                        result += `  - z-index: ${computed.zIndex}\n`;
+                    }
+                } else {
+                    result += `❌ ${name}: 없음\n`;
+                }
+            }
+
+            alert(result);
+        }
+    </script>
+</body>
+</html>

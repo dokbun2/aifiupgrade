@@ -489,19 +489,47 @@ function parseFileData() {
 
 // 모달 닫기
 function closeShotDetail() {
+    console.log('closeShotDetail called');
+
     // iframe 내부에서 실행되는지 확인
     if (window.parent !== window) {
-        // 부모 창의 모달 닫기 함수 호출
-        window.parent.storyboardManager.closeShotDetailModal();
-    } else if (window.opener) {
-        window.close();
-    } else if (window.history.length > 1) {
-        window.history.back();
+        try {
+            // 1. postMessage로 부모에게 알림 (권장)
+            window.parent.postMessage({ type: 'closeShotDetail' }, '*');
+            console.log('Sent close message to parent');
+
+            // 2. 직접 DOM 접근 시도 (fallback)
+            setTimeout(() => {
+                try {
+                    const parentModal = window.parent.document.getElementById('shotDetailModal');
+                    if (parentModal) {
+                        parentModal.style.display = 'none';
+                        parentModal.innerHTML = '';
+                        console.log('Closed modal via direct DOM access');
+                    }
+                } catch (e) {
+                    console.log('Direct DOM access failed:', e);
+                }
+            }, 100);
+
+        } catch (error) {
+            console.error('Failed to close modal:', error);
+        }
     } else {
-        // 스토리보드 페이지로 이동
-        window.location.href = 'storyboard/index.html';
+        // iframe이 아닌 경우
+        if (window.opener) {
+            window.close();
+        } else if (window.history.length > 1) {
+            window.history.back();
+        } else {
+            // 스토리보드 페이지로 이동
+            window.location.href = '../storyboard/index.html';
+        }
     }
 }
+
+// 전역으로 노출
+window.closeShotDetail = closeShotDetail;
 
 // 이미지 업로드 기능 초기화
 function initializeImageUpload() {

@@ -18,6 +18,20 @@ class StoryboardManager {
             this.setupJSONUpload();
             this.loadFromLocalStorage();
             this.checkInitialData();
+            this.setupMessageListener();
+        });
+    }
+
+    setupMessageListener() {
+        // iframe에서 보낸 메시지 처리
+        window.addEventListener('message', (event) => {
+            // 보안을 위해 origin 체크 (필요시)
+            // if (event.origin !== 'http://localhost:8000') return;
+
+            if (event.data && event.data.type === 'closeShotDetail') {
+                console.log('Received close message from iframe');
+                this.closeShotDetailModal();
+            }
         });
     }
 
@@ -446,6 +460,15 @@ class StoryboardManager {
 
     processStage2Data(data) {
         // stage2 데이터만 있을 때 기본 구조 생성
+        console.log('Processing Stage2 data:', data);
+
+        // 각 scene의 concept_art_references 확인
+        if (data.scenes) {
+            data.scenes.forEach((scene, index) => {
+                console.log(`Scene ${index + 1} (${scene.scene_id}):`, scene.concept_art_references);
+            });
+        }
+
         return {
             film_metadata: {
                 title_working: "제목 없음",
@@ -504,39 +527,25 @@ class StoryboardManager {
                 durationEl.textContent = metadata.duration || metadata.runtime || '미정';
             }
 
-            // 진행률 계산
-            this.updateProgress();
+            // 샷 개수 업데이트
+            this.updateShotCount();
         }
     }
 
-    updateProgress() {
+    updateShotCount() {
         let totalShots = 0;
-        let completedShots = 0;
 
         if (this.mergedData?.scenes) {
             this.mergedData.scenes.forEach(scene => {
                 if (scene.shots && Array.isArray(scene.shots)) {
                     totalShots += scene.shots.length;
-                    // 완료 상태는 나중에 구현 (shot.completed 등)
-                    completedShots += scene.shots.filter(s => s.completed).length;
                 }
             });
         }
 
         const progressEl = document.getElementById('filmProgress');
-        const progressFill = document.getElementById('progressFill');
-        const progressText = document.getElementById('progressText');
-
         if (progressEl) {
-            progressEl.textContent = `${completedShots}/${totalShots} 샷 완료`;
-        }
-
-        const percentage = totalShots > 0 ? Math.round((completedShots / totalShots) * 100) : 0;
-        if (progressFill) {
-            progressFill.style.width = `${percentage}%`;
-        }
-        if (progressText) {
-            progressText.textContent = `${percentage}%`;
+            progressEl.textContent = `${totalShots} 샷`;
         }
     }
 
@@ -708,7 +717,16 @@ class StoryboardManager {
 
         // Render shot cards
         shotsToRender.forEach(shot => {
-            const card = this.createShotCard(shot);
+            // scene의 concept_art_references를 shot에 전달
+            const shotWithRefs = {
+                ...shot,
+                concept_art_references: shot.concept_art_references || scene.concept_art_references
+            };
+
+            // 디버깅용 로그
+            console.log(`Shot ${shot.shot_id} in Scene ${scene.scene_id}:`, shotWithRefs.concept_art_references);
+
+            const card = this.createShotCard(shotWithRefs);
             shotsGrid.appendChild(card);
         });
 

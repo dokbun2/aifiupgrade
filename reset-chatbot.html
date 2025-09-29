@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>챗봇 리셋</title>
+    <style>
+        body {
+            background: #1a1a1a;
+            color: white;
+            font-family: Arial, sans-serif;
+            padding: 40px;
+            text-align: center;
+        }
+        button {
+            padding: 15px 30px;
+            margin: 10px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            transform: scale(1.05);
+        }
+        .status {
+            margin: 20px 0;
+            padding: 20px;
+            background: #333;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+    <h1>챗봇 데이터 관리</h1>
+
+    <div class="status" id="status">
+        현재 저장된 메시지를 확인하려면 아래 버튼을 클릭하세요.
+    </div>
+
+    <button onclick="checkData()">저장된 데이터 확인</button>
+    <button onclick="clearChatbot()">챗봇 데이터 초기화</button>
+    <button onclick="window.location.href='/'">메인 페이지로</button>
+
+    <script>
+        function checkData() {
+            const messages = localStorage.getItem('chatbot_messages');
+            const history = localStorage.getItem('chatbot_history');
+
+            let status = '<h3>현재 저장된 데이터:</h3>';
+
+            if (messages) {
+                try {
+                    const parsed = JSON.parse(messages);
+                    status += `<p>메시지: ${parsed.length}개</p>`;
+                    status += '<pre style="text-align: left; overflow: auto; max-height: 200px;">' +
+                              JSON.stringify(parsed, null, 2) + '</pre>';
+                } catch (e) {
+                    status += '<p>메시지 파싱 오류</p>';
+                }
+            } else {
+                status += '<p>저장된 메시지 없음</p>';
+            }
+
+            if (history) {
+                try {
+                    const parsed = JSON.parse(history);
+                    status += `<p>대화 기록: ${parsed.length}개</p>`;
+                } catch (e) {
+                    status += '<p>대화 기록 파싱 오류</p>';
+                }
+            } else {
+                status += '<p>저장된 대화 기록 없음</p>';
+            }
+
+            document.getElementById('status').innerHTML = status;
+        }
+
+        function clearChatbot() {
+            if (confirm('정말로 모든 챗봇 데이터를 삭제하시겠습니까?')) {
+                localStorage.removeItem('chatbot_messages');
+                localStorage.removeItem('chatbot_history');
+
+                document.getElementById('status').innerHTML =
+                    '<p style="color: #4CAF50;">✅ 챗봇 데이터가 초기화되었습니다!</p>' +
+                    '<p>이제 메인 페이지로 돌아가서 새로 시작할 수 있습니다.</p>';
+            }
+        }
+    </script>
+</body>
+</html>
