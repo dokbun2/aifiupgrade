@@ -500,7 +500,7 @@ body {
 }
 
 .page-title {
-    font-size: 36px;
+    font-size: 24px;
     font-weight: 700;
     letter-spacing: -0.025em;
 }
@@ -2125,6 +2125,32 @@ body:not(.dark) .prompt-display {
     overflow-y: auto;
 }
 
+/* Scrollbar styling for prompt-display */
+.prompt-display::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+.prompt-display::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+}
+
+.prompt-display::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 4px;
+}
+
+.prompt-display::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.7);
+}
+
+/* Firefox scrollbar styling */
+.prompt-display {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.5) rgba(255, 255, 255, 0.1);
+}
+
 .universal-prompt-item .copy-btn {
     position: absolute;
     top: 16px;
@@ -2581,4 +2607,244 @@ body:not(.dark) .copy-btn-compact:hover {
     100% {
         box-shadow: 0 0 0 0 rgba(255, 107, 107, 0);
     }
+}
+
+/* Three Column Layout for Prompts */
+.prompt-three-columns {
+    display: grid;
+    grid-template-columns: 200px 1fr 300px;
+    gap: 20px;
+    margin-top: 20px;
+    height: 100%;
+}
+
+.prompt-column {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    overflow-y: auto;
+}
+
+.column-header {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--primary);
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Labels Column */
+.labels-column {
+    padding: 15px;
+}
+
+.label-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.label-item {
+    padding: 10px 15px;
+    background: var(--background);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--foreground);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.label-item:hover {
+    background: rgba(139, 92, 246, 0.1);
+    border-color: var(--primary);
+    transform: translateX(5px);
+}
+
+.label-item.active {
+    background: var(--primary);
+    color: white;
+    border-color: var(--primary);
+    box-shadow: 0 2px 8px rgba(139, 92, 246, 0.3);
+}
+
+.label-item.active::after {
+    content: '→';
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+/* Prompt Content Column */
+.prompt-content-column {
+    padding: 20px;
+}
+
+.prompt-blocks {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.prompt-block {
+    display: none;
+}
+
+.prompt-block.active {
+    display: block;
+}
+
+.prompt-field {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.prompt-input {
+    flex: 1;
+    padding: 12px 40px 12px 15px;
+    background: var(--background);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--foreground);
+    font-size: 14px;
+    transition: all 0.2s ease;
+}
+
+.prompt-input:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+}
+
+.clear-btn {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 24px;
+    height: 24px;
+    border: none;
+    background: var(--muted);
+    color: var(--foreground);
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    line-height: 1;
+    transition: all 0.2s ease;
+}
+
+.clear-btn:hover {
+    background: var(--destructive);
+    color: white;
+    transform: translateY(-50%) scale(1.1);
+}
+
+.combined-prompt-section {
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 2px solid var(--border);
+}
+
+.combined-prompt-section label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--primary);
+    margin-bottom: 10px;
+    text-transform: uppercase;
+}
+
+/* Translation Column */
+.translation-column {
+    padding: 20px;
+}
+
+.change-request-section {
+    margin-bottom: 20px;
+}
+
+.change-request-input {
+    width: 100%;
+    min-height: 100px;
+    padding: 12px;
+    background: var(--background);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--foreground);
+    font-size: 14px;
+    resize: vertical;
+    transition: all 0.2s ease;
+}
+
+.change-request-input:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+}
+
+.apply-change-btn {
+    width: 100%;
+    margin-top: 10px;
+    padding: 10px;
+    background: var(--primary);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.apply-change-btn:hover {
+    background: var(--primary-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+}
+
+.translation-section {
+    background: var(--background);
+    padding: 15px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+}
+
+.translate-btn {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.translate-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.voice-style-section {
+    background: var(--background);
+    padding: 15px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    margin-top: 20px;
 }

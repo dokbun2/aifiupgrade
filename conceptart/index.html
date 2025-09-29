@@ -265,7 +265,7 @@
             <div class="content-wrapper">
                 <!-- Control Panel -->
                 <div class="control-panel">
-                    <h2 class="section-title">컨셉아트 프롬프트 라이브러리</h2>
+                    <h2 class="section-title">CONCEPT ART LIBRARY</h2>
                     <p class="section-subtitle">생성된 이미지 URL을 추가하고, 작업된 프롬프트 "JSON 내보내기" 버튼을 클릭하여 모든 데이터를 저장하세요.</p>
 
                     <!-- Category Dropdowns -->
@@ -409,7 +409,7 @@
                             </div>
 
                             <div class="universal-prompt-item">
-                                <label>TRANSLATED</label>
+                                <label>Appearance_summary</label>
                                 <div class="prompt-display" id="universal-prompt-translated">
                                     번역된 프롬프트가 여기에 표시됩니다...
                                 </div>
@@ -423,6 +423,30 @@
                                     수정
                                 </button>
                                 <button class="copy-btn copy-btn-compact" onclick="copyUniversalPromptTranslated()">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                                    </svg>
+                                    복사
+                                </button>
+                            </div>
+
+                            <!-- Voice Style Section -->
+                            <div class="universal-prompt-item" id="voice-style-section" style="display: none;">
+                                <label>Voice_style</label>
+                                <div class="prompt-display" id="voice-style-display">
+                                    음성 스타일이 여기에 표시됩니다...
+                                </div>
+                            </div>
+                            <div class="prompt-actions" id="voice-style-actions" style="display: none;">
+                                <button class="edit-btn" onclick="editPrompt('voice')">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                    </svg>
+                                    수정
+                                </button>
+                                <button class="copy-btn copy-btn-compact" onclick="copyVoiceStyle()">
                                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                         <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
                                         <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>

@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>샷 상세 편집 - S01.01.01</title>
+    <link rel="stylesheet" href="css/shot-detail.css">
+</head>
+<body>
+    <div class="shot-detail-modal">
+        <!-- 헤더 영역 -->
+        <div class="modal-header">
+            <div class="header-left">
+                <span class="shot-id">S01.01.01</span>
+                <h2 class="modal-title">블록 수정 및 샷 이미지 생성</h2>
+            </div>
+            <div class="header-right">
+                <button class="close-btn" onclick="closeShotDetail()">✕</button>
+            </div>
+        </div>
+
+        <!-- 메인 컨텐츠 영역 -->
+        <div class="modal-body">
+            <!-- 하단 콘텐츠 컨테이너 -->
+            <div class="bottom-content">
+                <!-- 좌측 영역 -->
+                <div class="left-section">
+                <!-- 탭 네비게이션 -->
+                <div class="tab-navigation">
+                    <button class="tab-btn active" data-tab="basic">기본 블록</button>
+                    <button class="tab-btn" data-tab="scene">언출 블록</button>
+                    <button class="tab-btn" data-tab="character">캐릭터 블록</button>
+                    <button class="tab-btn" data-tab="location">장소 블록</button>
+                    <button class="tab-btn" data-tab="props">소품 블록</button>
+                </div>
+
+                <!-- 탭 컨텐츠 -->
+                <div class="tab-content">
+                    <!-- 기본 블록 탭 -->
+                    <div class="tab-pane active" data-tab="basic">
+                        <div class="basic-block-three-columns">
+                            <!-- Column 1: 블록 라벨명 -->
+                            <div class="block-column labels-column">
+                                <h4 class="column-header">블록 라벨명</h4>
+                                <div class="label-list">
+                                    <div class="label-item active" data-block="style">
+                                        <span class="label-text">아트 스타일</span>
+                                        <button class="label-tag">STYLE</button>
+                                    </div>
+                                    <div class="label-item" data-block="artist">
+                                        <span class="label-text">아티스트</span>
+                                        <button class="label-tag">ARTIST</button>
+                                    </div>
+                                    <div class="label-item" data-block="medium">
+                                        <span class="label-text">매체</span>
+                                        <button class="label-tag">MEDIUM</button>
+                                    </div>
+                                    <div class="label-item" data-block="genre">
+                                        <span class="label-text">장르</span>
+                                        <button class="label-tag">GENRE</button>
+                                    </div>
+                                    <div class="label-item" data-block="era">
+                                        <span class="label-text">시대</span>
+                                        <button class="label-tag">ERA</button>
+                                    </div>
+                                    <div class="label-item" data-block="quality">
+                                        <span class="label-text">품질</span>
+                                        <button class="label-tag">QUALITY</button>
+                                    </div>
+                                    <div class="label-item" data-block="parameter">
+                                        <span class="label-text">매개변수</span>
+                                        <button class="label-tag">PARAMETER</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Column 2: 프롬프트 -->
+                            <div class="block-column prompt-column">
+                                <h4 class="column-header">프롬프트</h4>
+                                <div class="prompt-blocks">
+                                    <div class="prompt-block active" data-block="style">
+                                        <div class="prompt-field">
+                                            <input type="text" class="x-input" placeholder="x" value="x" readonly>
+                                            <select class="prompt-dropdown">
+                                                <option>▼</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="prompt-block" data-block="artist">
+                                        <div class="prompt-field">
+                                            <input type="text" class="x-input" placeholder="x" value="x" readonly>
+                                            <select class="prompt-dropdown">
+                                                <option>▼</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="prompt-block" data-block="medium">
+                                        <div class="prompt-field">
+                                            <input type="text" class="x-input" placeholder="x" value="x" readonly>
+                                            <select class="prompt-dropdown">
+                                                <option>▼</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="prompt-block" data-block="genre">
+                                        <div class="prompt-field">
+                                            <input type="text" class="x-input" placeholder="x" value="x" readonly>
+                                            <select class="prompt-dropdown">
+                                                <option>▼</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="prompt-block" data-block="era">
+                                        <div class="prompt-field">
+                                            <input type="text" class="x-input" placeholder="x" value="x" readonly>
+                                            <select class="prompt-dropdown">
+                                                <option>▼</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="prompt-block" data-block="quality">
+                                        <div class="prompt-field">
+                                            <input type="text" class="x-input" placeholder="x" value="x" readonly>
+                                            <select class="prompt-dropdown">
+                                                <option>▼</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="prompt-block" data-block="parameter">
+                                        <div class="prompt-field">
+                                            <input type="text" class="x-input" placeholder="x" value="x" readonly>
+                                            <select class="prompt-dropdown">
+                                                <option>▼</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- 최종 블록 프롬프트 -->
+                                <div class="final-prompt-section">
+                                    <h4>최종 블록 프롬프트</h4>
+                                    <textarea class="final-prompt-textarea" placeholder="프롬프트를 입력하세요..."></textarea>
+                                </div>
+                            </div>
+
+                            <!-- Column 3: 변경 요청 & 번역 -->
+                            <div class="block-column request-column">
+                                <h4 class="column-header">변경 요청</h4>
+                                <div class="change-request-section">
+                                    <textarea class="change-request-input" placeholder="변경하고 싶은 내용을 입력하세요..."></textarea>
+                                    <button class="apply-change-btn">변경 적용</button>
+                                </div>
+
+                                <h4 class="column-header" style="margin-top: 20px;">번역</h4>
+                                <div class="translation-section">
+                                    <div class="translated-text">
+                                        번역된 내용이 여기에 표시됩니다...
+                                    </div>
+                                    <button class="translate-btn">번역하기</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 언출 블록 탭 -->
+                    <div class="tab-pane" data-tab="scene">
+                        <div class="block-list">
+                            <div class="block-header">
+                                <label class="block-label">연출 라벨명</label>
+                                <div class="block-header-right">
+                                    <span class="prompt-header">프롬프트</span>
+                                    <span class="variable-header">변경 요청</span>
+                                    <button class="translate-btn">번역</button>
+                                </div>
+                            </div>
+
+                            <div class="prompt-section">
+                                <div class="prompt-group">
+                                    <div class="prompt-row">
+                                        <label class="prompt-label">장면</label>
+                                        <button class="prompt-tag active">SCENE</button>
+                                        <input type="text" class="prompt-input" placeholder="x">
+                                        <input type="text" class="prompt-input wide" placeholder="">
+                                    </div>
+                                    <div class="prompt-row">
+                                        <label class="prompt-label">구도</label>
+                                        <button class="prompt-tag active">CAMERA</button>
+                                        <input type="text" class="prompt-input" placeholder="x">
+                                        <select class="prompt-select">
+                                            <option>▼</option>
+                                        </select>
+                                    </div>
+                                    <div class="prompt-row">
+                                        <label class="prompt-label">장비</label>
+                                        <button class="prompt-tag active">CAMERA_TECH</button>
+                                        <input type="text" class="prompt-input" placeholder="x">
+                                        <input type="text" class="prompt-input wide" placeholder="">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bottom-prompt-section">
+                            <h4>최종 블록 프롬프트</h4>
+                            <textarea class="final-prompt-textarea" placeholder="프롬프트를 입력하세요..."></textarea>
+                        </div>
+                    </div>
+
+                    <!-- 캐릭터 블록 탭 -->
+                    <div class="tab-pane" data-tab="character">
+                        <div class="block-list">
+                            <div class="block-header">
+                                <label class="block-label">캐릭터 라벨명</label>
+                                <div class="block-header-right">
+                                    <span class="prompt-header">프롬프트</span>
+                                    <span class="variable-header">변경 요청</span>
+                                    <button class="translate-btn">번역</button>
+                                </div>
+                            </div>
+
+                            <div class="prompt-section">
+                                <div class="prompt-group">
+                                    <div class="prompt-row">
+                                        <label class="prompt-label">캐릭터1</label>
+                                        <button class="prompt-tag active">CHARACTER_1</button>
+                                        <select class="prompt-select">
+                                            <option>▼</option>
+                                        </select>
+                                        <input type="text" class="prompt-input" placeholder="x">
+                                        <input type="text" class="prompt-input wide" placeholder="">
+                                    </div>
+                                    <div class="prompt-row">
+                                        <label class="prompt-label">캐릭터1 상세</label>
+                                        <button class="prompt-tag active">CHARACTER_1_DETAIL</button>
+                                        <input type="text" class="prompt-input" placeholder="x">
+                                        <input type="text" class="prompt-input wide" placeholder="">
+                                    </div>
+                                    <div class="prompt-row">
+                                        <label class="prompt-label">캐릭터1 동작</label>
+                                        <button class="prompt-tag active">CHARACTER_1_ACTION</button>
+                                        <input type="text" class="prompt-input" placeholder="x">
+                                        <input type="text" class="prompt-input wide" placeholder="">
+                                    </div>
+                                    <div class="prompt-row">
+                                        <label class="prompt-label">캐릭터2</label>
+                                        <button class="prompt-tag active">CHARACTER_2</button>
+                                        <select class="prompt-select">
+                                            <option>▼</option>
+                                        </select>
+                                        <input type="text" class="prompt-input" placeholder="x">
+                                        <input type="text" class="prompt-input wide" placeholder="">
+                                    </div>
+                                    <div class="prompt-row">
+                                        <label class="prompt-label">캐릭터2 상세</label>
+                                        <button class="prompt-tag active">CHARACTER_2_DETAIL</button>
+                                        <input type="text" class="prompt-input" placeholder="x">
+                                        <input type="text" class="prompt-input wide" placeholder="">
+                                    </div>
+                                    <div class="prompt-row">
+                                        <label class="prompt-label">캐릭터2 동작</label>
+                                        <button class="prompt-tag active">CHARACTER_2_ACTION</button>
+                                        <input type="text" class="prompt-input" placeholder="x">
+                                        <input type="text" class="prompt-input wide" placeholder="">
+                                    </div>
+                                    <div class="prompt-row">
+                                        <label class="prompt-label">캐릭터3</label>
+                                        <button class="prompt-tag active">CHARACTER_3</button>
+                                        <select class="prompt-select">
+                                            <option>▼</option>
+                                        </select>
+                                        <input type="text" class="prompt-input" placeholder="x">
+                                        <input type="text" class="prompt-input wide" placeholder="">
+                                    </div>
+                                    <div class="prompt-row">
+                                        <label class="prompt-label">캐릭터3 상세</label>
+                                        <button class="prompt-tag active">CHARACTER_3_DETAIL</button>
+                                        <input type="text" class="prompt-input" placeholder="x">
+                                        <input type="text" class="prompt-input wide" placeholder="">
+                                    </div>
+                                    <div class="prompt-row">
+                                        <label class="prompt-label">캐릭터3 동작</label>
+                                        <button class="prompt-tag active">CHARACTER_3_ACTION</button>
+                                        <input type="text" class="prompt-input" placeholder="x">
+                                        <input type="text" class="prompt-input wide" placeholder="">
+                                    </div>
+                                </div>
+                                <div class="more-btn">...</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 장소 블록 탭 -->
+                    <div class="tab-pane" data-tab="location">
+                        <div class="block-list">
+                            <div class="block-header">
+                                <label class="block-label">장소 라벨명</label>
+                                <div class="block-header-right">
+                                    <span class="prompt-header">프롬프트</span>
+                                    <span class="variable-header">변경 요청</span>
+                                    <button class="translate-btn">번역</button>
+                                </div>
+                            </div>
+
+                            <div class="prompt-section">
+                                <div class="prompt-group">
+                                    <div class="prompt-row">
+                                        <label class="prompt-label">장소 명</label>
+                                        <button class="prompt-tag active">LOCATION</button>
+                                        <select class="prompt-select">
+                                            <option>▼</option>
+                                        </select>
+                                        <input type="text" class="prompt-input" placeholder="x">
+                                        <input type="text" class="prompt-input wide" placeholder="">
+                                    </div>
+                                    <div class="prompt-row">
+                                        <label class="prompt-label">분위기</label>
+                                        <button class="prompt-tag active">ATMOSPHERE</button>
+                                        <input type="text" class="prompt-input" placeholder="x">
+                                        <input type="text" class="prompt-input wide" placeholder="">
+                                    </div>
+                                    <div class="prompt-row">
+                                        <label class="prompt-label">색상 톤</label>
+                                        <button class="prompt-tag active">COLOR_TONE</button>
+                                        <input type="text" class="prompt-input" placeholder="x">
+                                        <select class="prompt-select">
+                                            <option>▼</option>
+                                        </select>
+                                    </div>
+                                    <div class="prompt-row">
+                                        <label class="prompt-label">규모</label>
+                                        <button class="prompt-tag active">SCALE</button>
+                                        <input type="text" class="prompt-input" placeholder="x">
+                                        <input type="text" class="prompt-input wide" placeholder="">
+                                    </div>
+                                    <div class="prompt-row">
+                                        <label class="prompt-label">건축양식</label>
+                                        <button class="prompt-tag active">ARCHITECTURE</button>
+                                        <input type="text" class="prompt-input" placeholder="x">
+                                        <select class="prompt-select">
+                                            <option>▼</option>
+                                        </select>
+                                    </div>
+                                    <div class="prompt-row">
+                                        <label class="prompt-label">재질</label>
+                                        <button class="prompt-tag active">MATERIAL</button>
+                                        <input type="text" class="prompt-input" placeholder="x">
+                                        <input type="text" class="prompt-input wide" placeholder="">
+                                    </div>
+                                    <div class="prompt-row">
+                                        <label class="prompt-label">소품</label>
+                                        <button class="prompt-tag active">OBJECT</button>
+                                        <input type="text" class="prompt-input" placeholder="x">
+                                        <input type="text" class="prompt-input wide" placeholder="">
+                                    </div>
+                                    <div class="prompt-row">
+                                        <label class="prompt-label">날씨</label>
+                                        <button class="prompt-tag active">WEATHER</button>
+                                        <input type="text" class="prompt-input" placeholder="x">
+                                        <select class="prompt-select">
+                                            <option>▼</option>
+                                        </select>
+                                    </div>
+                                    <div class="prompt-row">
+                                        <label class="prompt-label">자연 광원</label>
+                                        <button class="prompt-tag active">NATURAL_LIGHT</button>
+                                        <input type="text" class="prompt-input" placeholder="x">
+                                        <select class="prompt-select">
+                                            <option>▼</option>
+                                        </select>
+                                    </div>
+                                    <div class="prompt-row">
+                                        <label class="prompt-label">인공 광원</label>
+                                        <button class="prompt-tag active">ARTIFICIAL_LIGHT</button>
+                                        <input type="text" class="prompt-input" placeholder="x">
+                                        <select class="prompt-select">
+                                            <option>▼</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 소품 블록 탭 -->
+                    <div class="tab-pane" data-tab="props">
+                        <div class="block-list">
+                            <div class="block-header">
+                                <label class="block-label">소품 라벨명</label>
+                                <div class="block-header-right">
+                                    <span class="prompt-header">프롬프트</span>
+                                    <span class="variable-header">변경 요청</span>
+                                    <button class="translate-btn">번역</button>
+                                </div>
+                            </div>
+
+                            <div class="prompt-section">
+                                <div class="prompt-group">
+                                    <div class="prompt-row">
+                                        <label class="prompt-label">소품명, 디테일</label>
+                                        <input type="text" class="prompt-input extra-wide" placeholder="x">
+                                        <input type="text" class="prompt-input wide" placeholder="">
+                                    </div>
+                                </div>
+
+                                <div class="alternative-props-section">
+                                    <div class="prompt-group">
+                                        <div class="prompt-row">
+                                            <label class="prompt-label">조명 기법</label>
+                                            <button class="prompt-tag active">LIGHTING</button>
+                                            <input type="text" class="prompt-input" placeholder="x">
+                                            <input type="text" class="prompt-input wide" placeholder="">
+                                        </div>
+                                        <div class="prompt-row">
+                                            <label class="prompt-label">전경</label>
+                                            <button class="prompt-tag active">FOREGROUND</button>
+                                            <input type="text" class="prompt-input" placeholder="x">
+                                            <input type="text" class="prompt-input wide" placeholder="">
+                                        </div>
+                                        <div class="prompt-row">
+                                            <label class="prompt-label">중경</label>
+                                            <button class="prompt-tag active">MIDGROUND</button>
+                                            <input type="text" class="prompt-input" placeholder="x">
+                                            <select class="prompt-select">
+                                                <option>▼</option>
+                                            </select>
+                                        </div>
+                                        <div class="prompt-row">
+                                            <label class="prompt-label">배경</label>
+                                            <button class="prompt-tag active">BACKGROUND</button>
+                                            <input type="text" class="prompt-input" placeholder="x">
+                                            <input type="text" class="prompt-input wide" placeholder="">
+                                        </div>
+                                        <div class="prompt-row">
+                                            <label class="prompt-label">좌측 면</label>
+                                            <button class="prompt-tag active">LEFT_SIDE</button>
+                                            <input type="text" class="prompt-input" placeholder="x">
+                                            <select class="prompt-select">
+                                                <option>▼</option>
+                                            </select>
+                                        </div>
+                                        <div class="prompt-row">
+                                            <label class="prompt-label">우측 면</label>
+                                            <button class="prompt-tag active">RIGHT_SIDE</button>
+                                            <input type="text" class="prompt-input" placeholder="x">
+                                            <input type="text" class="prompt-input wide" placeholder="">
+                                        </div>
+                                        <div class="prompt-row">
+                                            <label class="prompt-label">천장/하늘</label>
+                                            <button class="prompt-tag active">CEILING/SKY</button>
+                                            <input type="text" class="prompt-input" placeholder="x">
+                                            <input type="text" class="prompt-input wide" placeholder="">
+                                        </div>
+                                        <div class="prompt-row">
+                                            <label class="prompt-label">바닥/지면</label>
+                                            <button class="prompt-tag active">FLOOR/GROUND</button>
+                                            <input type="text" class="prompt-input" placeholder="x">
+                                            <select class="prompt-select">
+                                                <option>▼</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <button class="copy-props-btn">소품 복사</button>
+                            </div>
+                        </div>
+
+                        <div class="bottom-prompt-section">
+                            <h4>최종 블록 프롬프트</h4>
+                            <textarea class="final-prompt-textarea" placeholder="프롬프트를 입력하세요..."></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 하단 버튼 그룹 -->
+                <div class="bottom-actions">
+                    <button class="action-btn generate-btn">생성</button>
+                    <button class="action-btn copy-btn">복사</button>
+                    <button class="action-btn save-btn">저장</button>
+                </div>
+            </div>
+
+            <!-- 우측 영역 -->
+            <div class="right-section">
+                <!-- 상단 타임라인 영역 (언출 블록용) -->
+                <div class="timeline-section" style="display:none;">
+                    <div class="timeline-controls">
+                        <button class="timeline-btn start-btn active">START</button>
+                        <button class="timeline-btn end-btn">END</button>
+                    </div>
+                </div>
+
+                <!-- 파일 선택 영역 -->
+                <div class="file-selection-section">
+                    <div class="file-selector">
+                        <label>S01.01.01</label>
+                        <select class="file-dropdown">
+                            <option>▼</option>
+                        </select>
+                        <button class="file-btn">파싱</button>
+                    </div>
+
+                    <div class="file-list">
+                        <div class="file-item">
+                            <input type="checkbox" id="file1">
+                            <label for="file1">S01.01.01 S 오늘에 수정된 것</label>
+                            <span class="file-actions">복사 삭제</span>
+                        </div>
+                        <div class="file-item">
+                            <input type="checkbox" id="file2">
+                            <label for="file2">S01.01.01 S 오늘에 수정된 것</label>
+                            <span class="file-actions">복사 삭제</span>
+                        </div>
+                        <div class="file-item">
+                            <input type="checkbox" id="file3">
+                            <label for="file3">S01.02.01 S 새벽에 수정된 것</label>
+                            <span class="file-actions">복사 삭제</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 하단 프롬프트 영역 -->
+                <div class="bottom-right-section">
+                    <div class="prompt-display">
+                        <p>최종된 이미지를 일반 이미지 블록으로 파싱하고 프롬프트를 만들어져</p>
+                        <div class="prompt-actions">
+                            <button class="prompt-action-btn add-btn">+</button>
+                            <button class="prompt-action-btn image-btn">🖼</button>
+                            <button class="prompt-action-btn next-btn">▶</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/shot-detail.js"></script>
+</body>
+</html>

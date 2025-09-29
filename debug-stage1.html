@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>Stage1 JSON Debug</title>
+    <style>
+        body { font-family: Arial; padding: 20px; background: #1a1a1a; color: #fff; }
+        .debug-section { margin: 20px 0; padding: 20px; background: #2a2a2a; border-radius: 8px; }
+        button { padding: 10px 20px; background: #667eea; color: white; border: none; border-radius: 5px; cursor: pointer; margin: 5px; }
+        button:hover { background: #5a67d8; }
+        .console { background: #000; color: #0f0; padding: 15px; border-radius: 5px; font-family: monospace; font-size: 12px; max-height: 400px; overflow-y: auto; white-space: pre-wrap; }
+        .success { color: #4caf50; }
+        .error { color: #f44336; }
+        .warning { color: #ff9800; }
+        input[type="file"] { margin: 10px 0; }
+    </style>
+</head>
+<body>
+    <h1>Stage1 JSON Upload Debugger</h1>
+
+    <div class="debug-section">
+        <h2>Step 1: Upload Stage1 JSON File</h2>
+        <input type="file" id="fileInput" accept=".json">
+        <button onclick="processFile()">Process File</button>
+        <button onclick="clearConsole()">Clear Console</button>
+    </div>
+
+    <div class="debug-section">
+        <h2>Debug Console</h2>
+        <div id="console" class="console">Ready for debugging...</div>
+    </div>
+
+    <div class="debug-section">
+        <h2>Data Summary</h2>
+        <div id="summary" style="padding: 15px; background: #333; border-radius: 5px;"></div>
+    </div>
+
+    <script>
+        function log(message, type = 'info') {
+            const consoleEl = document.getElementById('console');
+            const timestamp = new Date().toLocaleTimeString();
+            const colorClass = type === 'error' ? 'error' : type === 'success' ? 'success' : type === 'warning' ? 'warning' : '';
+            consoleEl.innerHTML += `<span class="${colorClass}">[${timestamp}] ${message}</span>\n`;
+            consoleEl.scrollTop = consoleEl.scrollHeight;
+        }
+
+        function clearConsole() {
+            document.getElementById('console').innerHTML = 'Console cleared.\n';
+            document.getElementById('summary').innerHTML = '';
+        }
+
+        function processFile() {
+            const fileInput = document.getElementById('fileInput');
+            const file = fileInput.files[0];
+
+            if (!file) {
+                log('ERROR: No file selected', 'error');
+                return;
+            }
+
+            log(`Processing file: ${file.name} (${(file.size / 1024).toFixed(2)} KB)`);
+
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                try {
+                    log('Parsing JSON...');
+                    const json = JSON.parse(event.target.result);
+
+                    log('JSON parsed successfully', 'success');
+                    log(`Top-level keys: ${Object.keys(json).join(', ')}`);
+
+                    // Check for visual_blocks
+                    if (json.visual_blocks) {
+                        log('✅ Stage1 format detected (visual_blocks found)', 'success');
+
+                        // Log structure details
+                        if (json.visual_blocks.characters) {
+                            log(`Characters found: ${json.visual_blocks.characters.length}`);
+                            json.visual_blocks.characters.forEach(char => {
+                                log(`  - ${char.id}: ${char.name || 'No name'}`);
+                                if (char.blocks) {
+                                    const blockCount = Object.keys(char.blocks).length;
+                                    log(`    Blocks: ${blockCount} blocks`);
+                                }
+                            });
+                        }
+
+                        if (json.visual_blocks.locations) {
+                            log(`Locations found: ${json.visual_blocks.locations.length}`);
+                            json.visual_blocks.locations.forEach(loc => {
+                                log(`  - ${loc.id}: ${loc.name || 'No name'}`);
+                                if (loc.blocks) {
+                                    const blockCount = Object.keys(loc.blocks).length;
+                                    log(`    Blocks: ${blockCount} blocks`);
+                                }
+                            });
+                        }
+
+                        if (json.visual_blocks.props) {
+                            log(`Props found: ${json.visual_blocks.props.length}`);
+                            json.visual_blocks.props.forEach(prop => {
+                                log(`  - ${prop.id}: ${prop.name || 'No name'}`);
+                                if (prop.blocks) {
+                                    const blockCount = Object.keys(prop.blocks).length;
+                                    log(`    Blocks: ${blockCount} blocks`);
+                                }
+                            });
+                        }
+
+                        // Test transform function
+                        log('\nTesting transformStage1Data function...');
+                        const transformed = transformStage1Data(json);
+                        log('Transform completed', 'success');
+                        log(`Transformed data structure:`);
+                        log(`  - Characters: ${transformed.characters.length}`);
+                        log(`  - Locations: ${transformed.locations.length}`);
+                        log(`  - Props: ${transformed.props.length}`);
+                        log(`  - Prompts: ${Object.keys(transformed.prompts).length} entries`);
+
+                        // Show summary
+                        showSummary(json, transformed);
+
+                    } else {
+                        log('⚠️ Not a Stage1 format (visual_blocks not found)', 'warning');
+                        log('Available keys: ' + Object.keys(json).join(', '));
+                    }
+
+                } catch (error) {
+                    log(`ERROR: ${error.message}`, 'error');
+                    log(`Stack: ${error.stack}`, 'error');
+                }
+            };
+
+            reader.onerror = (error) => {
+                log(`File read error: ${error}`, 'error');
+            };
+
+            reader.readAsText(file);
+        }
+
+        function transformStage1Data(data) {
+            const transformed = {
+                characters: [],
+                locations: [],
+                props: [],
+                prompts: {},
+                images: {},
+                universal: data.universal || null,
+                universal_translated: data.universal_translated || null
+            };
+
+            // Process characters
+            if (data.visual_blocks && data.visual_blocks.characters) {
+                data.visual_blocks.characters.forEach(char => {
+                    const charData = {
+                        id: char.id,
+                        name: char.name || char.id,
+                        blocks: char.blocks || {}
+                    };
+                    transformed.characters.push(charData);
+                    transformed.prompts[char.id] = char.blocks || {};
+                });
+            }
+
+            // Process locations
+            if (data.visual_blocks && data.visual_blocks.locations) {
+                data.visual_blocks.locations.forEach(loc => {
+                    const locData = {
+                        id: loc.id,
+                        name: loc.name || loc.id,
+                        blocks: loc.blocks || {}
+                    };
+                    transformed.locations.push(locData);
+                    transformed.prompts[loc.id] = loc.blocks || {};
+                });
+            }
+
+            // Process props
+            if (data.visual_blocks && data.visual_blocks.props) {
+                data.visual_blocks.props.forEach(prop => {
+                    const propData = {
+                        id: prop.id,
+                        name: prop.name || prop.id,
+                        blocks: prop.blocks || {}
+                    };
+                    transformed.props.push(propData);
+                    transformed.prompts[prop.id] = prop.blocks || {};
+                });
+            }
+
+            if (data.film_metadata) {
+                transformed.film_metadata = data.film_metadata;
+            }
+
+            return transformed;
+        }
+
+        function showSummary(original, transformed) {
+            const summaryEl = document.getElementById('summary');
+
+            let summaryHTML = '<h3>File Analysis Summary</h3>';
+
+            if (original.film_metadata) {
+                summaryHTML += `<p><strong>Film:</strong> ${original.film_metadata.title_working || 'Unknown'}</p>`;
+                summaryHTML += `<p><strong>Genre:</strong> ${original.film_metadata.genre || 'Unknown'}</p>`;
+            }
+
+            summaryHTML += '<h4>Characters:</h4><ul>';
+            transformed.characters.forEach(char => {
+                summaryHTML += `<li>${char.id} - ${char.name}</li>`;
+            });
+            summaryHTML += '</ul>';
+
+            summaryHTML += '<h4>Locations:</h4><ul>';
+            transformed.locations.forEach(loc => {
+                summaryHTML += `<li>${loc.id} - ${loc.name}</li>`;
+            });
+            summaryHTML += '</ul>';
+
+            summaryHTML += '<h4>Props:</h4><ul>';
+            transformed.props.forEach(prop => {
+                summaryHTML += `<li>${prop.id} - ${prop.name}</li>`;
+            });
+            summaryHTML += '</ul>';
+
+            summaryHTML += `<p><strong>Total Prompt Blocks:</strong> ${Object.keys(transformed.prompts).length}</p>`;
+
+            summaryEl.innerHTML = summaryHTML;
+        }
+
+        // Auto-clear console on page load
+        window.addEventListener('DOMContentLoaded', () => {
+            log('Debugger ready. Please select a Stage1 JSON file to test.', 'success');
+        });
+    </script>
+</body>
+</html>

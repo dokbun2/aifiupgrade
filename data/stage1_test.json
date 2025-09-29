@@ -1,0 +1,307 @@
+{
+  "film_id": "FILM_000001",
+  "current_step": "concept_art_blocks_completed",
+  "timestamp": "2025-09-27T07:00:15Z",
+  "film_metadata": {
+    "title_working": "기억의 식탁",
+    "genre": "Human Drama",
+    "duration_minutes": 3,
+    "art_style": "Photorealistic",
+    "artist_ref": "Steve McCurry style",
+    "medium": "Photography",
+    "era_context": "modern South Korea 2025",
+    "aspect_ratio": "16:9"
+  },
+  "current_work": {
+    "logline": "돌아가신 할머니의 '살아있는 레시피'를 발견한 주인공이, 하루에 손님 한 팀만 받는 식당을 열어 그들의 잃어버린 기억을 요리하며 자신의 상처 또한 치유하는 이야기.",
+    "synopsis": {
+      "act1": "일에 치여 번아웃된 평범한 직장인 '서준'. 할머니의 장례식 후 유품을 정리하다 낡은 레시피 노트를 발견한다. \"네가 나 없이도 잘 챙겨 먹길 바란다\"는 마지막 메시지에 큰 울림을 얻은 그는, 충동적으로 회사를 그만두고 할머니가 살던 낡은 집을 개조해 작은 식당 '기억의 식탁'을 연다.",
+      "act2": "'하루 한 팀, 당신의 이야기를 듣고 요리합니다'라는 독특한 컨셉으로 식당 운영을 시작한다. 첫 손님으로 찾아온 노부부에게 할머니의 '살아있는 레시피'에 따라 음식을 만들어주고, 음식을 맛본 노부부는 잊고 있던 젊은 시절의 행복한 기억을 떠올리며 눈물을 흘린다. 이 경험이 SNS를 통해 알려지며 식당은 화제가 되지만, 서준은 할머니의 맛을 완벽하게 재현해야 한다는 압박감과 현실적인 문제들로 점차 지쳐간다.",
+      "act3": "결정적인 위기를 겪던 서준은 할머니 레시피의 핵심이 완벽한 기술이 아닌 '사람을 위하는 마음'이었음을 깨닫는다. 그는 할머니를 흉내 내는 것을 그만두고, 자신만의 방식으로 손님들의 이야기에 귀 기울이며 진심을 담아 요리하기 시작한다. 마침내 그는 할머니의 맛을 넘어선 '서준의 맛'을 찾게 되고, '기억의 식탁'은 단순한 밥집을 넘어 사람들의 마음을 잇는 특별한 공간으로 자리 잡는다."
+    },
+    "treatment": {
+      "treatment_title": "기억의 식탁 - 트리트먼트",
+      "story_structure_type": "3막 구조",
+      "sequences": [
+        {
+          "sequence_id": "SEQ1",
+          "sequence_title": "할머니의 된장찌개 (기억의 맛)",
+          "narrative_function": "exposition",
+          "treatment_text": "번아웃된 서준은 할머니의 낡은 집 부엌에서 먼지 쌓인 레시피 노트를 발견한다. 첫 장에 적힌 '된장찌개' 레시피를 따라 무심코 요리를 시작한다. 투박하지만 정성스러운 과정 끝에 완성된 찌개. 한 숟갈 뜨는 순간, 잊고 있던 어린 시절 할머니의 무릎을 베고 누웠던 따스한 오후의 햇살과 냄새가 눈앞에 파노라마처럼 펼쳐진다. 그는 이 레시피가 단순한 조리법이 아님을 깨닫는다."
+        },
+        {
+          "sequence_id": "SEQ2",
+          "sequence_title": "노부부를 위한 비빔밥 (관계의 맛)",
+          "narrative_function": "rising_action",
+          "treatment_text": "서준은 '기억의 식탁'을 연다. 첫 손님으로 말없이 서로를 외면하던 노부부가 찾아온다. 서준은 그들의 침묵 속 사연을 듣고, 레시피 노트의 '오색 비빔밥'을 준비한다. 화려하지만 조화로운 색감의 비빔밥을 맛본 노부부의 눈앞에, 흑백사진 같던 그들의 첫 데이트가 총천연색으로 되살아난다. 서로를 보며 미소 짓는 노부부의 모습이 SNS에 올라가며 식당은 조용한 화제를 모은다."
+        },
+        {
+          "sequence_id": "SEQ3",
+          "sequence_title": "서준의 솥밥 (치유의 맛)",
+          "narrative_function": "resolution",
+          "treatment_text": "할머니의 레시피를 완벽히 재현해야 한다는 압박감에 시달리던 서준. 그는 문득 레시피 마지막 장의 \"가장 중요한 조미료는 너의 마음\"이라는 글귀를 발견한다. 그는 처음으로 레시피를 따르지 않고, 한 아이를 잃은 젊은 부부 손님을 위해 자신만의 '돌솥밥'을 짓는다. 기교는 없지만 온기가 담긴 밥을 통해 부부는 함께 슬픔을 나누고 새로운 희망을 얻는다. 서준 역시 자신만의 치유법을 찾으며 진정한 요리사로 거듭난다."
+        }
+      ]
+    },
+    "scenario": {
+      "scenario_title": "기억의 식탁 - 시나리오",
+      "scenes": [
+        {
+          "scene_number": 1,
+          "scene_id": "S01",
+          "sequence_id": "SEQ1",
+          "scenario_text": "INT. 할머니의 낡은 집 / 부엌 - 낮\n\n햇살이 먼지처럼 부유하는 낡은 부엌.\n서준(30대 초반, 지친 얼굴)이 할머니의 유품 상자에서 낡은 요리 노트를 꺼낸다.\n\n표지를 넘기자, 할머니의 손글씨가 가득하다.\n첫 페이지, '세상에서 제일 맛있는 된장찌개'.\n\n잠시 후, 서준은 홀린 듯 찌개를 끓인다.\n카메라는 투박하지만 정성스럽게 재료를 손질하는 그의 손과, 뚝배기에서 진하게 끓어오르는 찌개의 질감을 따라간다. (스티브 맥커리 스타일의 풍부한 색감과 질감 표현)\n\n완성된 찌개를 한 숟갈 뜨는 서준.\n그 순간, 눈앞에 어린 시절의 영상이 스친다. 툇마루에 누워 할머니의 무릎을 베고 잠들었던, 더없이 평화롭던 오후.\n\n서준의 눈에 조용히 눈물이 고인다."
+        },
+        {
+          "scene_number": 2,
+          "scene_id": "S02",
+          "sequence_id": "SEQ2",
+          "scenario_text": "INT. 기억의 식탁 - 저녁\n\n'기억의 식탁'이라는 작은 간판이 걸린 식당.\n서먹하게 앉아있는 노부부. 테이블 위에는 오색 비빔밥 두 그릇이 놓여있다.\n\n할머니가 먼저 한 숟갈 비벼 맛본다.\n순간 할머니의 눈이 커진다. 할아버지를 바라보는 눈빛이 흔들린다.\n\n          할머니\n     여보... 이 맛...\n\n할아버지도 비빔밥을 맛본다.\n장면이 1970년대의 낡은 극장 앞으로 오버랩된다. 앳된 모습의 두 사람이 한 그릇의 비빔밥을 나눠 먹으며 수줍게 웃고 있다.\n\n다시 현재. 두 사람의 거칠고 주름진 손이 테이블 위에서 조심스럽게 겹쳐진다.\n\n장면 끝, 스마트폰 화면에 노부부가 남긴 리뷰가 보인다.\n\"잊고 있던 제 청춘을 요리해주셔서 감사합니다.\""
+        },
+        {
+          "scene_number": 3,
+          "scene_id": "S03",
+          "sequence_id": "SEQ3",
+          "scenario_text": "INT. 기억의 식탁 / 부엌 - 밤\n\n마감된 식당. 서준은 스마트폰 속 수많은 찬사를 보며 앉아있다. 하지만 그의 표정은 기쁘기보다 불안해 보인다. '할머니의 맛을 똑같이 재현해야 한다'는 압박감.\n\n그는 슬럼프에 빠진 듯 레시피 노트를 뒤적인다.\n마지막 페이지. 그곳에 적힌 할머니의 마지막 메시지.\n\n          할머니 (V.O.)\n     서준아. 가장 중요한 조미료는...\n     사람을 위하는 너의 마음이란다.\n\n서준은 글씨를 가만히 쓸어본다. 깊은 깨달음을 얻은 표정."
+        },
+        {
+          "scene_number": 4,
+          "scene_id": "S04",
+          "sequence_id": "SEQ3",
+          "scenario_text": "INT. 기억의 식탁 - 저녁\n\n젊은 부부가 손님으로 와있다. 어딘가 슬퍼 보이는 얼굴.\n서준은 노트를 보지 않는다. 대신 그들의 이야기를 진심으로 들어주고 있다.\n\n잠시 후, 서준이 자신만의 요리를 내온다.\n화려하진 않지만, 김이 모락모락 피어나는 따뜻한 돌솥밥.\n\n부부는 말없이 밥을 먹는다. 눈물을 흘리지만, 그 표정은 더없이 따뜻하고 편안해 보인다.\n\n(몽타주)\n- 웃음을 되찾은 노부부\n- 화해하는 젊은 연인\n- 서로를 위로하는 부부의 모습이 스쳐 지나간다.\n\n마지막 장면. 식당을 정리하는 서준의 뒷모습. 그의 얼굴엔 편안한 미소가 걸려있다. 식당 문에 작은 팻말이 새로 붙어있다.\n\n\"가장 중요한 조미료는 당신의 이야기입니다.\""
+        }
+      ]
+    }
+  },
+  "visual_blocks": {
+    "characters": [
+      {
+        "id": "CHAR_001",
+        "name": "Seojun",
+        "blocks": {
+          "1_STYLE": "Photorealistic portrait",
+          "2_ARTIST_REF": "Steve McCurry style",
+          "3_MEDIUM": "Photography",
+          "4_GENRE": "Human Drama",
+          "5_CHARACTER": "Seojun, Korean male 32, a chef who heals with food",
+          "6_MOOD_PERSONALITY": "introspective, weary but hopeful, sincere, warm",
+          "7_ERA_CONTEXT": "modern South Korea 2025",
+          "8_CAMERA": "Medium Close-up Shot, front view, eye level",
+          "9_GAZE": "soulful gaze, looking at a guest with empathy",
+          "10_CHARACTER_SHEET": "",
+          "11_BODY_TYPE": "average height 178cm, slim build",
+          "12_HAIR": "black, slightly messy short hair",
+          "13_FACE_SHAPE": "oval face with soft features",
+          "14_FACIAL_FEATURES": "deep thoughtful eyes, a hint of tiredness",
+          "15_SKIN": "warm skin tones",
+          "16_EXPRESSION": "a gentle, comforting smile",
+          "17_CLOTHING": "a simple white t-shirt under a dark linen apron",
+          "18_ACCESSORIES": "",
+          "19_PROPS": "holding a wooden spoon",
+          "20_POSE": "leaning slightly forward, listening intently",
+          "21_BACKGROUND": "simple white background",
+          "22_LIGHTING": "soft natural light from a window, golden hour preferred",
+          "23_CAMERA_TECH": "Sony A7R IV, 85mm f/1.4 lens, Portra 400 film aesthetic",
+          "24_QUALITY": "professional, Masterpiece, Highly detailed",
+          "25_PARAMETERS": "--ar 16:9 --style raw"
+        },
+        "appearance_summary": "introspective weary but hopeful, average height 178cm slim, black slightly messy short hair, oval face with soft features, deep thoughtful eyes, a simple white t-shirt under a dark linen apron",
+        "voice_style": "30s male Korean Seoul calm thoughtful speaking style mid-low pitch"
+      },
+      {
+        "id": "CHAR_002",
+        "name": "Grandmother",
+        "blocks": {
+          "1_STYLE": "Photorealistic portrait",
+          "2_ARTIST_REF": "Steve McCurry style",
+          "3_MEDIUM": "Photography",
+          "4_GENRE": "Human Drama",
+          "5_CHARACTER": "Grandmother, Korean female 70s, a warm memory",
+          "6_MOOD_PERSONALITY": "warm, loving, wise, gentle",
+          "7_ERA_CONTEXT": "South Korea circa 2005 (in memory)",
+          "8_CAMERA": "Medium Close-up Shot, front view, eye level",
+          "9_GAZE": "looking at her grandson with deep affection",
+          "10_CHARACTER_SHEET": "",
+          "11_BODY_TYPE": "small, slightly stooped with age",
+          "12_HAIR": "short, curly salt-and-pepper hair",
+          "13_FACE_SHAPE": "round, kindly face",
+          "14_FACIAL_FEATURES": "countless smile lines around her eyes, warm soulful gaze",
+          "15_SKIN": "warm skin tone with age spots",
+          "16_EXPRESSION": "a loving, serene smile",
+          "17_CLOTHING": "a comfortable, traditional Korean floral blouse",
+          "18_ACCESSORIES": "a simple jade ring",
+          "19_PROPS": "",
+          "20_POSE": "sitting on a wooden floor, hands gently folded",
+          "21_BACKGROUND": "simple white background",
+          "22_LIGHTING": "warm, soft natural light, golden hour",
+          "23_CAMERA_TECH": "Sony A7R IV, 85mm f/1.4 lens, Portra 400 film aesthetic",
+          "24_QUALITY": "professional, Masterpiece, Highly detailed",
+          "25_PARAMETERS": "--ar 16:9 --style raw"
+        },
+        "appearance_summary": "warm loving wise, small and stooped, short salt-and-pepper hair, round kindly face, countless smile lines, a traditional Korean floral blouse",
+        "voice_style": "70s female Korean warm gentle speaking style slightly low pitch"
+      },
+      {
+        "id": "CHAR_003",
+        "name": "ElderlyWoman",
+        "blocks": {
+          "1_STYLE": "Photorealistic portrait",
+          "2_ARTIST_REF": "Steve McCurry style",
+          "3_MEDIUM": "Photography",
+          "4_GENRE": "Human Drama",
+          "5_CHARACTER": "ElderlyWoman, Korean female 70s, a restaurant guest",
+          "6_MOOD_PERSONALITY": "initially reserved and weary, later touched and nostalgic",
+          "7_ERA_CONTEXT": "modern South Korea 2025",
+          "8_CAMERA": "Medium Close-up Shot, front view, eye level",
+          "9_GAZE": "looking at her food, eyes glistening with unshed tears",
+          "10_CHARACTER_SHEET": "",
+          "11_BODY_TYPE": "frail, delicate build",
+          "12_HAIR": "neatly coiffed, short grey hair",
+          "13_FACE_SHAPE": "thin, elegant face shape",
+          "14_FACIAL_FEATURES": "deep wrinkles telling a life's story, intense eye contact",
+          "15_SKIN": "pale, warm skin tone",
+          "16_EXPRESSION": "a mix of sorrow and wonder, deeply emotional",
+          "17_CLOTHING": "a neatly pressed blouse for an outing",
+          "18_ACCESSORIES": "a string of small pearls",
+          "19_PROPS": "",
+          "20_POSE": "holding a spoon mid-air, captivated by a memory",
+          "21_BACKGROUND": "simple white background",
+          "22_LIGHTING": "soft, warm restaurant lighting, creating an intimate mood",
+          "23_CAMERA_TECH": "Sony A7R IV, 85mm f/1.4 lens, Portra 400 film aesthetic",
+          "24_QUALITY": "professional, Masterpiece, Highly detailed",
+          "25_PARAMETERS": "--ar 16:9 --style raw"
+        },
+        "appearance_summary": "reserved and weary, frail build, neatly coiffed grey hair, thin elegant face, deep wrinkles, a neatly pressed blouse",
+        "voice_style": "70s female Korean quiet nostalgic speaking style medium pitch"
+      }
+    ],
+    "locations": [
+      {
+        "id": "LOC_001",
+        "name": "GrandmothersKitchen",
+        "blocks": {
+          "1_STYLE": "Photorealistic",
+          "2_ARTIST_REF": "Steve McCurry style",
+          "3_MEDIUM": "Photography",
+          "4_GENRE": "Human Drama",
+          "5_LOCATION": "GrandmothersKitchen, an old, traditional Korean kitchen",
+          "6_ERA_CONTEXT": "modern South Korea 2025, but the kitchen is timeless",
+          "7_CAMERA": "Wide Shot, front view, eye level",
+          "8_LOCATION_SHEET": "",
+          "9_ATMOSPHERE": "nostalgic, warm, filled with memories, traces of time, emotional depth",
+          "10_COLOR_TONE": "warm wood tones, earthy colors, rich saturated colors",
+          "11_SCALE": "small, cozy, and slightly cramped",
+          "12_ARCHITECTURAL_STYLE": "old Korean house style with wooden beams",
+          "13_MATERIALS": "dark wood, ceramic pots, cast iron, brass",
+          "14_OBJECTS": "old wooden cabinets, earthenware pots (hangari), traditional kitchen tools, a low wooden table",
+          "15_WEATHER": "Sunny",
+          "16_TIME_LIGHTING": "afternoon sunlight streaming through a small window, golden hour",
+          "17_ARTIFICIAL_LIGHT": "a single bare bulb casting a warm glow",
+          "18_LIGHTING_TECHNIQUE": "natural key light, creating deep, soft shadows",
+          "19_FOREGROUND": "a wooden cutting board with freshly cut vegetables",
+          "20_MIDGROUND": "a large cast iron cauldron on a low stove",
+          "21_BACKGROUND": "a wall lined with shelves of spices and dried goods",
+          "22_LEFT_SIDE": "a small window with sunlight pouring in",
+          "23_RIGHT_SIDE": "a screen door leading to a courtyard",
+          "24_CEILING/SKY": "low ceiling with exposed wooden beams",
+          "25_FLOOR/GROUND": "dark, polished wooden floor",
+          "26_CAMERA_TECH": "Sony A7R IV, 35mm f/1.4 lens",
+          "27_QUALITY": "professional, Masterpiece, Highly detailed",
+          "28_PARAMETERS": "--ar 16:9 --style raw"
+        }
+      },
+      {
+        "id": "LOC_002",
+        "name": "TableOfMemory",
+        "blocks": {
+          "1_STYLE": "Photorealistic",
+          "2_ARTIST_REF": "Steve McCurry style",
+          "3_MEDIUM": "Photography",
+          "4_GENRE": "Human Drama",
+          "5_LOCATION": "TableOfMemory, a small, one-table restaurant",
+          "6_ERA_CONTEXT": "modern South Korea 2025",
+          "7_CAMERA": "Wide Shot, front view, eye level",
+          "8_LOCATION_SHEET": "",
+          "9_ATMOSPHERE": "cozy, intimate, safe, a place for healing, emotional depth",
+          "10_COLOR_TONE": "warm lighting, rich saturated colors, deep wood tones",
+          "11_SCALE": "intimate, single large wooden table that seats four",
+          "12_ARCHITECTURAL_STYLE": "renovated Korean traditional house (hanok) with modern minimalist touches",
+          "13_MATERIALS": "reclaimed wood, handmade ceramics, soft linen, brass details",
+          "14_OBJECTS": "a large communal wooden table, comfortable chairs, shelves with cookbooks, a small open kitchen",
+          "15_WEATHER": "Evening",
+          "16_TIME_LIGHTING": "evening light fading outside the main window",
+          "17_ARTIFICIAL_LIGHT": "warm pendant lights hanging low over the table, accent lighting on the kitchen",
+          "18_LIGHTING_TECHNIQUE": "soft, low-key lighting to create an intimate, confidential atmosphere",
+          "19_FOREGROUND": "beautifully arranged ceramic tableware",
+          "20_MIDGROUND": "the main wooden table where guests are seated",
+          "21_BACKGROUND": "the open kitchen where Seojun is cooking",
+          "22_LEFT_SIDE": "a large paper-screen window showing a small bamboo garden",
+          "23_RIGHT_SIDE": "a wall with shelves holding ceramic pots and cooking books",
+          "24_CEILING/SKY": "exposed wooden rafters of the hanok roof",
+          "25_FLOOR/GROUND": "warm, dark wood flooring",
+          "26_CAMERA_TECH": "Sony A7R IV, 50mm f/1.2 lens",
+          "27_QUALITY": "professional, Masterpiece, Highly detailed",
+          "28_PARAMETERS": "--ar 16:9 --style raw"
+        }
+      }
+    ],
+    "props": [
+      {
+        "id": "PROP_001",
+        "name": "RecipeNotebook",
+        "blocks": {
+          "1_STYLE": "Photorealistic",
+          "2_ARTIST_REF": "Steve McCurry style",
+          "3_MEDIUM": "Photography",
+          "4_GENRE": "Human Drama",
+          "5_ITEM_NAME": "RecipeNotebook, a grandmother's old, handwritten recipe book",
+          "6_ERA_CONTEXT": "a timeless object, passed down through generations",
+          "7_CAMERA": "Close-up Shot, top-down view",
+          "8_ITEM_SHEET": "",
+          "9_CATEGORY": "book, personal artifact",
+          "10_MATERIAL": "yellowed, thick paper, a worn soft leather cover tied with a string",
+          "11_COLOR": "rich browns, warm sepia tones, faded black ink",
+          "12_SIZE": "standard notebook size, thick with many pages",
+          "13_CONDITION": "very old, well-loved, corners are soft, pages have food stains",
+          "14_DETAILS": "grandmother's elegant, flowing Korean handwriting, small doodles of vegetables, a pressed four-leaf clover tucked in a page",
+          "15_FUNCTIONALITY": "contains recipes that evoke memories",
+          "16_SPECIAL_FEATURES": "the paper has a rich texture, the stains tell a story",
+          "17_LIGHTING": "soft, natural window light, highlighting the texture of the paper and faded ink",
+          "18_BACKGROUND": "a simple, dark wooden table",
+          "19_CAMERA_TECH": "Sony A7R IV, 90mm Macro lens",
+          "20_QUALITY": "professional, Masterpiece, Highly detailed",
+          "21_PARAMETERS": "--ar 16:9 --style raw"
+        },
+        "appearance_summary": "yellowed paper with leather cover, rich browns and sepia tones, standard notebook size"
+      },
+      {
+        "id": "PROP_002",
+        "name": "Sotbap",
+        "blocks": {
+          "1_STYLE": "Photorealistic",
+          "2_ARTIST_REF": "Steve McCurry style",
+          "3_MEDIUM": "Photography",
+          "4_GENRE": "Human Drama",
+          "5_ITEM_NAME": "Sotbap, a nourishing Korean pot rice",
+          "6_ERA_CONTEXT": "modern South Korea 2025",
+          "7_CAMERA": "Close-up Shot, 45-degree angle",
+          "8_ITEM_SHEET": "",
+          "9_CATEGORY": "food, main dish",
+          "10_MATERIAL": "served in a black cast iron pot with a heavy wooden lid, eaten from handmade ceramic bowls",
+          "11_COLOR": "a rich palette of warm, saturated colors - deep greens of vegetables, earthy tones of mushrooms, vibrant yellow of a chestnut",
+          "12_SIZE": "a personal-sized cast iron pot",
+          "13_CONDITION": "freshly cooked, steaming",
+          "14_DETAILS": "glistening surface of the rice, perfectly arranged toppings, steam rising gently from the pot, a single scorched grain of rice visible",
+          "15_FUNCTIONALITY": "a dish that provides comfort, warmth, and healing",
+          "16_SPECIAL_FEATURES": "the steam feels almost tangible, the colors are deeply saturated and appetizing",
+          "17_LIGHTING": "warm, soft overhead light from the restaurant, creating a gentle reflection on the pot's surface",
+          "18_BACKGROUND": "a blurred background of the restaurant's warm interior",
+          "19_CAMERA_TECH": "Sony A7R IV, 90mm Macro lens",
+          "20_QUALITY": "professional, Masterpiece, Highly detailed",
+          "21_PARAMETERS": "--ar 16:9 --style raw"
+        },
+        "appearance_summary": "black cast iron pot with wooden lid, rich warm saturated colors, personal-sized pot"
+      }
+    ]
+  }
+}

@@ -13,13 +13,83 @@ let conceptData = {
     universal_translated: null
 };
 
+// Show notification message
+function showNotification(message, type = 'info') {
+    // Create notification element
+    const notification = document.createElement('div');
+    notification.className = `notification notification-${type}`;
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 15px 20px;
+        background: ${type === 'success' ? '#4caf50' : type === 'error' ? '#f44336' : '#2196F3'};
+        color: white;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        z-index: 10000;
+        font-size: 14px;
+        font-weight: 500;
+        animation: slideIn 0.3s ease;
+    `;
+    notification.textContent = message;
+
+    // Add animation keyframes if not already added
+    if (!document.querySelector('#notification-styles')) {
+        const style = document.createElement('style');
+        style.id = 'notification-styles';
+        style.textContent = `
+            @keyframes slideIn {
+                from { transform: translateX(400px); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+            @keyframes slideOut {
+                from { transform: translateX(0); opacity: 1; }
+                to { transform: translateX(400px); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+
+    document.body.appendChild(notification);
+
+    // Auto remove after 3 seconds
+    setTimeout(() => {
+        notification.style.animation = 'slideOut 0.3s ease';
+        setTimeout(() => {
+            notification.remove();
+        }, 300);
+    }, 3000);
+}
+
 // Initialize page
 document.addEventListener('DOMContentLoaded', () => {
     console.log('=== DOMContentLoaded - Initializing ConceptArt page ===');
 
-    // Load saved data first
-    loadSavedData();
-    console.log('After loadSavedData - conceptData summary:', {
+    // Check for storyboard data first
+    const storyboardData = localStorage.getItem('mergedData') || localStorage.getItem('storyboardData');
+    const savedConceptData = localStorage.getItem('conceptArtData');
+
+    if (storyboardData) {
+        // 스토리보드 데이터가 있으면 항상 우선적으로 사용
+        try {
+            let jsonData = JSON.parse(storyboardData);
+            console.log('Auto-loading data from storyboard:', jsonData);
+            processJSONData(jsonData);
+            showNotification('스토리보드 데이터가 자동으로 로드되었습니다!', 'success');
+        } catch (error) {
+            console.error('Failed to auto-load storyboard data:', error);
+            // 실패하면 기존 컨셉아트 데이터 로드
+            if (savedConceptData) {
+                loadSavedData();
+            }
+        }
+    } else if (savedConceptData) {
+        // 스토리보드 데이터가 없고 컨셉아트 데이터만 있으면 로드
+        loadSavedData();
+    }
+
+    console.log('After data load - conceptData summary:', {
         characters: conceptData.characters?.length || 0,
         locations: conceptData.locations?.length || 0,
         props: conceptData.props?.length || 0,
@@ -74,7 +144,8 @@ function loadSavedData() {
                         const item = document.createElement('div');
                         item.className = 'dropdown-item';
                         item.onclick = () => selectItem('character', char.id);
-                        item.textContent = char.id;
+                        // Display only the name, not the ID
+                        item.textContent = char.name || char.id;
                         characterDropdown.appendChild(item);
                     });
                 }
@@ -84,11 +155,12 @@ function loadSavedData() {
                     if (conceptData.currentCharacter) {
                         console.log('Selecting saved character:', conceptData.currentCharacter);
                         selectItem('character', conceptData.currentCharacter);
-                        // Update dropdown button text
+                        // Update dropdown button text with name
+                        const character = conceptData.characters?.find(c => c.id === conceptData.currentCharacter);
                         const characterBtn = document.querySelector('#character-dropdown')?.previousElementSibling;
-                        if (characterBtn) {
+                        if (characterBtn && character) {
                             const span = characterBtn.querySelector('span');
-                            if (span) span.textContent = conceptData.currentCharacter;
+                            if (span) span.textContent = character.name || conceptData.currentCharacter;
                         }
                     } else if (conceptData.characters.length > 0) {
                         const firstCharacter = conceptData.characters[0];
@@ -106,17 +178,19 @@ function loadSavedData() {
                         const item = document.createElement('div');
                         item.className = 'dropdown-item';
                         item.onclick = () => selectItem('location', loc.id);
-                        item.textContent = loc.id;
+                        // Display only the name, not the ID
+                        item.textContent = loc.name || loc.id;
                         locationDropdown.appendChild(item);
                     });
                 }
 
                 // Update button text if location was selected
                 if (conceptData.currentLocation) {
+                    const location = conceptData.locations?.find(l => l.id === conceptData.currentLocation);
                     const locationBtn = document.querySelector('#location-dropdown')?.previousElementSibling;
-                    if (locationBtn) {
+                    if (locationBtn && location) {
                         const span = locationBtn.querySelector('span');
-                        if (span) span.textContent = conceptData.currentLocation;
+                        if (span) span.textContent = location.name || conceptData.currentLocation;
                     }
                 }
             }
@@ -130,17 +204,19 @@ function loadSavedData() {
                         const item = document.createElement('div');
                         item.className = 'dropdown-item';
                         item.onclick = () => selectItem('props', prop.id);
-                        item.textContent = prop.id;
+                        // Display only the name, not the ID
+                        item.textContent = prop.name || prop.id;
                         propsDropdown.appendChild(item);
                     });
                 }
 
                 // Update button text if props was selected
                 if (conceptData.currentProps) {
+                    const prop = conceptData.props?.find(p => p.id === conceptData.currentProps);
                     const propsBtn = document.querySelector('#props-dropdown')?.previousElementSibling;
-                    if (propsBtn) {
+                    if (propsBtn && prop) {
                         const span = propsBtn.querySelector('span');
-                        if (span) span.textContent = conceptData.currentProps;
+                        if (span) span.textContent = prop.name || conceptData.currentProps;
                     }
                 }
             }
@@ -473,11 +549,15 @@ function selectItem(type, value) {
         conceptData.currentLocation = null;
         conceptData.currentProps = null;
 
-        // Update button text
+        // Find the character name by ID
+        const character = conceptData.characters?.find(c => c.id === value);
+        const displayName = character?.name || value;
+
+        // Update button text with name instead of ID
         const button = document.querySelector('#character-dropdown')?.previousElementSibling;
         if (button) {
             const span = button.querySelector('span');
-            if (span) span.textContent = value;
+            if (span) span.textContent = displayName;
         }
 
         // Load data based on type
@@ -488,11 +568,15 @@ function selectItem(type, value) {
         conceptData.currentCharacter = null;
         conceptData.currentProps = null;
 
-        // Update button text
+        // Find the location name by ID
+        const location = conceptData.locations?.find(l => l.id === value);
+        const displayName = location?.name || value;
+
+        // Update button text with name instead of ID
         const button = document.querySelector('#location-dropdown')?.previousElementSibling;
         if (button) {
             const span = button.querySelector('span');
-            if (span) span.textContent = value;
+            if (span) span.textContent = displayName;
         }
 
         // Load data based on type
@@ -503,11 +587,15 @@ function selectItem(type, value) {
         conceptData.currentCharacter = null;
         conceptData.currentLocation = null;
 
-        // Update button text
+        // Find the prop name by ID
+        const prop = conceptData.props?.find(p => p.id === value);
+        const displayName = prop?.name || value;
+
+        // Update button text with name instead of ID
         const button = document.querySelector('#props-dropdown')?.previousElementSibling;
         if (button) {
             const span = button.querySelector('span');
-            if (span) span.textContent = value;
+            if (span) span.textContent = displayName;
         }
 
         // Load data based on type
@@ -556,47 +644,143 @@ function loadDataByTypeAndId(type, id) {
         // Clear the display when no data
         const universalElement = document.getElementById('universal-prompt');
         const universalTransElement = document.getElementById('universal-prompt-translated');
+        const voiceStyleSection = document.getElementById('voice-style-section');
+        const voiceStyleDisplay = document.getElementById('voice-style-display');
+        const voiceStyleActions = document.getElementById('voice-style-actions');
+
         if (universalElement) {
             universalElement.innerHTML = '기본 프롬프트가 여기에 표시됩니다...';
         }
         if (universalTransElement) {
             universalTransElement.innerHTML = '번역된 프롬프트가 여기에 표시됩니다...';
         }
+
+        // Hide voice style section when no data
+        if (voiceStyleSection) {
+            voiceStyleSection.style.display = 'none';
+        }
+        if (voiceStyleActions) {
+            voiceStyleActions.style.display = 'none';
+        }
+        if (voiceStyleDisplay) {
+            voiceStyleDisplay.innerHTML = '음성 스타일이 여기에 표시됩니다...';
+        }
+        conceptData.voice_style = null;
+
         return;
     }
 
     const data = conceptData.prompts[id];
     console.log(`Found data for ${id}:`, data);
 
-    // Check if the data type matches - handle both 'character' and 'prop' vs 'props'
-    const normalizedType = type === 'props' ? 'prop' : type;
-    if (data.type && data.type !== normalizedType && data.type !== type) {
-        console.log(`Type mismatch warning: expected ${type}, got ${data.type} - continuing anyway`);
-    }
+    // Check if data has blocks (Stage1 format) or universal prompts
+    if (data && typeof data === 'object') {
+        // Check for blocks (Stage1 format) - exclude appearance_summary and voice_style from blocks check
+        const hasBlocks = Object.keys(data).some(key => key.includes('_') && key !== 'appearance_summary' && key !== 'voice_style');
 
-    // Update conceptData with the prompt data
-    conceptData.universal = data.universal || null;
-    conceptData.universal_translated = data.universal_translated || null;
+        if (hasBlocks) {
+            // Stage1 format - sort blocks by number
+            const blockKeys = Object.keys(data)
+                .filter(key => key.includes('_') && key !== 'appearance_summary' && key !== 'voice_style')
+                .sort((a, b) => {
+                    // Extract numbers from keys like "1_STYLE", "10_CHARACTER_SHEET"
+                    const numA = parseInt(a.split('_')[0]);
+                    const numB = parseInt(b.split('_')[0]);
+                    return numA - numB;
+                });
 
-    // Load universal prompts with formatting
-    if (data.universal) {
-        const universalElement = document.getElementById('universal-prompt');
-        if (universalElement) {
-            universalElement.innerHTML = formatPromptForDisplay(data.universal).replace(/\n/g, '<br>');
-            console.log(`Updated universal prompt for ${id}`);
+            // Format blocks with line breaks and semicolons
+            const validBlocks = blockKeys
+                .map(key => {
+                    const value = data[key];
+                    // Only include blocks with actual values
+                    if (value && value.trim()) {
+                        const label = key.substring(key.indexOf('_') + 1);
+                        return { label, value };
+                    }
+                    return null;
+                })
+                .filter(item => item !== null);
+
+            // Format blocks with semicolons (except the last one)
+            const formattedBlocks = validBlocks
+                .map((block, index) => {
+                    const isLast = index === validBlocks.length - 1;
+                    return `${block.label}: ${block.value}${isLast ? '' : ';'}`;
+                });
+
+            // Display version with line breaks
+            const displayVersion = formattedBlocks.join('\n');
+
+            // Copy version - all on one line with proper formatting
+            const combinedPrompt = formattedBlocks.join('\n');
+
+            conceptData.universal = combinedPrompt;
+            conceptData.universal_translated = data.appearance_summary || null;
+
+            // Display the formatted blocks with line breaks
+            const universalElement = document.getElementById('universal-prompt');
+            if (universalElement) {
+                // Use <br> for HTML line breaks and preserve formatting
+                universalElement.innerHTML = displayVersion.replace(/\n/g, '<br>');
+                console.log(`Updated universal prompt from blocks for ${id}`);
+            }
+
+            // Display appearance_summary in translated area
+            const universalTransElement = document.getElementById('universal-prompt-translated');
+            if (universalTransElement) {
+                if (data.appearance_summary) {
+                    universalTransElement.innerHTML = `<div style="color: #888; font-size: 12px; margin-bottom: 10px;">Appearance_summary:</div>${data.appearance_summary}`;
+                } else {
+                    universalTransElement.innerHTML = `<div style="color: #888; font-size: 12px; margin-bottom: 10px;">Appearance_summary:</div>No appearance summary available`;
+                }
+            }
+
+            // Display voice_style in voice style area
+            const voiceStyleSection = document.getElementById('voice-style-section');
+            const voiceStyleDisplay = document.getElementById('voice-style-display');
+            const voiceStyleActions = document.getElementById('voice-style-actions');
+
+            if (voiceStyleSection && voiceStyleDisplay) {
+                if (data.voice_style && data.voice_style.trim()) {
+                    // Show the voice style section
+                    voiceStyleSection.style.display = 'block';
+                    if (voiceStyleActions) voiceStyleActions.style.display = 'flex';
+
+                    // Display the voice style
+                    voiceStyleDisplay.innerHTML = data.voice_style;
+
+                    // Store voice_style in conceptData for copying
+                    conceptData.voice_style = data.voice_style;
+                } else {
+                    // Hide the voice style section when no data
+                    voiceStyleSection.style.display = 'none';
+                    if (voiceStyleActions) voiceStyleActions.style.display = 'none';
+                    voiceStyleDisplay.innerHTML = '음성 스타일이 여기에 표시됩니다...';
+                    conceptData.voice_style = null;
+                }
+            }
+        } else {
+            // Original format with universal prompts
+            conceptData.universal = data.universal || null;
+            conceptData.universal_translated = data.universal_translated || null;
+
+            // Load universal prompts with formatting
+            if (data.universal) {
+                const universalElement = document.getElementById('universal-prompt');
+                if (universalElement) {
+                    universalElement.innerHTML = formatPromptForDisplay(data.universal).replace(/\n/g, '<br>');
+                    console.log(`Updated universal prompt for ${id}`);
+                }
+            }
+            if (data.universal_translated) {
+                const universalTransElement = document.getElementById('universal-prompt-translated');
+                if (universalTransElement) {
+                    universalTransElement.innerHTML = formatPromptForDisplay(data.universal_translated).replace(/\n/g, '<br>');
+                }
+            }
         }
-        conceptData.universal = data.universal;
     }
-    if (data.universal_translated) {
-        const universalTransElement = document.getElementById('universal-prompt-translated');
-        if (universalTransElement) {
-            universalTransElement.innerHTML = formatPromptForDisplay(data.universal_translated).replace(/\n/g, '<br>');
-        }
-        conceptData.universal_translated = data.universal_translated;
-    }
-
-    // HTML에 input 필드가 없으므로 필드 매핑 로직 제거
-    // 데이터는 conceptData.prompts에 저장되고 표시만 함
 
     updatePromptDisplay();
 }
@@ -623,10 +807,8 @@ function updatePromptDisplay() {
 
 // Copy prompt to clipboard
 function copyPrompt() {
-    const universalPromptElement = document.getElementById('universal-prompt');
-    if (!universalPromptElement) return;
-
-    const promptText = universalPromptElement.textContent;
+    // Use the combined prompt from conceptData (comma-separated version)
+    const promptText = conceptData.universal;
 
     if (promptText && promptText !== '기본 프롬프트가 여기에 표시됩니다...') {
         navigator.clipboard.writeText(promptText).then(() => {
@@ -820,6 +1002,109 @@ function deleteImage(imageId) {
     saveData();
 }
 
+// Transform Stage1 data (visual_blocks) to our format
+function transformStage1Data(data) {
+    const transformed = {
+        characters: [],
+        locations: [],
+        props: [],
+        prompts: {},
+        images: {},
+        universal: data.universal || data.universal_translated || null,
+        universal_translated: data.universal_translated || null
+    };
+
+    // Process characters
+    if (data.visual_blocks && data.visual_blocks.characters) {
+        data.visual_blocks.characters.forEach(char => {
+            const charData = {
+                id: char.id,
+                name: char.name || char.id,
+                blocks: char.blocks || {},
+                appearance_summary: char.appearance_summary || null,
+                voice_style: char.voice_style || null
+            };
+
+            // Store the character data
+            transformed.characters.push(charData);
+
+            // Store the blocks, appearance_summary and voice_style as prompts for this character
+            // ID와 type을 함께 저장
+            transformed.prompts[char.id] = {
+                id: char.id,
+                type: 'character',
+                ...char.blocks,
+                appearance_summary: char.appearance_summary || null,
+                voice_style: char.voice_style || null,
+                universal: transformed.universal,
+                universal_translated: transformed.universal_translated
+            };
+        });
+    }
+
+    // Process locations
+    if (data.visual_blocks && data.visual_blocks.locations) {
+        data.visual_blocks.locations.forEach(loc => {
+            const locData = {
+                id: loc.id,
+                name: loc.name || loc.id,
+                blocks: loc.blocks || {},
+                appearance_summary: loc.appearance_summary || null,
+                voice_style: loc.voice_style || null
+            };
+
+            transformed.locations.push(locData);
+            transformed.prompts[loc.id] = {
+                id: loc.id,
+                type: 'location',
+                ...loc.blocks,
+                appearance_summary: loc.appearance_summary || null,
+                voice_style: loc.voice_style || null,
+                universal: transformed.universal,
+                universal_translated: transformed.universal_translated
+            };
+        });
+    }
+
+    // Process props
+    if (data.visual_blocks && data.visual_blocks.props) {
+        data.visual_blocks.props.forEach(prop => {
+            const propData = {
+                id: prop.id,
+                name: prop.name || prop.id,
+                blocks: prop.blocks || {},
+                appearance_summary: prop.appearance_summary || null,
+                voice_style: prop.voice_style || null
+            };
+
+            transformed.props.push(propData);
+            transformed.prompts[prop.id] = {
+                id: prop.id,
+                type: 'props',
+                ...prop.blocks,
+                appearance_summary: prop.appearance_summary || null,
+                voice_style: prop.voice_style || null,
+                universal: transformed.universal,
+                universal_translated: transformed.universal_translated
+            };
+        });
+    }
+
+    // Also store any film metadata if available
+    if (data.film_metadata) {
+        transformed.film_metadata = data.film_metadata;
+    }
+
+    console.log('Transformed Stage1 data:', {
+        characters: transformed.characters.length,
+        locations: transformed.locations.length,
+        props: transformed.props.length,
+        totalPrompts: Object.keys(transformed.prompts).length
+    });
+
+    return transformed;
+}
+
 // Transform Samurai Kid format to our format
 function transformSamuraiKidData(data) {
     const transformed = {
@@ -888,6 +1173,28 @@ function transformSamuraiKidData(data) {
 
 // Load JSON file - 개선된 ID 매칭 시스템
 function loadJSON() {
+    // 먼저 스토리보드에서 업로드된 데이터가 있는지 확인
+    const storyboardData = localStorage.getItem('mergedData') || localStorage.getItem('storyboardData');
+
+    if (storyboardData) {
+        // 스토리보드 데이터가 있으면 선택 옵션 제공
+        const useStoryboard = confirm('스토리보드에서 업로드된 JSON 데이터가 있습니다.\n사용하시겠습니까?\n\n[확인]: 스토리보드 데이터 사용\n[취소]: 새 파일 업로드');
+
+        if (useStoryboard) {
+            try {
+                let jsonData = JSON.parse(storyboardData);
+                console.log('Loading data from storyboard:', jsonData);
+                processJSONData(jsonData);
+                showNotification('스토리보드 데이터가 로드되었습니다!', 'success');
+                return;
+            } catch (error) {
+                console.error('Failed to parse storyboard data:', error);
+                showNotification('스토리보드 데이터 로드 실패. 새 파일을 업로드해주세요.', 'error');
+            }
+        }
+    }
+
+    // 파일 업로드 처리
     const input = document.createElement('input');
     input.type = 'file';
     input.accept = '.json';
@@ -899,226 +1206,9 @@ function loadJSON() {
             reader.onload = (event) => {
                 try {
                     let jsonData = JSON.parse(event.target.result);
-
-                    // Check if it's Samurai Kid format
-                    if (jsonData.concept_art_collection) {
-                        jsonData = transformSamuraiKidData(jsonData);
-                    }
-
-                    // characters 배열로부터 드롭다운 업데이트
-                    if (jsonData.characters && jsonData.characters.length > 0) {
-                        const characterDropdown = document.getElementById('character-dropdown');
-                        characterDropdown.innerHTML = '';
-                        jsonData.characters.forEach(char => {
-                            const item = document.createElement('div');
-                            item.className = 'dropdown-item';
-                            item.onclick = () => selectItem('character', char.id);
-                            item.textContent = char.id;
-                            characterDropdown.appendChild(item);
-                        });
-                        conceptData.characters = jsonData.characters;
-
-                        // Auto-select the first character after a short delay to ensure DOM is ready
-                        setTimeout(() => {
-                            const firstCharacter = jsonData.characters[0];
-                            selectItem('character', firstCharacter.id);
-                        }, 100);
-                    }
-
-                    // locations 배열로부터 드롭다운 업데이트
-                    if (jsonData.locations) {
-                        const locationDropdown = document.getElementById('location-dropdown');
-                        locationDropdown.innerHTML = '';
-                        jsonData.locations.forEach(loc => {
-                            const item = document.createElement('div');
-                            item.className = 'dropdown-item';
-                            item.onclick = () => selectItem('location', loc.id);
-                            item.textContent = loc.id;
-                            locationDropdown.appendChild(item);
-                        });
-                        conceptData.locations = jsonData.locations;
-                    }
-
-                    // props 배열로부터 드롭다운 업데이트
-                    if (jsonData.props) {
-                        const propsDropdown = document.getElementById('props-dropdown');
-                        propsDropdown.innerHTML = '';
-                        jsonData.props.forEach(prop => {
-                            const item = document.createElement('div');
-                            item.className = 'dropdown-item';
-                            item.onclick = () => selectItem('props', prop.id);
-                            item.textContent = prop.id;
-                            propsDropdown.appendChild(item);
-                        });
-                        conceptData.props = jsonData.props;
-                    }
-
-                    // prompts 객체 저장 - ID와 type으로 매칭
-                    if (jsonData.prompts) {
-                        // prompts가 이미 객체인 경우 그대로 사용
-                        if (typeof jsonData.prompts === 'object' && !Array.isArray(jsonData.prompts)) {
-                            conceptData.prompts = jsonData.prompts;
-
-                            // Fix type information for each prompt if missing
-                            Object.keys(conceptData.prompts).forEach(key => {
-                                const prompt = conceptData.prompts[key];
-                                if (!prompt.type) {
-                                    // Determine type based on which array contains this ID
-                                    if (jsonData.characters?.find(c => c.id === key)) {
-                                        prompt.type = 'character';
-                                    } else if (jsonData.locations?.find(l => l.id === key)) {
-                                        prompt.type = 'location';
-                                    } else if (jsonData.props?.find(p => p.id === key)) {
-                                        prompt.type = 'props';
-                                    }
-                                }
-                            });
-                        }
-                        // prompts가 배열인 경우 객체로 변환
-                        else if (Array.isArray(jsonData.prompts)) {
-                            conceptData.prompts = {};
-                            jsonData.prompts.forEach(prompt => {
-                            if (prompt.id) {
-                                // Add type information if not present
-                                if (!prompt.type) {
-                                    // Determine type based on which array contains this ID
-                                    if (jsonData.characters?.find(c => c.id === prompt.id)) {
-                                        prompt.type = 'character';
-                                    } else if (jsonData.locations?.find(l => l.id === prompt.id)) {
-                                        prompt.type = 'location';
-                                    } else if (jsonData.props?.find(p => p.id === prompt.id)) {
-                                        prompt.type = 'props';  // Use 'props' instead of 'prop'
-                                    }
-                                }
-
-                                conceptData.prompts[prompt.id] = prompt;
-
-                                // universal 프롬프트 저장 (첫 번째 항목의 universal 사용)
-                                if (prompt.universal && !conceptData.universal) {
-                                    conceptData.universal = prompt.universal;
-                                    const universalElement = document.getElementById('universal-prompt');
-                                    if (universalElement) {
-                                        universalElement.innerHTML = formatPromptForDisplay(prompt.universal).replace(/\n/g, '<br>');
-                                    }
-                                }
-                                if (prompt.universal_translated && !conceptData.universal_translated) {
-                                    conceptData.universal_translated = prompt.universal_translated;
-                                    const universalTransElement = document.getElementById('universal-prompt-translated');
-                                    if (universalTransElement) {
-                                        universalTransElement.innerHTML = formatPromptForDisplay(prompt.universal_translated).replace(/\n/g, '<br>');
-                                    }
-                                }
-                            }
-                        });
-                        }
-                    }
-
-                    // Universal prompts 처리
-                    if (jsonData.universal) {
-                        conceptData.universal = jsonData.universal;
-                        const universalElement = document.getElementById('universal-prompt');
-                        if (universalElement) {
-                            universalElement.innerHTML = formatPromptForDisplay(jsonData.universal).replace(/\n/g, '<br>');
-                        }
-                    }
-                    if (jsonData.universal_translated) {
-                        conceptData.universal_translated = jsonData.universal_translated;
-                        const universalTransElement = document.getElementById('universal-prompt-translated');
-                        if (universalTransElement) {
-                            universalTransElement.innerHTML = formatPromptForDisplay(jsonData.universal_translated).replace(/\n/g, '<br>');
-                        }
-                    }
-
-                    // 이미지 데이터 로드
-                    if (jsonData.images) {
-                        // Check if images is in old array format or new object format
-                        if (Array.isArray(jsonData.images)) {
-                            // Convert old array format to new object format
-                            conceptData.images = {};
-                            jsonData.images.forEach(image => {
-                                let key = null;
-                                if (image.character) {
-                                    key = image.character;
-                                } else if (image.location) {
-                                    key = image.location;
-                                } else if (image.props) {
-                                    key = image.props;
-                                }
-
-                                if (key) {
-                                    if (!conceptData.images[key]) {
-                                        conceptData.images[key] = [];
-                                    }
-                                    // Convert to new format
-                                    const newImageData = {
-                                        id: image.id,
-                                        url: image.url,
-                                        type: image.character ? 'character' : (image.location ? 'location' : 'props'),
-                                        itemId: key,
-                                        timestamp: image.timestamp || new Date().toISOString()
-                                    };
-                                    conceptData.images[key].push(newImageData);
-                                }
-                            });
-                        } else {
-                            // Already in new object format
-                            conceptData.images = jsonData.images;
-                        }
-
-                        // Log loaded images for debugging
-                        console.log('Images loaded:', conceptData.images);
-                        const totalImages = Object.values(conceptData.images || {}).reduce((sum, arr) => sum + (arr ? arr.length : 0), 0);
-                        console.log('Total images loaded:', totalImages);
-
-                        // Force update image gallery after a delay
-                        setTimeout(() => {
-                            updateImageGallery();
-                            console.log('Image gallery updated after JSON load');
-                        }, 500);
-                    }
-
-                    // currentCharacter, currentLocation, currentProps 복원
-                    if (jsonData.currentCharacter) {
-                        conceptData.currentCharacter = jsonData.currentCharacter;
-                    }
-                    if (jsonData.currentLocation) {
-                        conceptData.currentLocation = jsonData.currentLocation;
-                    }
-                    if (jsonData.currentProps) {
-                        conceptData.currentProps = jsonData.currentProps;
-                    }
-                    if (jsonData.currentType) {
-                        conceptData.currentType = jsonData.currentType;
-                    }
-
-                    // Save all data to localStorage
-                    console.log('Before saveData - conceptData:', conceptData);
-                    saveData();
-
-                    // Verify save
-                    const savedData = localStorage.getItem('conceptArtData');
-                    console.log('After saveData - localStorage data exists:', savedData ? 'Yes' : 'No');
-                    if (savedData) {
-                        const parsed = JSON.parse(savedData);
-                        console.log('Saved data summary:', {
-                            characters: parsed.characters?.length || 0,
-                            locations: parsed.locations?.length || 0,
-                            props: parsed.props?.length || 0,
-                            prompts: Object.keys(parsed.prompts || {}).length,
-                            images: Object.keys(parsed.images || {}).length,
-                            hasUniversal: !!parsed.universal,
-                            hasTranslated: !!parsed.universal_translated
-                        });
-                    }
-
-                    // Alert success
-                    alert('JSON 파일이 성공적으로 로드되었습니다!');
-
-                    // Force select first character after alert is closed
-                    if (jsonData.characters && jsonData.characters.length > 0) {
-                        const firstCharacter = jsonData.characters[0];
-                        selectItem('character', firstCharacter.id);
-                    }
+                    console.log('Original JSON data from file:', jsonData);
+                    processJSONData(jsonData);
+                    showNotification('JSON 파일이 성공적으로 로드되었습니다!', 'success');
                 } catch (error) {
                     alert('JSON 파일 로드 실패: ' + error.message);
                     console.error('JSON Load Error:', error);
@@ -1129,6 +1219,246 @@ function loadJSON() {
     };
 
     input.click();
+}
+
+// JSON 데이터 처리 함수
+function processJSONData(jsonData) {
+    console.log('Processing JSON data:', jsonData);
+
+    // Check if it's Stage1 format (visual_blocks)
+    if (jsonData.visual_blocks) {
+        console.log('Stage1 JSON format detected');
+        console.log('Visual blocks:', jsonData.visual_blocks);
+        jsonData = transformStage1Data(jsonData);
+        console.log('Transformed data:', jsonData);
+        showNotification('Stage1 JSON 파일이 성공적으로 로드되었습니다!', 'success');
+    }
+    // Check if it's Samurai Kid format
+    else if (jsonData.concept_art_collection) {
+        console.log('Samurai Kid format detected');
+        jsonData = transformSamuraiKidData(jsonData);
+    }
+
+    // characters 배열로부터 드롭다운 업데이트
+    if (jsonData.characters && jsonData.characters.length > 0) {
+        const characterDropdown = document.getElementById('character-dropdown');
+        if (characterDropdown) {
+            characterDropdown.innerHTML = '';
+            jsonData.characters.forEach(char => {
+                            const item = document.createElement('div');
+                            item.className = 'dropdown-item';
+                            item.onclick = () => selectItem('character', char.id);
+                            // Display only the name, not the ID
+                item.textContent = char.name || char.id;
+                characterDropdown.appendChild(item);
+            });
+        }
+        conceptData.characters = jsonData.characters;
+
+        // Auto-select the first character after a short delay to ensure DOM is ready
+        setTimeout(() => {
+            const firstCharacter = jsonData.characters[0];
+            selectItem('character', firstCharacter.id);
+        }, 100);
+    }
+
+    // locations 배열로부터 드롭다운 업데이트
+    if (jsonData.locations && jsonData.locations.length > 0) {
+        const locationDropdown = document.getElementById('location-dropdown');
+        if (locationDropdown) {
+            locationDropdown.innerHTML = '';
+            jsonData.locations.forEach(loc => {
+                const item = document.createElement('div');
+                item.className = 'dropdown-item';
+                item.onclick = () => selectItem('location', loc.id);
+                // Display only the name, not the ID
+                item.textContent = loc.name || loc.id;
+                locationDropdown.appendChild(item);
+            });
+        }
+        conceptData.locations = jsonData.locations;
+    }
+
+    // props 배열로부터 드롭다운 업데이트
+    if (jsonData.props && jsonData.props.length > 0) {
+        const propsDropdown = document.getElementById('props-dropdown');
+        if (propsDropdown) {
+            propsDropdown.innerHTML = '';
+            jsonData.props.forEach(prop => {
+                const item = document.createElement('div');
+                item.className = 'dropdown-item';
+                item.onclick = () => selectItem('props', prop.id);
+                // Display only the name, not the ID
+                item.textContent = prop.name || prop.id;
+                propsDropdown.appendChild(item);
+            });
+        }
+        conceptData.props = jsonData.props;
+    }
+
+    // prompts 객체 저장 - ID와 type으로 매칭
+    if (jsonData.prompts) {
+        // prompts가 이미 객체인 경우 그대로 사용
+        if (typeof jsonData.prompts === 'object' && !Array.isArray(jsonData.prompts)) {
+            conceptData.prompts = jsonData.prompts;
+
+            // Fix type information for each prompt if missing
+            Object.keys(conceptData.prompts).forEach(key => {
+                const prompt = conceptData.prompts[key];
+                if (!prompt.type) {
+                    // Determine type based on which array contains this ID
+                    if (jsonData.characters?.find(c => c.id === key)) {
+                        prompt.type = 'character';
+                    } else if (jsonData.locations?.find(l => l.id === key)) {
+                        prompt.type = 'location';
+                    } else if (jsonData.props?.find(p => p.id === key)) {
+                        prompt.type = 'props';
+                    }
+                }
+            });
+        }
+        // prompts가 배열인 경우 객체로 변환
+        else if (Array.isArray(jsonData.prompts)) {
+            conceptData.prompts = {};
+            jsonData.prompts.forEach(prompt => {
+                if (prompt.id) {
+                    // Add type information if not present
+                    if (!prompt.type) {
+                        // Determine type based on which array contains this ID
+                        if (jsonData.characters?.find(c => c.id === prompt.id)) {
+                            prompt.type = 'character';
+                        } else if (jsonData.locations?.find(l => l.id === prompt.id)) {
+                            prompt.type = 'location';
+                        } else if (jsonData.props?.find(p => p.id === prompt.id)) {
+                            prompt.type = 'props';
+                        }
+                    }
+
+                    conceptData.prompts[prompt.id] = prompt;
+
+                    // universal 프롬프트 저장 (첫 번째 항목의 universal 사용)
+                    if (prompt.universal && !conceptData.universal) {
+                        conceptData.universal = prompt.universal;
+                        const universalElement = document.getElementById('universal-prompt');
+                        if (universalElement) {
+                            universalElement.innerHTML = formatPromptForDisplay(prompt.universal).replace(/\n/g, '<br>');
+                        }
+                    }
+                    if (prompt.universal_translated && !conceptData.universal_translated) {
+                        conceptData.universal_translated = prompt.universal_translated;
+                        const universalTransElement = document.getElementById('universal-prompt-translated');
+                        if (universalTransElement) {
+                            universalTransElement.innerHTML = formatPromptForDisplay(prompt.universal_translated).replace(/\n/g, '<br>');
+                        }
+                    }
+                }
+            });
+        }
+    }
+
+    // Universal prompts 처리
+    if (jsonData.universal) {
+        conceptData.universal = jsonData.universal;
+        const universalElement = document.getElementById('universal-prompt');
+        if (universalElement) {
+            universalElement.innerHTML = formatPromptForDisplay(jsonData.universal).replace(/\n/g, '<br>');
+        }
+    }
+    if (jsonData.universal_translated) {
+        conceptData.universal_translated = jsonData.universal_translated;
+        const universalTransElement = document.getElementById('universal-prompt-translated');
+        if (universalTransElement) {
+            universalTransElement.innerHTML = formatPromptForDisplay(jsonData.universal_translated).replace(/\n/g, '<br>');
+        }
+    }
+
+    // 이미지 데이터 로드
+    if (jsonData.images) {
+        // Check if images is in old array format or new object format
+        if (Array.isArray(jsonData.images)) {
+            // Convert old array format to new object format
+            conceptData.images = {};
+            jsonData.images.forEach(image => {
+                let key = null;
+                if (image.character) {
+                    key = image.character;
+                } else if (image.location) {
+                    key = image.location;
+                } else if (image.props) {
+                    key = image.props;
+                }
+
+                if (key) {
+                    if (!conceptData.images[key]) {
+                        conceptData.images[key] = [];
+                    }
+                    // Convert to new format
+                    const newImageData = {
+                        id: image.id,
+                        url: image.url,
+                        type: image.character ? 'character' : (image.location ? 'location' : 'props'),
+                        itemId: key,
+                        timestamp: image.timestamp || new Date().toISOString()
+                    };
+                    conceptData.images[key].push(newImageData);
+                }
+            });
+        } else {
+            // Already in new object format
+            conceptData.images = jsonData.images;
+        }
+
+        // Log loaded images for debugging
+        console.log('Images loaded:', conceptData.images);
+        const totalImages = Object.values(conceptData.images || {}).reduce((sum, arr) => sum + (arr ? arr.length : 0), 0);
+        console.log('Total images loaded:', totalImages);
+
+        // Force update image gallery after a delay
+        setTimeout(() => {
+            updateImageGallery();
+            console.log('Image gallery updated after JSON load');
+        }, 500);
+    }
+
+    // currentCharacter, currentLocation, currentProps 복원
+    if (jsonData.currentCharacter) {
+        conceptData.currentCharacter = jsonData.currentCharacter;
+    }
+    if (jsonData.currentLocation) {
+        conceptData.currentLocation = jsonData.currentLocation;
+    }
+    if (jsonData.currentProps) {
+        conceptData.currentProps = jsonData.currentProps;
+    }
+    if (jsonData.currentType) {
+        conceptData.currentType = jsonData.currentType;
+    }
+
+    // Save all data to localStorage
+    console.log('Before saveData - conceptData:', conceptData);
+    saveData();
+
+    // Verify save
+    const savedData = localStorage.getItem('conceptArtData');
+    console.log('After saveData - localStorage data exists:', savedData ? 'Yes' : 'No');
+    if (savedData) {
+        const parsed = JSON.parse(savedData);
+        console.log('Saved data summary:', {
+            characters: parsed.characters?.length || 0,
+            locations: parsed.locations?.length || 0,
+            props: parsed.props?.length || 0,
+            prompts: Object.keys(parsed.prompts || {}).length,
+            images: Object.keys(parsed.images || {}).length,
+            hasUniversal: !!parsed.universal,
+            hasTranslated: !!parsed.universal_translated
+        });
+    }
+
+    // Force select first character after data is loaded
+    if (jsonData.characters && jsonData.characters.length > 0) {
+        const firstCharacter = jsonData.characters[0];
+        selectItem('character', firstCharacter.id);
+    }
 }
 
 // Download JSON file
@@ -1992,12 +2322,38 @@ function deleteCurrentSection() {
     alert(`"${currentKey}" ${sectionName}이(가) 삭제되었습니다.`);
 }
 
+// Copy voice style to clipboard
+function copyVoiceStyle() {
+    const voiceStyleText = conceptData.voice_style;
+
+    if (voiceStyleText && voiceStyleText !== '음성 스타일이 여기에 표시됩니다...') {
+        navigator.clipboard.writeText(voiceStyleText).then(() => {
+            // Change button text temporarily
+            const copyBtn = event.target.closest('.copy-btn');
+            if (copyBtn) {
+                const originalHTML = copyBtn.innerHTML;
+                copyBtn.innerHTML = `
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                    복사됨!
+                `;
+
+                setTimeout(() => {
+                    copyBtn.innerHTML = originalHTML;
+                }, 2000);
+            }
+        });
+    }
+}
+
 // Make functions globally available
 window.toggleDropdown = toggleDropdown;
 window.selectItem = selectItem;
 window.copyPrompt = copyPrompt;
 window.copyUniversalPrompt = copyUniversalPrompt;
 window.copyUniversalPromptTranslated = copyUniversalPromptTranslated;
+window.copyVoiceStyle = copyVoiceStyle;
 window.addImage = addImage;
 window.deleteImage = deleteImage;
 window.loadJSON = loadJSON;

@@ -185,10 +185,7 @@ class StoryboardManager {
                 );
 
                 // sequence_id 찾기
-                let sequenceId = null;
-                if (merged.treatment.sequences) {
-                    sequenceId = matchingStage1Scene?.sequence_id || null;
-                }
+                let sequenceId = matchingStage1Scene?.sequence_id || null;
 
                 merged.scenes.push({
                     ...s2Scene,
@@ -197,15 +194,55 @@ class StoryboardManager {
                     stage1_data: matchingStage1Scene || null
                 });
             });
-        } else {
-            // stage2가 없으면 stage1의 scenes 사용
+
+            // stage2에 없는 stage1 scene들도 추가 (scene을 shot처럼 표시)
             stage1Scenes.forEach(s1Scene => {
+                const existsInStage2 = stage2.scenes.some(s2 =>
+                    s2.scene_id === s1Scene.scene_id ||
+                    s1Scene.scene_number === parseInt(s2.scene_id.replace('S', ''))
+                );
+
+                if (!existsInStage2) {
+                    const sceneAsShot = {
+                        shot_id: s1Scene.scene_id,
+                        shot_type: 'scene',
+                        shot_text: s1Scene.scenario_text,
+                        shot_summary: s1Scene.scenario_text?.split('\n')[0] || `Scene ${s1Scene.scene_number}`,
+                        camera_movement: {
+                            type: 'establishing',
+                            duration: 'N/A'
+                        }
+                    };
+
+                    merged.scenes.push({
+                        scene_id: s1Scene.scene_id,
+                        scene_title: s1Scene.scenario_text?.split('\n')[0] || `Scene ${s1Scene.scene_number}`,
+                        scene_scenario: s1Scene.scenario_text,
+                        sequence_id: s1Scene.sequence_id,
+                        shots: [sceneAsShot]
+                    });
+                }
+            });
+        } else {
+            // stage2가 없으면 stage1의 scenes를 shot처럼 표시
+            stage1Scenes.forEach(s1Scene => {
+                const sceneAsShot = {
+                    shot_id: s1Scene.scene_id,
+                    shot_type: 'scene',
+                    shot_text: s1Scene.scenario_text,
+                    shot_summary: s1Scene.scenario_text?.split('\n')[0] || `Scene ${s1Scene.scene_number}`,
+                    camera_movement: {
+                        type: 'establishing',
+                        duration: 'N/A'
+                    }
+                };
+
                 merged.scenes.push({
                     scene_id: s1Scene.scene_id,
                     scene_title: s1Scene.scenario_text?.split('\n')[0] || `Scene ${s1Scene.scene_number}`,
                     scene_scenario: s1Scene.scenario_text,
                     sequence_id: s1Scene.sequence_id,
-                    shots: [] // 샷 정보는 없음
+                    shots: [sceneAsShot]
                 });
             });
         }
@@ -220,12 +257,24 @@ class StoryboardManager {
         const stage1Scenes = stage1.current_work?.scenario?.scenes || [];
 
         stage1Scenes.forEach(scene => {
+            // stage1의 각 scene을 하나의 shot처럼 처리
+            const sceneAsShot = {
+                shot_id: scene.scene_id,
+                shot_type: 'scene',
+                shot_text: scene.scenario_text,
+                shot_summary: scene.scenario_text?.split('\n')[0] || `Scene ${scene.scene_number}`,
+                camera_movement: {
+                    type: 'establishing',
+                    duration: 'N/A'
+                }
+            };
+
             scenes.push({
                 scene_id: scene.scene_id,
                 scene_title: scene.scenario_text?.split('\n')[0] || `Scene ${scene.scene_number}`,
                 scene_scenario: scene.scenario_text,
                 sequence_id: scene.sequence_id,
-                shots: [] // stage1에는 샷 정보가 없음
+                shots: [sceneAsShot] // scene 자체를 shot으로 추가
             });
         });
 
@@ -562,38 +611,36 @@ class StoryboardManager {
         const movementType = cameraMovement.type || 'static';
         const duration = cameraMovement.duration || 'N/A';
 
+        // scene 타입일 때는 다른 스타일 적용
+        const isScene = shot.shot_type === 'scene';
+        const typeLabel = isScene ? 'SCENE' : (shot.shot_type || 'regular').toUpperCase();
+        const typeClass = isScene ? 'scene-type' : 'shot-type';
+
+        // scene일 때는 시나리오 텍스트를 줄여서 표시
+        let displayText = shot.shot_text || shot.shot_summary || '';
+        if (isScene && displayText.length > 200) {
+            displayText = displayText.substring(0, 200) + '...';
+        }
+
         card.innerHTML = `
             <div class="card-header">
                 <span class="shot-id">${shot.shot_id}</span>
-                <span class="shot-type">${shot.shot_type || 'regular'}</span>
+                <span class="${typeClass}">${typeLabel}</span>
             </div>
             <div class="card-thumbnail">
                 <svg class="thumbnail-placeholder" width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
-                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-                    <circle cx="8.5" cy="8.5" r="1.5"></circle>
-                    <polyline points="21 15 16 10 5 21"></polyline>
+                    ${isScene ?
+                        `<rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                         <line x1="3" y1="9" x2="21" y2="9"></line>
+                         <line x1="9" y1="21" x2="9" y2="9"></line>` :
+                        `<rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                         <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                         <polyline points="21 15 16 10 5 21"></polyline>`
+                    }
                 </svg>
             </div>
             <div class="card-content">
-                <p class="shot-text">${shot.shot_text || shot.shot_summary || ''}</p>
-                <div class="card-meta">
-                    <div class="meta-item">
-                        <svg class="meta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                            <polyline points="14 2 14 8 20 8"></polyline>
-                        </svg>
-                        <span class="meta-label">Camera:</span>
-                        <span class="meta-value">${movementType}</span>
-                    </div>
-                    <div class="meta-item">
-                        <svg class="meta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <circle cx="12" cy="12" r="10"></circle>
-                            <polyline points="12 6 12 12 16 14"></polyline>
-                        </svg>
-                        <span class="meta-label">Duration:</span>
-                        <span class="meta-value">${duration}</span>
-                    </div>
-                </div>
+                <p class="shot-text">${displayText}</p>
             </div>
             <div class="card-footer">
                 <div class="card-tags">
@@ -665,7 +712,35 @@ class StoryboardManager {
     }
 
     editShotBlock(shot) {
-        this.showNotification('블록 수정 기능은 준비 중입니다.', 'info');
+        // 샷 데이터를 sessionStorage에 저장
+        sessionStorage.setItem(`shot_${shot.shot_id}`, JSON.stringify(shot));
+
+        // 모달 컨테이너 표시 (편집 모드)
+        const modalContainer = document.getElementById('shotDetailModal');
+        if (!modalContainer) return;
+
+        // 모달 컨테이너 생성
+        modalContainer.innerHTML = `
+            <div class="shot-detail-modal-wrapper">
+                <iframe id="shotDetailFrame"
+                    src="../shot-detail.html?shotId=${shot.shot_id}&mode=edit"
+                    style="width: 100%; height: 100%; border: none;">
+                </iframe>
+            </div>
+        `;
+
+        // 모달 표시
+        modalContainer.style.display = 'flex';
+
+        // ESC 키로 닫기
+        document.addEventListener('keydown', this.handleEscKey);
+
+        // 모달 외부 클릭시 닫기
+        modalContainer.addEventListener('click', (e) => {
+            if (e.target === modalContainer) {
+                this.closeShotDetailModal();
+            }
+        });
     }
 
     duplicateShot(shot) {
@@ -677,17 +752,50 @@ class StoryboardManager {
     }
 
     showShotDetails(shot) {
-        // Create a modal or expand view to show detailed shot information
-        console.log('Shot details:', shot);
+        // 샷 데이터를 sessionStorage에 저장
+        sessionStorage.setItem(`shot_${shot.shot_id}`, JSON.stringify(shot));
 
-        const details = `
-Shot ID: ${shot.shot_id}
-Type: ${shot.shot_type || 'regular'}
-Text: ${shot.shot_text || shot.shot_summary || 'No description'}
-Camera: ${shot.camera_movement?.type || 'static'}
-Duration: ${shot.camera_movement?.duration || 'N/A'}
+        // 모달 컨테이너 표시
+        const modalContainer = document.getElementById('shotDetailModal');
+        if (!modalContainer) return;
+
+        // 모달 컨테이너 생성
+        modalContainer.innerHTML = `
+            <div class="shot-detail-modal-wrapper">
+                <iframe id="shotDetailFrame"
+                    src="../shot-detail.html?shotId=${shot.shot_id}"
+                    style="width: 100%; height: 100%; border: none;">
+                </iframe>
+            </div>
         `;
-        alert(details);
+
+        // 모달 표시
+        modalContainer.style.display = 'flex';
+
+        // ESC 키로 닫기
+        document.addEventListener('keydown', this.handleEscKey);
+
+        // 모달 외부 클릭시 닫기
+        modalContainer.addEventListener('click', (e) => {
+            if (e.target === modalContainer) {
+                this.closeShotDetailModal();
+            }
+        });
+    }
+
+    handleEscKey = (e) => {
+        if (e.key === 'Escape') {
+            this.closeShotDetailModal();
+        }
+    }
+
+    closeShotDetailModal() {
+        const modalContainer = document.getElementById('shotDetailModal');
+        if (modalContainer) {
+            modalContainer.style.display = 'none';
+            modalContainer.innerHTML = '';
+        }
+        document.removeEventListener('keydown', this.handleEscKey);
     }
 
     downloadMergedJSON() {

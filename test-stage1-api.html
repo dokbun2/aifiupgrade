@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>Stage1 JSON Upload Test API</title>
+    <style>
+        body { font-family: Arial; padding: 20px; background: #1a1a1a; color: #fff; }
+        .test { margin: 20px 0; padding: 20px; background: #2a2a2a; border-radius: 8px; }
+        button { padding: 10px 20px; background: #667eea; color: white; border: none; border-radius: 5px; cursor: pointer; margin: 5px; }
+        button:hover { background: #5a67d8; }
+        .result { margin-top: 10px; padding: 15px; background: #333; border-radius: 5px; }
+        .success { color: #4caf50; }
+        .error { color: #f44336; }
+        pre { white-space: pre-wrap; word-wrap: break-word; font-size: 12px; }
+    </style>
+</head>
+<body>
+    <h1>Stage1 JSON Upload API Test</h1>
+
+    <div class="test">
+        <h2>1. Load and Transform Stage1 JSON</h2>
+        <button onclick="testStage1Transform()">Test Transform Function</button>
+        <div id="transform-result" class="result"></div>
+    </div>
+
+    <div class="test">
+        <h2>2. Test Prompt Block Combination</h2>
+        <button onclick="testPromptCombination()">Test Prompt Combination</button>
+        <div id="prompt-result" class="result"></div>
+    </div>
+
+    <div class="test">
+        <h2>3. Direct File Upload Test</h2>
+        <input type="file" id="fileInput" accept=".json">
+        <button onclick="testFileUpload()">Upload & Process</button>
+        <div id="upload-result" class="result"></div>
+    </div>
+
+    <script>
+        // Transform function from conceptart.js
+        function transformStage1Data(data) {
+            const transformed = {
+                characters: [],
+                locations: [],
+                props: [],
+                prompts: {},
+                images: {},
+                universal: data.universal || null,
+                universal_translated: data.universal_translated || null
+            };
+
+            // Process characters
+            if (data.visual_blocks && data.visual_blocks.characters) {
+                data.visual_blocks.characters.forEach(char => {
+                    const charData = {
+                        id: char.id,
+                        name: char.name || char.id,
+                        blocks: char.blocks || {}
+                    };
+                    transformed.characters.push(charData);
+                    transformed.prompts[char.id] = char.blocks || {};
+                });
+            }
+
+            // Process locations
+            if (data.visual_blocks && data.visual_blocks.locations) {
+                data.visual_blocks.locations.forEach(loc => {
+                    const locData = {
+                        id: loc.id,
+                        name: loc.name || loc.id,
+                        blocks: loc.blocks || {}
+                    };
+                    transformed.locations.push(locData);
+                    transformed.prompts[loc.id] = loc.blocks || {};
+                });
+            }
+
+            // Process props
+            if (data.visual_blocks && data.visual_blocks.props) {
+                data.visual_blocks.props.forEach(prop => {
+                    const propData = {
+                        id: prop.id,
+                        name: prop.name || prop.id,
+                        blocks: prop.blocks || {}
+                    };
+                    transformed.props.push(propData);
+                    transformed.prompts[prop.id] = prop.blocks || {};
+                });
+            }
+
+            if (data.film_metadata) {
+                transformed.film_metadata = data.film_metadata;
+            }
+
+            return transformed;
+        }
+
+        async function testStage1Transform() {
+            try {
+                const response = await fetch('/data/stage1_test.json');
+                const json = await response.json();
+
+                if (json.visual_blocks) {
+                    const transformed = transformStage1Data(json);
+
+                    document.getElementById('transform-result').innerHTML = `
+                        <span class="success">✅ Transform Success!</span><br><br>
+                        <strong>Film:</strong> ${json.film_metadata?.title_working}<br>
+                        <strong>Characters:</strong> ${transformed.characters.length}<br>
+                        ${transformed.characters.map(c => `• ${c.id} - ${c.name}`).join('<br>')}<br><br>
+                        <strong>Locations:</strong> ${transformed.locations.length}<br>
+                        ${transformed.locations.map(l => `• ${l.id} - ${l.name}`).join('<br>')}<br><br>
+                        <strong>Props:</strong> ${transformed.props.length}<br>
+                        ${transformed.props.map(p => `• ${p.id} - ${p.name}`).join('<br>')}<br><br>
+                        <strong>Total Prompts:</strong> ${Object.keys(transformed.prompts).length}
+                    `;
+
+                    window.testData = transformed; // Save for next test
+                } else {
+                    throw new Error('Not a Stage1 format');
+                }
+            } catch (error) {
+                document.getElementById('transform-result').innerHTML =
+                    `<span class="error">❌ Error: ${error.message}</span>`;
+            }
+        }
+
+        function testPromptCombination() {
+            if (!window.testData) {
+                document.getElementById('prompt-result').innerHTML =
+                    '<span class="error">Please run Transform test first!</span>';
+                return;
+            }
+
+            const charId = 'CHAR_001';
+            const charPrompt = window.testData.prompts[charId];
+
+            if (charPrompt) {
+                const blockKeys = Object.keys(charPrompt).filter(key => key.includes('_')).sort();
+                const combinedPrompt = blockKeys
+                    .map(key => charPrompt[key])
+                    .filter(value => value && value.trim())
+                    .join(', ');
+
+                document.getElementById('prompt-result').innerHTML = `
+                    <span class="success">✅ Prompt Combination Success!</span><br><br>
+                    <strong>Character:</strong> ${charId}<br>
+                    <strong>Block Count:</strong> ${blockKeys.length}<br><br>
+                    <strong>First 5 Blocks:</strong><br>
+                    ${blockKeys.slice(0, 5).map(key =>
+                        `<strong>${key}:</strong> ${charPrompt[key]}`
+                    ).join('<br>')}<br><br>
+                    <strong>Combined Prompt (first 500 chars):</strong><br>
+                    <pre>${combinedPrompt.substring(0, 500)}...</pre>
+                `;
+            }
+        }
+
+        function testFileUpload() {
+            const fileInput = document.getElementById('fileInput');
+            const file = fileInput.files[0];
+
+            if (!file) {
+                document.getElementById('upload-result').innerHTML =
+                    '<span class="error">Please select a file!</span>';
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                try {
+                    const json = JSON.parse(event.target.result);
+
+                    if (json.visual_blocks) {
+                        const transformed = transformStage1Data(json);
+
+                        document.getElementById('upload-result').innerHTML = `
+                            <span class="success">✅ File Upload & Process Success!</span><br><br>
+                            <strong>File:</strong> ${file.name}<br>
+                            <strong>Size:</strong> ${(file.size / 1024).toFixed(2)} KB<br><br>
+                            <strong>Detected Format:</strong> Stage1 JSON<br>
+                            <strong>Film:</strong> ${json.film_metadata?.title_working || 'Unknown'}<br><br>
+                            <strong>Content Summary:</strong><br>
+                            • Characters: ${transformed.characters.length}<br>
+                            • Locations: ${transformed.locations.length}<br>
+                            • Props: ${transformed.props.length}<br>
+                            • Total Prompts: ${Object.keys(transformed.prompts).length}<br><br>
+                            <span class="success">✨ Ready to use in Concept Art page!</span>
+                        `;
+                    } else {
+                        document.getElementById('upload-result').innerHTML =
+                            '<span class="error">❌ Not a Stage1 JSON format (missing visual_blocks)</span>';
+                    }
+                } catch (error) {
+                    document.getElementById('upload-result').innerHTML =
+                        `<span class="error">❌ Parse Error: ${error.message}</span>`;
+                }
+            };
+            reader.readAsText(file);
+        }
+    </script>
+</body>
+</html>

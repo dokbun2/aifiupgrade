@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>Blocks Display Test</title>
+    <style>
+        body {
+            font-family: Arial;
+            padding: 20px;
+            background: #1a1a1a;
+            color: #fff;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .section {
+            margin: 20px 0;
+            padding: 20px;
+            background: #2a2a2a;
+            border-radius: 8px;
+        }
+        button {
+            padding: 10px 20px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #5a67d8; }
+        .prompt-display {
+            margin-top: 20px;
+            padding: 20px;
+            background: #333;
+            border-radius: 8px;
+            border: 1px solid #444;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.8;
+        }
+        .copy-section {
+            margin-top: 20px;
+            padding: 15px;
+            background: #404040;
+            border-radius: 8px;
+            font-size: 13px;
+            color: #aaa;
+            word-wrap: break-word;
+        }
+        .dropdown {
+            padding: 8px 16px;
+            background: #333;
+            border: 1px solid #555;
+            border-radius: 5px;
+            color: #fff;
+            cursor: pointer;
+            margin: 5px;
+        }
+        h3 { color: #667eea; }
+    </style>
+</head>
+<body>
+    <h1>📝 Blocks Display Test</h1>
+
+    <div class="section">
+        <h2>1. Select Character</h2>
+        <select id="characterSelect" class="dropdown" onchange="selectCharacter()">
+            <option value="">Select a character...</option>
+        </select>
+        <button onclick="loadTestData()">Load Test Data</button>
+    </div>
+
+    <div class="section">
+        <h2>2. Formatted Display (줄바꿈 표시)</h2>
+        <div id="formatted-display" class="prompt-display">
+            Select a character to see formatted blocks...
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>3. Copy Version (콤마 구분)</h2>
+        <div id="copy-version" class="copy-section">
+            Combined prompt for copying will appear here...
+        </div>
+        <button onclick="copyToClipboard()">📋 Copy Prompt</button>
+    </div>
+
+    <script>
+        let testData = null;
+
+        // Test data with blocks
+        const sampleData = {
+            "CHAR_001": {
+                name: "Seojun",
+                blocks: {
+                    "1_STYLE": "Photorealistic portrait",
+                    "2_ARTIST_REF": "Steve McCurry style",
+                    "3_MEDIUM": "Photography",
+                    "4_GENRE": "Human Drama",
+                    "5_CHARACTER": "Seojun, Korean male 32, a chef who heals with food",
+                    "6_MOOD_PERSONALITY": "introspective, weary but hopeful, sincere, warm",
+                    "7_ERA_CONTEXT": "modern South Korea 2025",
+                    "8_CAMERA": "Medium Close-up Shot, front view, eye level",
+                    "9_GAZE": "soulful gaze, looking at a guest with empathy",
+                    "10_CHARACTER_SHEET": "",
+                    "11_BODY_TYPE": "average height 178cm, slim build",
+                    "12_HAIR": "black, slightly messy short hair",
+                    "13_FACE_SHAPE": "oval face with soft features",
+                    "14_FACIAL_FEATURES": "deep thoughtful eyes, a hint of tiredness",
+                    "15_SKIN": "warm skin tones",
+                    "16_EXPRESSION": "a gentle, comforting smile",
+                    "17_CLOTHING": "a simple white t-shirt under a dark linen apron",
+                    "18_ACCESSORIES": "",
+                    "19_PROPS": "holding a wooden spoon",
+                    "20_POSE": "leaning slightly forward, listening intently",
+                    "21_BACKGROUND": "simple white background",
+                    "22_LIGHTING": "soft natural light from a window, golden hour preferred",
+                    "23_CAMERA_TECH": "Sony A7R IV, 85mm f/1.4 lens, Portra 400 film aesthetic",
+                    "24_QUALITY": "professional, Masterpiece, Highly detailed",
+                    "25_PARAMETERS": "--ar 16:9 --style raw"
+                }
+            }
+        };
+
+        function loadTestData() {
+            testData = sampleData;
+
+            // Populate dropdown
+            const select = document.getElementById('characterSelect');
+            select.innerHTML = '<option value="">Select a character...</option>';
+
+            Object.keys(testData).forEach(id => {
+                const option = document.createElement('option');
+                option.value = id;
+                option.textContent = testData[id].name || id; // Show only name
+                select.appendChild(option);
+            });
+
+            console.log('Test data loaded');
+        }
+
+        function selectCharacter() {
+            const select = document.getElementById('characterSelect');
+            const charId = select.value;
+
+            if (!charId || !testData[charId]) {
+                document.getElementById('formatted-display').innerHTML = 'Select a character to see formatted blocks...';
+                document.getElementById('copy-version').innerHTML = 'Combined prompt for copying will appear here...';
+                return;
+            }
+
+            const character = testData[charId];
+            const blocks = character.blocks;
+
+            // Sort blocks by number
+            const blockKeys = Object.keys(blocks)
+                .filter(key => key.includes('_'))
+                .sort((a, b) => {
+                    const numA = parseInt(a.split('_')[0]);
+                    const numB = parseInt(b.split('_')[0]);
+                    return numA - numB;
+                });
+
+            // Format blocks with semicolons
+            const validBlocks = blockKeys
+                .map(key => {
+                    const value = blocks[key];
+                    if (value && value.trim()) {
+                        const label = key.substring(key.indexOf('_') + 1);
+                        return { label, value };
+                    }
+                    return null;
+                })
+                .filter(item => item !== null);
+
+            // Format blocks with semicolons (except the last one)
+            const formattedBlocks = validBlocks
+                .map((block, index) => {
+                    const isLast = index === validBlocks.length - 1;
+                    return `${block.label}: ${block.value}${isLast ? '' : ';'}`;
+                });
+
+            // Display version with line breaks
+            const displayVersion = formattedBlocks.join('\n');
+
+            // Copy version - same as display (formatted with semicolons)
+            const combinedPrompt = formattedBlocks.join('\n');
+
+            // Display formatted blocks
+            document.getElementById('formatted-display').innerHTML = displayVersion.replace(/\n/g, '<br>');
+
+            // Display copy version
+            document.getElementById('copy-version').innerHTML = displayVersion.replace(/\n/g, '<br>');
+        }
+
+        function copyToClipboard() {
+            const text = document.getElementById('copy-version').textContent;
+            if (text && text !== 'Combined prompt for copying will appear here...') {
+                navigator.clipboard.writeText(text).then(() => {
+                    alert('Prompt copied to clipboard!');
+                });
+            }
+        }
+
+        // Load test data on page load
+        window.addEventListener('DOMContentLoaded', () => {
+            loadTestData();
+        });
+    </script>
+</body>
+</html>

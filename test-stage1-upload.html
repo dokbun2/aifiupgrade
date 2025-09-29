@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stage1 JSON Upload Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; background: #1a1a1a; color: #fff; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        .test-section { margin: 20px 0; padding: 20px; background: #2a2a2a; border-radius: 8px; }
+        button { padding: 10px 20px; background: #667eea; color: white; border: none; border-radius: 5px; cursor: pointer; margin: 5px; }
+        button:hover { background: #5a67d8; }
+        .result { margin-top: 20px; padding: 15px; background: #333; border-radius: 5px; }
+        pre { white-space: pre-wrap; word-wrap: break-word; }
+        .success { background: #2f5c2f; }
+        .error { background: #5c2f2f; }
+        .info { background: #2f4c5c; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Stage1 JSON Upload Test</h1>
+
+        <div class="test-section">
+            <h2>1. Load Stage1 JSON File</h2>
+            <button onclick="loadStage1File()">Load Gieokui_Siktak_stage1.json</button>
+            <div id="load-result" class="result"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>2. Parsed Data Summary</h2>
+            <div id="data-summary" class="result"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>3. Test Character Selection</h2>
+            <button onclick="testCharacterSelection()">Test CHAR_001 Selection</button>
+            <div id="character-result" class="result"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>4. Test Location Selection</h2>
+            <button onclick="testLocationSelection()">Test LOC_001 Selection</button>
+            <div id="location-result" class="result"></div>
+        </div>
+    </div>
+
+    <script>
+        let testData = null;
+
+        async function loadStage1File() {
+            try {
+                // Read the Stage1 JSON file
+                const response = await fetch('/data/stage1_test.json');
+                const json = await response.json();
+
+                // Check if it has visual_blocks
+                if (json.visual_blocks) {
+                    testData = transformStage1Data(json);
+                    document.getElementById('load-result').className = 'result success';
+                    document.getElementById('load-result').innerHTML = `
+                        <strong>✅ Stage1 JSON loaded successfully!</strong><br>
+                        Film Title: ${json.film_metadata?.title_working || 'Unknown'}<br>
+                        Step: ${json.current_step || 'Unknown'}
+                    `;
+
+                    showDataSummary();
+                } else {
+                    throw new Error('Not a Stage1 JSON format');
+                }
+            } catch (error) {
+                document.getElementById('load-result').className = 'result error';
+                document.getElementById('load-result').innerHTML = `
+                    <strong>❌ Error:</strong> ${error.message}
+                `;
+            }
+        }
+
+        function transformStage1Data(data) {
+            const transformed = {
+                characters: [],
+                locations: [],
+                props: [],
+                prompts: {}
+            };
+
+            // Process characters
+            if (data.visual_blocks && data.visual_blocks.characters) {
+                data.visual_blocks.characters.forEach(char => {
+                    transformed.characters.push({
+                        id: char.id,
+                        name: char.name || char.id,
+                        blocks: char.blocks || {}
+                    });
+                    transformed.prompts[char.id] = char.blocks || {};
+                });
+            }
+
+            // Process locations
+            if (data.visual_blocks && data.visual_blocks.locations) {
+                data.visual_blocks.locations.forEach(loc => {
+                    transformed.locations.push({
+                        id: loc.id,
+                        name: loc.name || loc.id,
+                        blocks: loc.blocks || {}
+                    });
+                    transformed.prompts[loc.id] = loc.blocks || {};
+                });
+            }
+
+            // Process props
+            if (data.visual_blocks && data.visual_blocks.props) {
+                data.visual_blocks.props.forEach(prop => {
+                    transformed.props.push({
+                        id: prop.id,
+                        name: prop.name || prop.id,
+                        blocks: prop.blocks || {}
+                    });
+                    transformed.prompts[prop.id] = prop.blocks || {};
+                });
+            }
+
+            return transformed;
+        }
+
+        function showDataSummary() {
+            if (!testData) return;
+
+            const summary = `
+                <strong>📊 Data Summary:</strong><br>
+                <strong>Characters:</strong> ${testData.characters.length}<br>
+                ${testData.characters.map(c => `  • ${c.id} - ${c.name}`).join('<br>')}<br><br>
+                <strong>Locations:</strong> ${testData.locations.length}<br>
+                ${testData.locations.map(l => `  • ${l.id} - ${l.name}`).join('<br>')}<br><br>
+                <strong>Props:</strong> ${testData.props.length}<br>
+                ${testData.props.map(p => `  • ${p.id} - ${p.name}`).join('<br>')}<br><br>
+                <strong>Total Prompts:</strong> ${Object.keys(testData.prompts).length}
+            `;
+
+            document.getElementById('data-summary').className = 'result info';
+            document.getElementById('data-summary').innerHTML = summary;
+        }
+
+        function testCharacterSelection() {
+            if (!testData || !testData.prompts['CHAR_001']) {
+                document.getElementById('character-result').className = 'result error';
+                document.getElementById('character-result').innerHTML = 'Please load Stage1 JSON first!';
+                return;
+            }
+
+            const charData = testData.prompts['CHAR_001'];
+            const blockKeys = Object.keys(charData).filter(key => key.includes('_')).sort();
+
+            // Combine blocks into prompt
+            const combinedPrompt = blockKeys
+                .map(key => charData[key])
+                .filter(value => value && value.trim())
+                .join(', ');
+
+            document.getElementById('character-result').className = 'result success';
+            document.getElementById('character-result').innerHTML = `
+                <strong>Character: CHAR_001 - Seojun</strong><br><br>
+                <strong>Block Count:</strong> ${blockKeys.length}<br><br>
+                <strong>Combined Prompt:</strong><br>
+                <pre>${combinedPrompt}</pre><br>
+                <strong>Individual Blocks:</strong><br>
+                ${blockKeys.slice(0, 5).map(key => `${key}: ${charData[key]}`).join('<br>')}
+                <br>... and ${blockKeys.length - 5} more blocks
+            `;
+        }
+
+        function testLocationSelection() {
+            if (!testData || !testData.prompts['LOC_001']) {
+                document.getElementById('location-result').className = 'result error';
+                document.getElementById('location-result').innerHTML = 'Please load Stage1 JSON first!';
+                return;
+            }
+
+            const locData = testData.prompts['LOC_001'];
+            const blockKeys = Object.keys(locData).filter(key => key.includes('_')).sort();
+
+            // Combine blocks into prompt
+            const combinedPrompt = blockKeys
+                .map(key => locData[key])
+                .filter(value => value && value.trim())
+                .join(', ');
+
+            document.getElementById('location-result').className = 'result success';
+            document.getElementById('location-result').innerHTML = `
+                <strong>Location: LOC_001 - Kitchen</strong><br><br>
+                <strong>Block Count:</strong> ${blockKeys.length}<br><br>
+                <strong>Combined Prompt (first 500 chars):</strong><br>
+                <pre>${combinedPrompt.substring(0, 500)}...</pre><br>
+                <strong>Individual Blocks:</strong><br>
+                ${blockKeys.slice(0, 5).map(key => `${key}: ${locData[key]}`).join('<br>')}
+                <br>... and ${blockKeys.length - 5} more blocks
+            `;
+        }
+
+        // Auto-load on page load
+        window.addEventListener('DOMContentLoaded', () => {
+            console.log('Test page loaded');
+        });
+    </script>
+</body>
+</html>
