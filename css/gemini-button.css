@@ -1,0 +1,114 @@
+/* Gemini Floating Button Styles */
+
+/* 플로팅 버튼 */
+.gemini-floating-btn {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, rgba(255, 107, 107, 0.9) 0%, rgba(255, 107, 107, 0.7) 100%);
+    border: none;
+    color: #fff;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    z-index: 9999;
+    transition: all 0.3s ease;
+}
+
+.gemini-floating-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
+    background: linear-gradient(135deg, rgba(255, 107, 107, 1) 0%, rgba(255, 107, 107, 0.8) 100%);
+}
+
+.gemini-floating-btn:active {
+    transform: scale(0.95);
+}
+
+.gemini-floating-btn svg {
+    width: 28px;
+    height: 28px;
+    stroke: currentColor;
+    fill: none;
+}
+
+/* 툴팁 애니메이션 */
+.gemini-floating-btn::before {
+    content: 'Gemini AI';
+    position: absolute;
+    right: calc(100% + 12px);
+    white-space: nowrap;
+    background: rgba(0, 0, 0, 0.9);
+    color: #fff;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateX(10px);
+    transition: all 0.3s ease;
+}
+
+.gemini-floating-btn:hover::before {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+    .gemini-floating-btn {
+        bottom: 16px;
+        right: 16px;
+        width: 48px;
+        height: 48px;
+    }
+
+    .gemini-floating-btn svg {
+        width: 24px;
+        height: 24px;
+    }
+
+    /* 모바일에서는 툴팁 숨기기 */
+    .gemini-floating-btn::before {
+        display: none;
+    }
+}
+
+/* 초소형 화면 */
+@media (max-width: 480px) {
+    .gemini-floating-btn {
+        bottom: 12px;
+        right: 12px;
+        width: 44px;
+        height: 44px;
+    }
+
+    .gemini-floating-btn svg {
+        width: 22px;
+        height: 22px;
+    }
+}
+
+/* 펄스 애니메이션 (선택사항) */
+@keyframes pulse {
+    0% {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+    50% {
+        box-shadow: 0 4px 20px rgba(255, 107, 107, 0.6);
+    }
+    100% {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+}
+
+/* 처음 로드 시 주목 효과 */
+.gemini-floating-btn {
+    animation: pulse 2s ease-in-out 2;
+}
