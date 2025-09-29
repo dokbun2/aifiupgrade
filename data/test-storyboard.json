@@ -1,0 +1,999 @@
+{
+  "film_id": "FILM_000001",
+  "current_step": "visual_direction_2B",
+  "timestamp": "2025-09-27T07:03:01Z",
+  "scenes": [
+    {
+      "scene_id": "S01",
+      "scene_title": "할머니의 낡은 집 / 부엌 - 낮",
+      "scene_scenario": "INT. 할머니의 낡은 집 / 부엌 - 낮\n\n햇살이 먼지처럼 부유하는 낡은 부엌.\n서준(30대 초반, 지친 얼굴)이 할머니의 유품 상자에서 낡은 요리 노트를 꺼낸다.\n\n표지를 넘기자, 할머니의 손글씨가 가득하다.\n첫 페이지, '세상에서 제일 맛있는 된장찌개'.\n\n잠시 후, 서준은 홀린 듯 찌개를 끓인다.\n카메라는 투박하지만 정성스럽게 재료를 손질하는 그의 손과, 뚝배기에서 진하게 끓어오르는 찌개의 질감을 따라간다. (스티브 맥커리 스타일의 풍부한 색감과 질감 표현)\n\n완성된 찌개를 한 숟갈 뜨는 서준.\n그 순간, 눈앞에 어린 시절의 영상이 스친다. 툇마루에 누워 할머니의 무릎을 베고 잠들었던, 더없이 평화롭던 오후.\n\n서준의 눈에 조용히 눈물이 고인다.",
+      "concept_art_references": {
+        "characters": [
+          "Seojun",
+          "Grandmother"
+        ],
+        "location": "GrandmothersKitchen",
+        "props": [
+          "RecipeNotebook"
+        ]
+      },
+      "shots": [
+        {
+          "shot_id": "S01.01.01",
+          "shot_type": "regular",
+          "shot_text": "햇살이 먼지처럼 부유하는 낡은 부엌.",
+          "shot_summary": "A quiet, nostalgic scene of a sunlit, dusty old kitchen.",
+          "movement_description": {
+            "action": {},
+            "expression": {},
+            "environment_move": "Sunbeams stream through a window, illuminating floating dust particles like golden snow.",
+            "mood_emotion": "Nostalgic, warm, and filled with memories and the quiet passage of time."
+          },
+          "camera_movement": {
+            "type": "dolly_in",
+            "speed": "very_slow",
+            "duration": "6s"
+          },
+          "starting_frame": {
+            "environment": "A wide view of the old kitchen, with sunlight just beginning to enter.",
+            "composition": "wide shot, front view, eye level, symmetrical"
+          },
+          "ending_frame": {
+            "environment": "A closer view of the sunbeams hitting an old wooden table, dust motes dancing in the light.",
+            "composition": "medium shot, slightly low angle, central perspective, rich texture"
+          }
+        },
+        {
+          "shot_id": "S01.02.01",
+          "shot_type": "regular",
+          "shot_text": "서준(30대 초반, 지친 얼굴)이 할머니의 유품 상자에서 낡은 요리 노트를 꺼낸다.",
+          "shot_summary": "The fateful moment a weary Seojun discovers his grandmother's old recipe notebook.",
+          "movement_description": {
+            "action": {
+              "Seojun": "With a tired expression, he reaches into a box of belongings and pulls out a worn, old notebook."
+            },
+            "expression": {
+              "Seojun": "A mix of exhaustion and faint curiosity, his gaze landing on the notebook."
+            },
+            "environment_move": "Dust swirls as he disturbs the contents of the box.",
+            "mood_emotion": "A somber mood of remembrance, pierced by a spark of discovery."
+          },
+          "camera_movement": {
+            "type": "slow_push_in",
+            "speed": "slow",
+            "duration": "5s"
+          },
+          "starting_frame": {
+            "Seojun": "Seojun kneeling beside a cardboard box, his shoulders slumped with fatigue.",
+            "environment": "An open box filled with old items in a dusty, sunlit kitchen.",
+            "composition": "medium shot, side view, eye level, center frame"
+          },
+          "ending_frame": {
+            "Seojun": "He holds the recipe notebook in his hands, his eyes focused on the worn cover.",
+            "environment": "The notebook is in sharp focus, background slightly blurred.",
+            "composition": "medium close-up, side view, eye level, rule of thirds"
+          }
+        },
+        {
+          "shot_id": "S01.03.01",
+          "shot_type": "regular",
+          "shot_text": "표지를 넘기자, 할머니의 손글씨가 가득하다.",
+          "shot_summary": "A revelatory scene as the grandmother's presence is felt through her handwriting.",
+          "movement_description": {
+            "action": {
+              "Seojun": "His thumb gently flips open the cover of the notebook."
+            },
+            "expression": {},
+            "environment_move": "The yellowed page, filled with elegant Korean handwriting, is revealed.",
+            "mood_emotion": "A sense of intimate connection to the past, wonder, and reverence."
+          },
+          "camera_movement": {
+            "type": "tilt_down_then_focus",
+            "speed": "slow",
+            "duration": "4s",
+            "focus_shift": "rack_focus_to_book"
+          },
+          "starting_frame": {
+            "Seojun": "Holding the closed notebook, his thumb on the edge of the cover.",
+            "environment": "The worn leather cover of the RecipeNotebook is visible.",
+            "composition": "close-up shot, over shoulder, shallow depth, focused on hands"
+          },
+          "ending_frame": {
+            "environment": "The first page is open, revealing the grandmother's handwriting, rich in texture.",
+            "composition": "extreme close-up, top-down view, sharp focus on the text"
+          }
+        },
+        {
+          "shot_id": "S01.04.01",
+          "shot_type": "regular",
+          "shot_text": "첫 페이지, '세상에서 제일 맛있는 된장찌개'.",
+          "shot_summary": "The moment the specific memory and recipe is introduced.",
+          "movement_description": {
+            "action": {},
+            "expression": {},
+            "environment_move": "The camera traces the handwritten title on the page.",
+            "mood_emotion": "A feeling of warmth, love, and the start of a culinary journey."
+          },
+          "camera_movement": {
+            "type": "pan",
+            "speed": "very_slow",
+            "duration": "3s"
+          },
+          "starting_frame": {
+            "environment": "The camera is focused on the top of the notebook page.",
+            "composition": "extreme close-up, top-down view, sharp focus"
+          },
+          "ending_frame": {
+            "environment": "The camera has panned across the title '세상에서 제일 맛있는 된장찌개'.",
+            "composition": "extreme close-up, top-down view, focused on the end of the title"
+          }
+        },
+        {
+          "shot_id": "S01.05.01",
+          "shot_type": "regular",
+          "shot_text": "잠시 후, 서준은 홀린 듯 찌개를 끓인다.",
+          "shot_summary": "A transformative scene where Seojun begins cooking as if possessed by memory.",
+          "movement_description": {
+            "action": {
+              "Seojun": "Moves with a newfound, quiet purpose, gathering ingredients and starting to cook the stew."
+            },
+            "expression": {
+              "Seojun": "His tired expression is replaced by one of intense focus and concentration."
+            },
+            "environment_move": "The quiet kitchen is now filled with the soft sounds of cooking.",
+            "mood_emotion": "A shift from melancholy to a meditative, almost ritualistic atmosphere."
+          },
+          "camera_movement": {
+            "type": "track",
+            "speed": "slow",
+            "duration": "7s"
+          },
+          "starting_frame": {
+            "Seojun": "Seojun standing still, looking at the recipe notebook.",
+            "environment": "The kitchen is quiet and still.",
+            "composition": "medium shot, front view, eye level, center frame"
+          },
+          "ending_frame": {
+            "Seojun": "Seojun is at the stove, stirring the stew in an earthenware pot.",
+            "environment": "Steam begins to rise from the pot.",
+            "composition": "medium shot, side view, eye level, focused on the action"
+          }
+        },
+        {
+          "shot_id": "S01.06.01",
+          "shot_type": "regular",
+          "shot_text": "카메라는 투박하지만 정성스럽게 재료를 손질하는 그의 손과, 뚝배기에서 진하게 끓어오르는 찌개의 질감을 따라간다. (스티브 맥커리 스타일의 풍부한 색감과 질감 표현)",
+          "shot_summary": "A sensory montage scene capturing the rich texture and color of the cooking process.",
+          "movement_description": {
+            "action": {
+              "Seojun": "His hands skillfully, yet roughly, chop vegetables; the stew bubbles thickly in the pot."
+            },
+            "expression": {},
+            "environment_move": "Close-ups of ingredients, the bubbling stew, steam, and rich colors, embodying the Steve McCurry style.",
+            "mood_emotion": "Visceral, sensory, and deeply comforting, highlighting the love in the food."
+          },
+          "camera_movement": {
+            "type": "static",
+            "duration": "8s"
+          },
+          "starting_frame": {
+            "environment": "A close-up of Seojun's hands chopping an onion on a wooden board.",
+            "composition": "close-up shot, top-down view, rich texture"
+          },
+          "ending_frame": {
+            "environment": "An extreme close-up of the thick Doenjang-jjigae bubbling in a black earthenware pot.",
+            "composition": "extreme close-up, 45-degree angle, vibrant color, steam visible"
+          }
+        },
+        {
+          "shot_id": "S01.07.01",
+          "shot_type": "regular",
+          "shot_text": "완성된 찌개를 한 숟갈 뜨는 서준.",
+          "shot_summary": "The climactic moment before the taste of memory is unlocked.",
+          "movement_description": {
+            "action": {
+              "Seojun": "He ladles the finished stew into a bowl and lifts a spoonful to his mouth."
+            },
+            "expression": {
+              "Seojun": "A look of anticipation and solemnity."
+            },
+            "environment_move": "Steam rises from the spoon.",
+            "mood_emotion": "A moment of truth, filled with suspense and emotional weight."
+          },
+          "camera_movement": {
+            "type": "dolly_in",
+            "speed": "slow",
+            "duration": "4s"
+          },
+          "starting_frame": {
+            "Seojun": "Seojun looks down at the bowl of stew.",
+            "environment": "A steaming bowl of Doenjang-jjigae sits on the table.",
+            "composition": "medium shot, high angle, front view, focused on Seojun"
+          },
+          "ending_frame": {
+            "Seojun": "He brings the spoon close to his lips, eyes slightly closed in anticipation.",
+            "environment": "The spoon is the central focus, with steam curling upwards.",
+            "composition": "close-up shot, front view, eye level, shallow depth"
+          }
+        },
+        {
+          "shot_id": "S01.08.01",
+          "shot_type": "regular",
+          "shot_text": "그 순간, 눈앞에 어린 시절의 영상이 스친다. 툇마루에 누워 할머니의 무릎을 베고 잠들었던, 더없이 평화롭던 오후.",
+          "shot_summary": "A beautiful flashback scene, triggered by the taste, revealing a core memory.",
+          "movement_description": {
+            "action": {
+              "Grandmother": "Gently stroking the hair of a young Seojun."
+            },
+            "expression": {
+              "Grandmother": "A warm, loving smile."
+            },
+            "environment_move": "A peaceful summer afternoon, soft sunlight filtering through leaves, a gentle breeze.",
+            "mood_emotion": "Pure warmth, safety, love, and serene happiness."
+          },
+          "camera_movement": {
+            "type": "drift",
+            "speed": "very_slow",
+            "duration": "5s"
+          },
+          "starting_frame": {
+            "Grandmother": "A young Seojun rests his head on his grandmother's lap.",
+            "environment": "On a traditional Korean wooden porch (툇마루) on a sunny afternoon.",
+            "composition": "medium shot, side view, eye level, soft focus"
+          },
+          "ending_frame": {
+            "Grandmother": "The camera looks up from young Seojun's perspective at his grandmother's smiling face.",
+            "environment": "The background is a dreamy, sun-drenched blur.",
+            "composition": "close-up shot, low angle, point of view, ethereal lighting"
+          }
+        },
+        {
+          "shot_id": "S01.09.01",
+          "shot_type": "regular",
+          "shot_text": "서준의 눈에 조용히 눈물이 고인다.",
+          "shot_summary": "The emotional release scene as the memory overwhelms Seojun.",
+          "movement_description": {
+            "action": {
+              "Seojun": "A single tear forms and wells in his eye, without him blinking."
+            },
+            "expression": {
+              "Seojun": "His expression is one of profound sadness and gratitude, lips slightly parted."
+            },
+            "environment_move": "The steam from the stew blurs slightly in the foreground.",
+            "mood_emotion": "A powerful, cathartic moment of grief and love."
+          },
+          "camera_movement": {
+            "type": "static",
+            "duration": "6s"
+          },
+          "starting_frame": {
+            "Seojun": "Seojun's eyes are open, looking into the distance as he relives the memory.",
+            "environment": "He is back in the present-day kitchen.",
+            "composition": "close-up shot, front view, eye level, neutral expression"
+          },
+          "ending_frame": {
+            "Seojun": "A tear is clearly visible, glistening in his eye.",
+            "environment": "The background is completely out of focus.",
+            "composition": "extreme close-up, front view, eye level, focused on his eye"
+          }
+        }
+      ]
+    },
+    {
+      "scene_id": "S02",
+      "scene_title": "기억의 식탁 - 저녁",
+      "scene_scenario": "INT. 기억의 식탁 - 저녁\n\n'기억의 식탁'이라는 작은 간판이 걸린 식당.\n서먹하게 앉아있는 노부부. 테이블 위에는 오색 비빔밥 두 그릇이 놓여있다.\n\n할머니가 먼저 한 숟갈 비벼 맛본다.\n순간 할머니의 눈이 커진다. 할아버지를 바라보는 눈빛이 흔들린다.\n\n          할머니\n     여보... 이 맛...\n\n할아버지도 비빔밥을 맛본다.\n장면이 1970년대의 낡은 극장 앞으로 오버랩된다. 앳된 모습의 두 사람이 한 그릇의 비빔밥을 나눠 먹으며 수줍게 웃고 있다.\n\n다시 현재. 두 사람의 거칠고 주름진 손이 테이블 위에서 조심스럽게 겹쳐진다.\n\n장면 끝, 스마트폰 화면에 노부부가 남긴 리뷰가 보인다.\n\"잊고 있던 제 청춘을 요리해주셔서 감사합니다.\"",
+      "concept_art_references": {
+        "characters": [
+          "ElderlyWoman",
+          "Seojun"
+        ],
+        "location": "TableOfMemory",
+        "props": []
+      },
+      "shots": [
+        {
+          "shot_id": "S02.01.01",
+          "shot_type": "regular",
+          "shot_text": "'기억의 식탁'이라는 작은 간판이 걸린 식당.",
+          "shot_summary": "An establishing scene of the cozy and intimate 'Table of Memory' restaurant.",
+          "movement_description": {
+            "action": {},
+            "expression": {},
+            "environment_move": "Warm light glows from within the restaurant, casting a welcoming pool of light outside. The small sign '기억의 식탁' hangs simply.",
+            "mood_emotion": "Intimate, cozy, safe, and welcoming."
+          },
+          "camera_movement": {
+            "type": "crane_down",
+            "speed": "slow",
+            "duration": "5s"
+          },
+          "starting_frame": {
+            "environment": "A view of the restaurant's exterior at dusk, focusing on the small, lit sign.",
+            "composition": "medium shot, front view, slightly low angle, center frame"
+          },
+          "ending_frame": {
+            "environment": "The camera moves down to show the large window, revealing the warm interior.",
+            "composition": "wide shot, front view, eye level, balanced frame"
+          }
+        },
+        {
+          "shot_id": "S02.02.01",
+          "shot_type": "regular",
+          "shot_text": "서먹하게 앉아있는 노부부. 테이블 위에는 오색 비빔밥 두 그릇이 놓여있다.",
+          "shot_summary": "A tense scene of an elderly couple sitting in awkward silence.",
+          "movement_description": {
+            "action": {},
+            "expression": {
+              "ElderlyWoman": "Reserved and weary, avoiding eye contact with her husband."
+            },
+            "environment_move": "Two untouched bowls of colorful bibimbap sit between them on the large wooden table.",
+            "mood_emotion": "A feeling of distance, unspoken conflict, and years of shared history."
+          },
+          "camera_movement": {
+            "type": "truck",
+            "speed": "very_slow",
+            "duration": "6s"
+          },
+          "starting_frame": {
+            "ElderlyWoman": "The elderly couple sits opposite each other.",
+            "environment": "The beautifully set table at 'Table of Memory'.",
+            "composition": "two shot, side angle, eye level, wide spacing"
+          },
+          "ending_frame": {
+            "environment": "The camera has moved to a position focusing on the two vibrant bowls of bibimbap, with the couple blurred in the background.",
+            "composition": "close-up shot, top-down view, centered on food, shallow depth"
+          }
+        },
+        {
+          "shot_id": "S02.03.01",
+          "shot_type": "regular",
+          "shot_text": "할머니가 먼저 한 숟갈 비벼 맛본다.",
+          "shot_summary": "The moment the elderly woman takes the first, hesitant taste.",
+          "movement_description": {
+            "action": {
+              "ElderlyWoman": "She picks up her spoon, mixes the bibimbap, and takes a bite."
+            },
+            "expression": {
+              "ElderlyWoman": "Her face is neutral, almost resigned."
+            },
+            "environment_move": "The colorful ingredients of the bibimbap are mixed together.",
+            "mood_emotion": "Anticipation, the quiet before a potential change."
+          },
+          "camera_movement": {
+            "type": "static",
+            "duration": "5s"
+          },
+          "starting_frame": {
+            "ElderlyWoman": "The woman looks down at her bowl, spoon in hand.",
+            "environment": "The bibimbap is beautifully arranged and untouched.",
+            "composition": "medium close-up, high angle, over shoulder, focused on her"
+          },
+          "ending_frame": {
+            "ElderlyWoman": "She lifts the spoon to her mouth.",
+            "environment": "The bibimbap in the bowl is now mixed.",
+            "composition": "medium close-up, front view, eye level, focused on her expression"
+          }
+        },
+        {
+          "shot_id": "S02.04.01",
+          "shot_type": "regular",
+          "shot_text": "순간 할머니의 눈이 커진다. 할아버지를 바라보는 눈빛이 흔들린다.",
+          "shot_summary": "The powerful reaction scene as the taste triggers a profound memory.",
+          "movement_description": {
+            "action": {
+              "ElderlyWoman": "Her eyes widen in shock and recognition. She slowly turns her head to look at her husband."
+            },
+            "expression": {
+              "ElderlyWoman": "A mix of sorrow and wonder, her eyes glistening with unshed tears."
+            },
+            "environment_move": "The ambient light seems to focus more intensely on her.",
+            "mood_emotion": "A sudden rush of emotion, shock, and dawning recognition."
+          },
+          "camera_movement": {
+            "type": "snap_zoom",
+            "speed": "fast",
+            "duration": "2s"
+          },
+          "starting_frame": {
+            "ElderlyWoman": "The woman is chewing slowly, her expression neutral.",
+            "composition": "medium close-up, front view, eye level, neutral frame"
+          },
+          "ending_frame": {
+            "ElderlyWoman": "Her eyes are wide with emotion, looking directly at her husband.",
+            "composition": "close-up shot, front view, eye level, tight frame"
+          }
+        },
+        {
+          "shot_id": "S02.05.01",
+          "shot_type": "regular",
+          "shot_text": "할머니: 여보... 이 맛...",
+          "shot_summary": "The moment she confirms the shared memory with a single phrase.",
+          "movement_description": {
+            "action": {
+              "ElderlyWoman": "Whispers the words 'Honey... this taste...'"
+            },
+            "expression": {
+              "ElderlyWoman": "Her expression is vulnerable and full of meaning."
+            },
+            "environment_move": "",
+            "mood_emotion": "A deeply emotional and nostalgic plea for connection."
+          },
+          "camera_movement": {
+            "type": "static",
+            "duration": "3s"
+          },
+          "starting_frame": {
+            "ElderlyWoman": "Her eyes are locked on her husband, her mouth slightly open to speak.",
+            "composition": "close-up shot, front view, eye level, tight frame"
+          },
+          "ending_frame": {
+            "ElderlyWoman": "She has just finished speaking, her expression filled with years of unspoken emotion.",
+            "composition": "close-up shot, front view, eye level, tight frame"
+          }
+        },
+        {
+          "shot_id": "S02.06.01",
+          "shot_type": "regular",
+          "shot_text": "할아버지도 비빔밥을 맛본다.",
+          "shot_summary": "The corresponding moment as the husband tastes the food.",
+          "movement_description": {
+            "action": {
+              "ElderlyMan": "Prompted by his wife's reaction, he also tastes the bibimbap."
+            },
+            "expression": {
+              "ElderlyMan": "His expression is skeptical at first, then it changes."
+            },
+            "environment_move": "",
+            "mood_emotion": "Tension and anticipation for his reaction."
+          },
+          "camera_movement": {
+            "type": "rack_focus",
+            "speed": "medium",
+            "duration": "4s"
+          },
+          "starting_frame": {
+            "ElderlyWoman": "The woman's face is in focus, looking at her husband.",
+            "environment": "The husband is out of focus in the background.",
+            "composition": "two shot, over shoulder, shallow depth"
+          },
+          "ending_frame": {
+            "ElderlyMan": "The husband's face is now in focus as he tastes the food, his eyes closing.",
+            "environment": "The woman is now a soft blur in the foreground.",
+            "composition": "two shot, over shoulder, shallow depth, focus shifted"
+          }
+        },
+        {
+          "shot_id": "S02.07.01",
+          "shot_type": "regular",
+          "shot_text": "장면이 1970년대의 낡은 극장 앞으로 오버랩된다. 앳된 모습의 두 사람이 한 그릇의 비빔밥을 나눠 먹으며 수줍게 웃고 있다.",
+          "shot_summary": "A warm flashback scene to the couple's first date, revealing the memory's origin.",
+          "movement_description": {
+            "action": {
+              "YoungCouple": "A younger version of the couple shyly shares a single bowl of bibimbap, smiling at each other."
+            },
+            "expression": {
+              "YoungCouple": "Innocent, happy, and shy smiles."
+            },
+            "environment_move": "The scene has the desaturated, warm look of a 1970s photograph. An old movie theater is in the background.",
+            "mood_emotion": "Sweet, innocent, and pure happiness."
+          },
+          "camera_movement": {
+            "type": "static",
+            "duration": "5s",
+            "secondary": "slight_drift"
+          },
+          "starting_frame": {
+            "YoungCouple": "The young couple is sitting together, sharing one bowl of bibimbap.",
+            "environment": "In front of an old movie theater from the 1970s.",
+            "composition": "medium shot, front view, eye level, balanced frame"
+          },
+          "ending_frame": {
+            "YoungCouple": "They look at each other and share a shy, happy smile.",
+            "environment": "The image softens and begins to fade.",
+            "composition": "medium shot, front view, eye level, soft focus"
+          }
+        },
+        {
+          "shot_id": "S02.08.01",
+          "shot_type": "regular",
+          "shot_text": "다시 현재. 두 사람의 거칠고 주름진 손이 테이블 위에서 조심스럽게 겹쳐진다.",
+          "shot_summary": "A touching scene of reconnection, shown through the simple gesture of holding hands.",
+          "movement_description": {
+            "action": {
+              "Couple": "The husband reaches across the table and gently places his wrinkled hand over his wife's."
+            },
+            "expression": {},
+            "environment_move": "Their hands, marked by age, connect over the wooden table.",
+            "mood_emotion": "Reconciliation, forgiveness, and a lifetime of love reaffirmed."
+          },
+          "camera_movement": {
+            "type": "tilt_down",
+            "speed": "slow",
+            "duration": "4s"
+          },
+          "starting_frame": {
+            "Couple": "The elderly couple looking at each other, their faces softened with emotion.",
+            "composition": "two shot, front view, eye level, balanced frame"
+          },
+          "ending_frame": {
+            "environment": "A close-up of their two hands, wrinkled and rough, overlapping on the table.",
+            "composition": "close-up shot, top-down view, sharp focus on hands"
+          }
+        },
+        {
+          "shot_id": "S02.09.01",
+          "shot_type": "regular",
+          "shot_text": "장면 끝, 스마트폰 화면에 노부부가 남긴 리뷰가 보인다. \"잊고 있던 제 청춘을 요리해주셔서 감사합니다.\"",
+          "shot_summary": "The concluding scene showing the impact of the experience through a heartfelt review.",
+          "movement_description": {
+            "action": {},
+            "expression": {},
+            "environment_move": "A smartphone screen displays a glowing review. The text 'Thank you for cooking my forgotten youth.' is clearly visible.",
+            "mood_emotion": "Heartwarming, validating, and satisfying."
+          },
+          "camera_movement": {
+            "type": "static",
+            "duration": "5s"
+          },
+          "starting_frame": {
+            "environment": "A smartphone held in someone's hands (presumably Seojun's).",
+            "composition": "medium shot, over shoulder, looking at phone"
+          },
+          "ending_frame": {
+            "environment": "The screen of the smartphone, displaying the review, fills the frame.",
+            "composition": "close-up shot, front view, full frame on screen"
+          }
+        }
+      ]
+    },
+    {
+      "scene_id": "S03",
+      "scene_title": "기억의 식탁 / 부엌 - 밤",
+      "scene_scenario": "INT. 기억의 식탁 / 부엌 - 밤\n\n마감된 식당. 서준은 스마트폰 속 수많은 찬사를 보며 앉아있다. 하지만 그의 표정은 기쁘기보다 불안해 보인다. '할머니의 맛을 똑같이 재현해야 한다'는 압박감.\n\n그는 슬럼프에 빠진 듯 레시피 노트를 뒤적인다.\n마지막 페이지. 그곳에 적힌 할머니의 마지막 메시지.\n\n          할머니 (V.O.)\n     서준아. 가장 중요한 조미료는...\n     사람을 위하는 너의 마음이란다.\n\n서준은 글씨를 가만히 쓸어본다. 깊은 깨달음을 얻은 표정.",
+      "concept_art_references": {
+        "characters": [
+          "Seojun",
+          "Grandmother"
+        ],
+        "location": "TableOfMemory",
+        "props": [
+          "RecipeNotebook"
+        ]
+      },
+      "shots": [
+        {
+          "shot_id": "S03.01.01",
+          "shot_type": "regular",
+          "shot_text": "마감된 식당. 서준은 스마트폰 속 수많은 찬사를 보며 앉아있다. 하지만 그의 표정은 기쁘기보다 불안해 보인다.",
+          "shot_summary": "A scene showing Seojun's inner conflict despite his success.",
+          "movement_description": {
+            "action": {
+              "Seojun": "He sits alone in the dark restaurant, scrolling through positive reviews on his phone."
+            },
+            "expression": {
+              "Seojun": "His face is not happy, but anxious and troubled, illuminated only by the phone's screen."
+            },
+            "environment_move": "The restaurant is closed and dark, creating a lonely atmosphere.",
+            "mood_emotion": "Anxiety, loneliness, and the heavy burden of expectation."
+          },
+          "camera_movement": {
+            "type": "dolly_out",
+            "speed": "very_slow",
+            "duration": "7s"
+          },
+          "starting_frame": {
+            "Seojun": "Seojun's anxious face is lit by his smartphone screen.",
+            "environment": "A dark, empty restaurant.",
+            "composition": "close-up shot, front view, eye level, tight frame"
+          },
+          "ending_frame": {
+            "Seojun": "Seojun appears small and alone, sitting at the large table in the empty restaurant.",
+            "environment": "The darkness of the closed restaurant surrounds him.",
+            "composition": "wide shot, front view, eye level, isolated in frame"
+          }
+        },
+        {
+          "shot_id": "S03.02.01",
+          "shot_type": "regular",
+          "shot_text": "'할머니의 맛을 똑같이 재현해야 한다'는 압박감.",
+          "shot_summary": "A moment visually representing the pressure he feels.",
+          "movement_description": {
+            "action": {
+              "Seojun": "He clenches his jaw, his grip on the phone tightening."
+            },
+            "expression": {
+              "Seojun": "A look of intense pressure and self-doubt."
+            },
+            "environment_move": "The reflection of the reviews seems to swirl and press in on him.",
+            "mood_emotion": "Suffocating pressure and creative anxiety."
+          },
+          "camera_movement": {
+            "type": "dolly_zoom",
+            "speed": "slow",
+            "duration": "4s"
+          },
+          "starting_frame": {
+            "Seojun": "Seojun stares at his phone, his expression tense.",
+            "composition": "medium close-up, front view, eye level, center frame"
+          },
+          "ending_frame": {
+            "Seojun": "His face remains the same size, but the background appears to stretch and distort, creating a feeling of vertigo.",
+            "composition": "medium close-up, front view, eye level, distorted background"
+          }
+        },
+        {
+          "shot_id": "S03.03.01",
+          "shot_type": "regular",
+          "shot_text": "그는 슬럼프에 빠진 듯 레시피 노트를 뒤적인다.",
+          "shot_summary": "A scene of desperation as Seojun searches for answers in the notebook.",
+          "movement_description": {
+            "action": {
+              "Seojun": "He puts the phone down and listlessly flips through the pages of the recipe notebook."
+            },
+            "expression": {
+              "Seojun": "A frustrated and lost expression."
+            },
+            "environment_move": "The pages of the notebook turn quickly, a blur of handwriting.",
+            "mood_emotion": "Frustration, creative block, and a desperate search for guidance."
+          },
+          "camera_movement": {
+            "type": "arc",
+            "speed": "slow",
+            "duration": "6s"
+          },
+          "starting_frame": {
+            "Seojun": "Seojun is hunched over the table, looking down at the notebook.",
+            "composition": "medium shot, side view, eye level, focused on Seojun"
+          },
+          "ending_frame": {
+            "Seojun": "The camera has circled to a front view, showing the frustrated look on his face as he flips the pages.",
+            "composition": "medium shot, front view, eye level, revealing expression"
+          }
+        },
+        {
+          "shot_id": "S03.04.01",
+          "shot_type": "regular",
+          "shot_text": "마지막 페이지. 그곳에 적힌 할머니의 마지막 메시지.",
+          "shot_summary": "The pivotal discovery scene of the grandmother's final message.",
+          "movement_description": {
+            "action": {
+              "Seojun": "His hands stop on the last page of the notebook."
+            },
+            "expression": {},
+            "environment_move": "The camera focuses on the final, heartfelt message written on the page.",
+            "mood_emotion": "A moment of sudden stillness and importance."
+          },
+          "camera_movement": {
+            "type": "static",
+            "duration": "4s",
+            "secondary": "slow_push_in"
+          },
+          "starting_frame": {
+            "Seojun": "Seojun's hands flipping through the pages.",
+            "composition": "close-up shot, top-down view, motion blur"
+          },
+          "ending_frame": {
+            "environment": "The last page is held still, the final message clear and in focus.",
+            "composition": "extreme close-up, top-down view, sharp focus on text"
+          }
+        },
+        {
+          "shot_id": "S03.05.01",
+          "shot_type": "regular",
+          "shot_text": "할머니 (V.O.): 서준아. 가장 중요한 조미료는... 사람을 위하는 너의 마음이란다.",
+          "shot_summary": "The emotional climax as the grandmother's wisdom is revealed.",
+          "movement_description": {
+            "action": {},
+            "expression": {
+              "Seojun": "His eyes read the words, and his tense expression begins to soften."
+            },
+            "environment_move": "The handwriting on the page seems to glow with a warm light.",
+            "mood_emotion": "A profound, loving, and liberating realization."
+          },
+          "camera_movement": {
+            "type": "static",
+            "duration": "8s"
+          },
+          "starting_frame": {
+            "Seojun": "Seojun's eyes are scanning the message on the page.",
+            "composition": "close-up shot, over shoulder, looking down at book"
+          },
+          "ending_frame": {
+            "Seojun": "He looks up from the book, his eyes filled with a new understanding.",
+            "composition": "close-up shot, front view, eye level, soft expression"
+          }
+        },
+        {
+          "shot_id": "S03.06.01",
+          "shot_type": "regular",
+          "shot_text": "서준은 글씨를 가만히 쓸어본다. 깊은 깨달음을 얻은 표정.",
+          "shot_summary": "The resolution scene where Seojun accepts the message and finds his path.",
+          "movement_description": {
+            "action": {
+              "Seojun": "He gently traces the words on the page with his fingertips."
+            },
+            "expression": {
+              "Seojun": "A gentle, relieved smile appears on his face. His eyes are clear with purpose."
+            },
+            "environment_move": "A soft, warm light now fills the previously dark kitchen.",
+            "mood_emotion": "Peace, acceptance, and quiet liberation."
+          },
+          "camera_movement": {
+            "type": "crane_up",
+            "speed": "slow",
+            "duration": "6s"
+          },
+          "starting_frame": {
+            "Seojun": "Seojun's fingers are tracing the handwriting in the notebook.",
+            "composition": "close-up shot, top-down view, focused on hand and book"
+          },
+          "ending_frame": {
+            "Seojun": "The camera looks down on Seojun, who is smiling peacefully, the weight lifted from his shoulders.",
+            "composition": "medium shot, high angle, front view, serene"
+          }
+        }
+      ]
+    },
+    {
+      "scene_id": "S04",
+      "scene_title": "기억의 식탁 - 저녁",
+      "scene_scenario": "INT. 기억의 식탁 - 저녁\n\n젊은 부부가 손님으로 와있다. 어딘가 슬퍼 보이는 얼굴.\n서준은 노트를 보지 않는다. 대신 그들의 이야기를 진심으로 들어주고 있다.\n\n잠시 후, 서준이 자신만의 요리를 내온다.\n화려하진 않지만, 김이 모락모락 피어나는 따뜻한 돌솥밥.\n\n부부는 말없이 밥을 먹는다. 눈물을 흘리지만, 그 표정은 더없이 따뜻하고 편안해 보인다.\n\n(몽타주)\n- 웃음을 되찾은 노부부\n- 화해하는 젊은 연인\n- 서로를 위로하는 부부의 모습이 스쳐 지나간다.\n\n마지막 장면. 식당을 정리하는 서준의 뒷모습. 그의 얼굴엔 편안한 미소가 걸려있다. 식당 문에 작은 팻말이 새로 붙어있다.\n\n\"가장 중요한 조미료는 당신의 이야기입니다.\"",
+      "concept_art_references": {
+        "characters": [
+          "Seojun"
+        ],
+        "location": "TableOfMemory",
+        "props": [
+          "Sotbap"
+        ]
+      },
+      "shots": [
+        {
+          "shot_id": "S04.01.01",
+          "shot_type": "regular",
+          "shot_text": "젊은 부부가 손님으로 와있다. 어딘가 슬퍼 보이는 얼굴.",
+          "shot_summary": "A scene introducing new guests carrying a quiet sadness.",
+          "movement_description": {
+            "action": {},
+            "expression": {
+              "YoungCouple": "They sit quietly, their faces marked by a shared sorrow."
+            },
+            "environment_move": "The warm restaurant atmosphere contrasts with the couple's somber mood.",
+            "mood_emotion": "A heavy, melancholic atmosphere."
+          },
+          "camera_movement": {
+            "type": "static",
+            "duration": "5s"
+          },
+          "starting_frame": {
+            "YoungCouple": "The young couple is seated at the table, not speaking.",
+            "environment": "The cozy interior of Table of Memory.",
+            "composition": "two shot, front view, eye level, balanced frame"
+          },
+          "ending_frame": {
+            "YoungCouple": "A closer view reveals the sad expressions on their faces.",
+            "composition": "medium two shot, front view, eye level, tense spacing"
+          }
+        },
+        {
+          "shot_id": "S04.02.01",
+          "shot_type": "regular",
+          "shot_text": "서준은 노트를 보지 않는다. 대신 그들의 이야기를 진심으로 들어주고 있다.",
+          "shot_summary": "A scene showing the new, confident Seojun who now cooks from the heart.",
+          "movement_description": {
+            "action": {
+              "Seojun": "He sits with the couple, listening intently to their story, his hands clasped before him. The recipe book is nowhere in sight."
+            },
+            "expression": {
+              "Seojun": "His expression is full of empathy, sincerity, and warmth."
+            },
+            "environment_move": "",
+            "mood_emotion": "Empathy, sincere connection, and healing."
+          },
+          "camera_movement": {
+            "type": "arc",
+            "speed": "very_slow",
+            "duration": "7s"
+          },
+          "starting_frame": {
+            "Seojun": "Seojun is seen from behind the couple, listening.",
+            "composition": "medium shot, over shoulder, focused on Seojun"
+          },
+          "ending_frame": {
+            "Seojun": "The camera has moved to show Seojun's compassionate face as he nods, fully present with his guests.",
+            "composition": "medium close-up, front view, eye level, warm lighting"
+          }
+        },
+        {
+          "shot_id": "S04.03.01",
+          "shot_type": "regular",
+          "shot_text": "잠시 후, 서준이 자신만의 요리를 내온다. 화려하진 않지만, 김이 모락모락 피어나는 따뜻한 돌솥밥.",
+          "shot_summary": "The moment Seojun presents his own creation, a dish of simple comfort.",
+          "movement_description": {
+            "action": {
+              "Seojun": "He carefully places a steaming hot stone pot of rice (Sotbap) on the table."
+            },
+            "expression": {},
+            "environment_move": "Steam rises gently from the Sotbap, filling the air with a comforting warmth.",
+            "mood_emotion": "Warmth, comfort, and sincere care."
+          },
+          "camera_movement": {
+            "type": "pan",
+            "speed": "slow",
+            "duration": "5s"
+          },
+          "starting_frame": {
+            "Seojun": "Seojun walks from the kitchen carrying the Sotbap.",
+            "composition": "medium shot, side view, eye level, following action"
+          },
+          "ending_frame": {
+            "environment": "A close-up on the Sotbap as it's placed on the table, steam rising beautifully.",
+            "composition": "close-up shot, 45-degree angle, focused on food, rich texture"
+          }
+        },
+        {
+          "shot_id": "S04.04.01",
+          "shot_type": "regular",
+          "shot_text": "부부는 말없이 밥을 먹는다. 눈물을 흘리지만, 그 표정은 더없이 따뜻하고 편안해 보인다.",
+          "shot_summary": "A powerful healing scene where the food provides catharsis for the grieving couple.",
+          "movement_description": {
+            "action": {
+              "YoungCouple": "They eat the simple rice, and tears stream down their faces."
+            },
+            "expression": {
+              "YoungCouple": "Their expressions are not of pain, but of warm, peaceful, emotional release."
+            },
+            "environment_move": "The steam from the hot rice mingles with their tears.",
+            "mood_emotion": "Catharsis, healing, comfort, and shared grief."
+          },
+          "camera_movement": {
+            "type": "slow_push_in",
+            "speed": "very_slow",
+            "duration": "8s"
+          },
+          "starting_frame": {
+            "YoungCouple": "The couple begins to eat in silence.",
+            "composition": "two shot, front view, eye level, balanced frame"
+          },
+          "ending_frame": {
+            "YoungCouple": "A close-up on one of their faces, showing a tear rolling down their cheek as they manage a small, peaceful smile.",
+            "composition": "close-up shot, front view, eye level, deeply emotional"
+          }
+        },
+        {
+          "shot_id": "S04.05.01",
+          "shot_type": "regular",
+          "shot_text": "웃음을 되찾은 노부부",
+          "shot_summary": "A quick montage shot showing the elderly couple from Scene 2, now happy.",
+          "movement_description": {
+            "action": {
+              "ElderlyCouple": "The elderly couple is seen laughing together, holding hands."
+          },
+            "expression": {},
+            "environment_move": "They are in a bright, sunny park.",
+            "mood_emotion": "Joy and rekindled love."
+          },
+          "camera_movement": {
+            "type": "static",
+            "duration": "2.5s"
+          },
+          "starting_frame": {
+            "environment": "The happy elderly couple.",
+            "composition": "medium shot, front view, eye level, bright lighting"
+          },
+          "ending_frame": {
+            "environment": "They share a laugh.",
+            "composition": "medium shot, front view, eye level, bright lighting"
+          }
+        },
+        {
+          "shot_id": "S04.06.01",
+          "shot_type": "regular",
+          "shot_text": "화해하는 젊은 연인",
+          "shot_summary": "A quick montage shot of another couple reconciling.",
+          "movement_description": {
+            "action": {
+              "YoungLovers": "A young couple who were arguing now embrace."
+            },
+            "expression": {},
+            "environment_move": "It is evening, outside the restaurant.",
+            "mood_emotion": "Reconciliation and love."
+          },
+          "camera_movement": {
+            "type": "static",
+            "duration": "2.5s"
+          },
+          "starting_frame": {
+            "environment": "A young couple embraces.",
+            "composition": "medium shot, side view, eye level, warm lighting"
+          },
+          "ending_frame": {
+            "environment": "They hold the embrace.",
+            "composition": "medium shot, side view, eye level, warm lighting"
+          }
+        },
+        {
+          "shot_id": "S04.07.01",
+          "shot_type": "regular",
+          "shot_text": "서로를 위로하는 부부의 모습이 스쳐 지나간다.",
+          "shot_summary": "The final montage shot, showing the grieving couple finding solace.",
+          "movement_description": {
+            "action": {
+              "GrievingCouple": "The sad young couple from earlier are holding each other, offering mutual comfort."
+            },
+            "expression": {},
+            "environment_move": "They are walking away from the restaurant, together.",
+            "mood_emotion": "Hope and mutual support."
+          },
+          "camera_movement": {
+            "type": "static",
+            "duration": "3s"
+          },
+          "starting_frame": {
+            "environment": "The couple holds each other.",
+            "composition": "medium shot, back view, eye level, soft lighting"
+          },
+          "ending_frame": {
+            "environment": "They walk slowly away.",
+            "composition": "medium shot, back view, eye level, soft lighting"
+          }
+        },
+        {
+          "shot_id": "S04.08.01",
+          "shot_type": "regular",
+          "shot_text": "마지막 장면. 식당을 정리하는 서준의 뒷모습. 그의 얼굴엔 편안한 미소가 걸려있다.",
+          "shot_summary": "The final resolution scene for Seojun, who has found his purpose.",
+          "movement_description": {
+            "action": {
+              "Seojun": "He is cleaning the restaurant, seen from behind. He turns slightly, and a peaceful, contented smile is visible on his face."
+            },
+            "expression": {
+              "Seojun": "A genuine, peaceful smile of someone who has found their calling."
+            },
+            "environment_move": "The restaurant is clean, warm, and full of a quiet, positive energy.",
+            "mood_emotion": "Contentment, peace, and fulfillment."
+          },
+          "camera_movement": {
+            "type": "pull_out",
+            "speed": "slow",
+            "duration": "7s"
+          },
+          "starting_frame": {
+            "Seojun": "Seojun's back is to the camera as he wipes down the main table.",
+            "composition": "medium shot, back view, eye level, center frame"
+          },
+          "ending_frame": {
+            "Seojun": "He turns with a peaceful smile, now a part of the warm, welcoming space he has created.",
+            "composition": "wide shot, front view, eye level, balanced frame"
+          }
+        },
+        {
+          "shot_id": "S04.09.01",
+          "shot_type": "regular",
+          "shot_text": "식당 문에 작은 팻말이 새로 붙어있다. \"가장 중요한 조미료는 당신의 이야기입니다.\"",
+          "shot_summary": "The final thematic statement of the film, presented on a new sign.",
+          "movement_description": {
+            "action": {},
+            "expression": {},
+            "environment_move": "A small, new wooden plaque hangs on the restaurant door, with the words 'The most important ingredient is your story.'",
+            "mood_emotion": "A heartwarming, thematic, and conclusive feeling."
+          },
+          "camera_movement": {
+            "type": "static",
+            "duration": "5s",
+            "secondary": "very_slow_push_in"
+          },
+          "starting_frame": {
+            "environment": "The door of the 'Table of Memory' restaurant.",
+            "composition": "medium shot, front view, eye level, center frame"
+          },
+          "ending_frame": {
+            "environment": "A close-up of the new plaque, with the words clearly legible.",
+            "composition": "close-up shot, front view, eye level, full frame on sign"
+          }
+        }
+      ]
+    }
+  ]
+}

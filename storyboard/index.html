@@ -6,6 +6,7 @@
     <title>STORYBOARD - AIFI FRAMEWORK</title>
     <link rel="stylesheet" href="../css/style.css">
     <link rel="stylesheet" href="../css/auth.css">
+    <link rel="stylesheet" href="../css/storyboard.css">
     <!-- Supabase -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -273,17 +274,55 @@
                     </div>
                 </div>
 
+                <!-- File Upload Section -->
+                <div class="upload-section" id="uploadSection">
+                    <div class="upload-area" id="uploadArea">
+                        <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                            <polyline points="17 8 12 3 7 8"></polyline>
+                            <line x1="12" y1="3" x2="12" y2="15"></line>
+                        </svg>
+                        <p class="upload-text">JSON 파일을 업로드하세요</p>
+                        <p class="upload-hint">클릭하거나 파일을 드래그 앤 드롭하세요</p>
+                        <input type="file" id="fileInput" class="file-input" accept=".json">
+                    </div>
+                </div>
+
+                <!-- Storyboard Controls -->
+                <div class="storyboard-controls" style="display: none;">
+                    <div class="control-group">
+                        <label class="control-label">Scene:</label>
+                        <select id="sceneSelect" class="dropdown-select">
+                            <option value="">전체 Scene</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label class="control-label">Shot:</label>
+                        <select id="shotSelect" class="dropdown-select">
+                            <option value="">전체 Shot</option>
+                        </select>
+                    </div>
+                    <div class="control-group" style="margin-left: auto;">
+                        <button class="btn-secondary" onclick="loadTestData()">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                                <circle cx="12" cy="13" r="4"></circle>
+                            </svg>
+                            테스트 데이터
+                        </button>
+                        <button class="btn-secondary" onclick="storyboardManager.clearStoryboard()">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="3 6 5 6 21 6"></polyline>
+                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                            </svg>
+                            초기화
+                        </button>
+                    </div>
+                </div>
+
                 <!-- Storyboard Grid -->
-                <div class="components-grid">
-                    <a href="#" class="component-card">Scene 01</a>
-                    <a href="#" class="component-card">Scene 02</a>
-                    <a href="#" class="component-card">Scene 03</a>
-                    <a href="#" class="component-card">Scene 04</a>
-                    <a href="#" class="component-card">Scene 05</a>
-                    <a href="#" class="component-card">Scene 06</a>
-                    <a href="#" class="component-card">Characters</a>
-                    <a href="#" class="component-card">Timeline</a>
-                    <a href="#" class="component-card">Scripts</a>
+                <div id="storyboardGrid" class="storyboard-grid">
+                    <!-- Cards will be dynamically generated here -->
                 </div>
             </div>
         </main>
@@ -523,5 +562,76 @@
     <script src="../js/auth.js"></script>
     <script src="../js/gemini-api.js"></script>
     <script src="../js/gemini-ui.js"></script>
+    <script src="../js/storyboard.js"></script>
+    <script>
+        // Test data loader function
+        async function loadTestData() {
+            try {
+                // Fetch the test JSON file from the project data folder
+                const response = await fetch('../data/test-storyboard.json');
+                const data = await response.json();
+                storyboardManager.processStoryboardData(data);
+                console.log('Test data loaded successfully');
+            } catch (error) {
+                console.error('Error loading test data:', error);
+                // If can't fetch the actual file, use sample data
+                const sampleData = {
+                    "film_id": "FILM_SAMPLE",
+                    "current_step": "visual_direction_2B",
+                    "timestamp": new Date().toISOString(),
+                    "scenes": [
+                        {
+                            "scene_id": "S01",
+                            "scene_title": "샘플 씬 1",
+                            "scene_scenario": "INT. 테스트 장소 - 낮\n\n테스트를 위한 샘플 씬입니다.",
+                            "shots": [
+                                {
+                                    "shot_id": "S01.01.01",
+                                    "shot_type": "regular",
+                                    "shot_text": "테스트 샷 1의 설명입니다.",
+                                    "shot_summary": "첫 번째 테스트 샷",
+                                    "camera_movement": {
+                                        "type": "dolly_in",
+                                        "speed": "slow",
+                                        "duration": "5s"
+                                    }
+                                },
+                                {
+                                    "shot_id": "S01.02.01",
+                                    "shot_type": "regular",
+                                    "shot_text": "테스트 샷 2의 설명입니다.",
+                                    "shot_summary": "두 번째 테스트 샷",
+                                    "camera_movement": {
+                                        "type": "pan",
+                                        "speed": "medium",
+                                        "duration": "3s"
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            "scene_id": "S02",
+                            "scene_title": "샘플 씬 2",
+                            "scene_scenario": "EXT. 테스트 장소 - 저녁\n\n두 번째 테스트 씬입니다.",
+                            "shots": [
+                                {
+                                    "shot_id": "S02.01.01",
+                                    "shot_type": "wide",
+                                    "shot_text": "와이드 샷 테스트입니다.",
+                                    "shot_summary": "전체적인 장면을 보여주는 샷",
+                                    "camera_movement": {
+                                        "type": "static",
+                                        "duration": "4s"
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                };
+                storyboardManager.processStoryboardData(sampleData);
+                console.log('Sample test data loaded successfully');
+            }
+        }
+    </script>
 </body>
 </html>
