@@ -6,6 +6,7 @@
     gap: 20px;
     align-items: flex-start;
     margin-bottom: 20px;
+    justify-content: space-between;
 }
 
 .page-header-with-metadata .page-header {
@@ -15,11 +16,13 @@
 
 /* Film Metadata Header */
 .film-metadata {
-    flex: 1;
-    padding: 15px 15px 15px 25px;
+    flex: 0 0 auto;
+    max-width: 500px;
+    padding: 12px 20px;
     background: rgba(255, 255, 255, 0.02);
     border-radius: 12px;
     border: 1px solid rgba(255, 255, 255, 0.1);
+    margin-left: auto;
 }
 
 .metadata-content {
@@ -34,15 +37,15 @@
 }
 
 .film-title {
-    font-size: 20px;
-    font-weight: 700;
+    font-size: 18px;
+    font-weight: 600;
     color: rgba(255, 255, 255, 0.95);
-    margin-bottom: 8px;
+    margin-bottom: 6px;
 }
 
 .film-info {
     display: flex;
-    gap: 24px;
+    gap: 16px;
     flex-wrap: wrap;
 }
 
@@ -112,9 +115,9 @@
 
 /* File Upload Area */
 .upload-section {
-    width: 100%;
+    width: 50%;
     padding: 20px;
-    margin-bottom: 30px;
+    margin: 50px auto 30px auto;
     background: rgba(255, 255, 255, 0.02);
     border-radius: 12px;
     border: 2px dashed rgba(255, 255, 255, 0.2);
@@ -483,11 +486,20 @@
     .page-header-with-metadata .page-header {
         width: 100%;
     }
+
+    .film-metadata {
+        max-width: 100%;
+        margin-left: 0;
+    }
 }
 
 @media (max-width: 1024px) {
     .storyboard-container {
         grid-template-columns: repeat(2, 1fr);
+    }
+
+    .upload-section {
+        width: 70%;
     }
 }
 
@@ -503,6 +515,10 @@
 
     .dropdown-select {
         width: 100%;
+    }
+
+    .upload-section {
+        width: 90%;
     }
 }
 

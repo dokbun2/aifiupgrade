@@ -302,3 +302,11 @@ window.addEventListener('geminiAPIReady', function(event) {
     loadAPIStatus();
     updateAPIStatusInMenu();
 });
+
+// Export functions for global use
+window.openAPIModal = openAPIModal;
+window.closeAPIModal = closeAPIModal;
+window.testAPIConnection = testAPIConnection;
+window.saveAPIKey = saveAPIKey;
+window.clearAPIKey = clearAPIKey;
+window.toggleAPIKeyVisibility = toggleAPIKeyVisibility;

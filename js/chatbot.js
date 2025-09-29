@@ -99,12 +99,12 @@ class AIChatbot {
                 <!-- Messages -->
                 <div class="chatbot-messages" id="chatbot-messages">
                     <div class="chatbot-welcome">
-                        <h4>안녕하세요! AIFI BOT입니다 👋</h4>
-                        <p>창의적인 아이디어나 프로젝트에 대해 도움이 필요하시면 언제든지 물어보세요!</p>
+                        <h4>AIFI BOT</h4>
+                        <p>무엇을 도와드릴까요?</p>
                         <div class="chatbot-suggestions">
-                            <button class="chatbot-suggestion-chip" data-suggestion="컨셉 아트 아이디어 추천해줘">컨셉 아트 아이디어</button>
-                            <button class="chatbot-suggestion-chip" data-suggestion="스토리보드 작성 팁 알려줘">스토리보드 팁</button>
-                            <button class="chatbot-suggestion-chip" data-suggestion="영상 제작 프로세스 설명해줘">제작 프로세스</button>
+                            <button class="chatbot-suggestion-chip" data-suggestion="컨셉 아트 프롬프트 작성법">컨셉 아트</button>
+                            <button class="chatbot-suggestion-chip" data-suggestion="스토리보드 구성 방법">스토리보드</button>
+                            <button class="chatbot-suggestion-chip" data-suggestion="영상 제작 프로세스">제작 프로세스</button>
                         </div>
                     </div>
                 </div>
@@ -287,72 +287,44 @@ class AIChatbot {
     }
 
     async getAIResponse(message) {
-        console.log('=== getAIResponse 시작 ===');
-        console.log('메시지:', message);
-
         // Check if Gemini API is available
-        console.log('window.geminiAPI 존재 여부:', !!window.geminiAPI);
-
-        if (window.geminiAPI) {
-            console.log('geminiAPI.isInitialized():', window.geminiAPI.isInitialized());
-            console.log('geminiAPI.apiKey 존재:', !!window.geminiAPI.apiKey);
-        }
-
         if (window.geminiAPI && window.geminiAPI.isInitialized()) {
             try {
-                console.log('API 요청 준비 중...');
-
                 // Build conversation context with system prompt
-                const systemPrompt = `당신은 창의적인 프로젝트, 컨셉 아트, 스토리보드 제작을 돕는 AI 어시스턴트입니다.
-                사용자의 창의적인 비전을 이해하고 구체적이고 실용적인 조언을 제공해주세요.
-                항상 친절하고 전문적인 톤을 유지하며, 한국어로 응답해주세요.
+                const systemPrompt = `당신은 AIFI FRAMEWORK 전문가입니다.
 
-                현재 사용자는 AIFI FRAMEWORK를 사용하여 영상 제작 프로젝트를 진행하고 있습니다.
-                다음 기능들에 대한 도움을 제공할 수 있습니다:
-                - 스토리보드 작성 및 구성
-                - 컨셉 아트 아이디어 및 프롬프트 제안
-                - 영상 제작 워크플로우
-                - 창의적인 비주얼 컨셉 개발`;
+                응답 규칙:
+                - 구체적이고 실용적인 조언만 제공
+                - 예시와 방법을 중심으로 설명
+                - 한국어로 명확하게 응답
+                - 인사말이나 불필요한 문구 제외
+
+                전문 분야:
+                - 스토리보드: 구성, 샷 배치, 시퀀스 연출
+                - 컨셉 아트: 프롬프트 작성법, 스타일 설정
+                - 영상 제작: 기획부터 후반작업까지 전 과정
+                - 크리에이티브: 아이디어 발전, 비주얼 개발`;
 
                 const context = this.buildContext();
-                const prompt = `${systemPrompt}\n\n${context}\n\nUser: ${message}\n\nAssistant:`;
-
-                console.log('프롬프트 길이:', prompt.length);
+                const prompt = `${systemPrompt}\n\n${context}\n\n사용자: ${message}\n\n답변:`;
 
                 // Call Gemini API with improved parameters
-                console.log('Gemini API 호출 중...');
                 const apiResponse = await window.geminiAPI.generateText(prompt, {
-                    temperature: 0.8,
-                    maxOutputTokens: 1000,
+                    temperature: 0.7,
+                    maxOutputTokens: 500,
                     topP: 0.9
-                });
-
-                console.log('API 응답 수신:', apiResponse);
-                console.log('API 응답 구조:', {
-                    hasResponse: !!apiResponse,
-                    hasCandidates: !!(apiResponse && apiResponse.candidates),
-                    candidatesLength: apiResponse?.candidates?.length || 0,
-                    firstCandidate: apiResponse?.candidates?.[0]
                 });
 
                 // Extract text from API response
                 let response = '';
                 if (apiResponse && apiResponse.candidates && apiResponse.candidates.length > 0) {
                     const candidate = apiResponse.candidates[0];
-                    console.log('첫 번째 candidate:', candidate);
-
                     if (candidate.content && candidate.content.parts && candidate.content.parts.length > 0) {
                         response = candidate.content.parts[0].text || '응답을 생성할 수 없습니다.';
-                        console.log('추출된 텍스트:', response.substring(0, 100) + '...');
-                    } else {
-                        console.log('candidate.content 구조 문제:', candidate);
                     }
-                } else {
-                    console.log('candidates가 없거나 비어있음');
                 }
 
                 if (!response) {
-                    console.error('응답 텍스트 추출 실패');
                     throw new Error('응답 텍스트를 추출할 수 없습니다.');
                 }
 
@@ -371,53 +343,60 @@ class AIChatbot {
                     this.conversationHistory = this.conversationHistory.slice(-20);
                 }
 
-                console.log('=== getAIResponse 성공 ===');
                 return response;
             } catch (error) {
-                console.error('=== Gemini API 에러 ===');
-                console.error('에러 타입:', error.name);
-                console.error('에러 메시지:', error.message);
-                console.error('전체 에러 객체:', error);
-                console.log('Fallback 응답 사용');
+                console.error('Gemini API error:', error);
                 return this.getFallbackResponse(message);
             }
         } else {
             // Use fallback responses if API is not available
-            console.log('API 초기화되지 않음, Fallback 응답 사용');
             return this.getFallbackResponse(message);
         }
     }
 
     buildContext() {
-        let context = `You are an AI assistant helping with creative projects, concept art, and storyboarding.
-        Please provide helpful, creative, and detailed responses in Korean.
-
-        Previous conversation:`;
+        let context = `이전 대화:`;
 
         this.conversationHistory.forEach(msg => {
-            context += `\n${msg.role === 'user' ? 'User' : 'Assistant'}: ${msg.content}`;
+            context += `\n${msg.role === 'user' ? '사용자' : 'AI'}: ${msg.content}`;
         });
 
         return context;
     }
 
     getFallbackResponse(message) {
-        // Simple fallback responses for when API is not available
-        const responses = {
-            '안녕': '안녕하세요! AIFI BOT입니다. 무엇을 도와드릴까요?',
-            '컨셉 아트': '컨셉 아트는 시각적 스토리텔링의 핵심입니다. 캐릭터, 환경, 소품 등을 디자인할 때는 스토리와 분위기를 고려하는 것이 중요합니다.',
-            '스토리보드': '스토리보드는 영상의 청사진입니다. 각 장면의 구도, 카메라 앵글, 캐릭터 동작을 명확히 표현하세요.',
-            '영상 제작': '영상 제작은 기획, 제작, 후반 작업의 3단계로 진행됩니다. 각 단계별로 체계적인 계획이 필요합니다.',
-            '프롬프트': '프롬프트 작성 시 구체적이고 명확한 설명이 중요합니다. 스타일, 분위기, 색감 등을 상세히 기술하세요.',
-            'default': 'AIFI BOT입니다. API가 연결되지 않아 기본 응답만 가능합니다. 더 나은 대화를 위해 상단의 "API 연동" 버튼을 클릭하여 Gemini API를 설정해주세요.'
-        };
+        const lowerMessage = message.toLowerCase();
 
-        // 키워드 매칭
-        for (const [key, response] of Object.entries(responses)) {
-            if (key !== 'default' && message.toLowerCase().includes(key)) {
-                return response;
-            }
+        // 인사말 처리
+        if (lowerMessage.includes('안녕') || lowerMessage.includes('하이') || lowerMessage.includes('hello')) {
+            return '무엇을 도와드릴까요?';
         }
+
+        // 스토리보드 관련
+        if (lowerMessage.includes('스토리보드') || lowerMessage.includes('스토리')) {
+            if (lowerMessage.includes('구성') || lowerMessage.includes('작성')) {
+                return '1. 시퀀스 분할 → 2. 키 프레임 설정 → 3. 샷 리스트 작성 → 4. 타이밍 조정';
+            }
+            return '각 장면의 구도, 카메라 앵글, 캐릭터 동작을 명확히 표현하세요.';
+        }
+
+        // 컨셉 아트 관련
+        if (lowerMessage.includes('컨셉') || lowerMessage.includes('아트')) {
+            if (lowerMessage.includes('프롬프트')) {
+                return '[스타일] + [주제] + [분위기] + [색감] + [디테일] 순으로 작성하세요.';
+            }
+            return '캐릭터, 환경, 소품 디자인 시 스토리와 전체적인 톤을 고려하세요.';
+        }
+
+        // 영상 제작 관련
+        if (lowerMessage.includes('영상') || lowerMessage.includes('제작')) {
+            return '기획(시나리오) → 프리프로덕션(스토리보드) → 제작 → 후반작업(편집, 색보정)';
+        }
+
+        // 기본 응답
+        const responses = {
+            'default': 'API 연결이 필요합니다. 상단 "API 연동" 버튼을 클릭하세요.'
+        };
 
         return responses.default;
     }
@@ -529,12 +508,12 @@ class AIChatbot {
             const messagesContainer = this.container.querySelector('#chatbot-messages');
             messagesContainer.innerHTML = `
                 <div class="chatbot-welcome">
-                    <h4>안녕하세요! AIFI BOT입니다 👋</h4>
-                    <p>창의적인 아이디어나 프로젝트에 대해 도움이 필요하시면 언제든지 물어보세요!</p>
+                    <h4>AIFI BOT</h4>
+                    <p>무엇을 도와드릴까요?</p>
                     <div class="chatbot-suggestions">
-                        <button class="chatbot-suggestion-chip" data-suggestion="컨셉 아트 아이디어 추천해줘">컨셉 아트 아이디어</button>
-                        <button class="chatbot-suggestion-chip" data-suggestion="스토리보드 작성 팁 알려줘">스토리보드 팁</button>
-                        <button class="chatbot-suggestion-chip" data-suggestion="영상 제작 프로세스 설명해줘">제작 프로세스</button>
+                        <button class="chatbot-suggestion-chip" data-suggestion="컨셉 아트 프롬프트 작성법">컨셉 아트</button>
+                        <button class="chatbot-suggestion-chip" data-suggestion="스토리보드 구성 방법">스토리보드</button>
+                        <button class="chatbot-suggestion-chip" data-suggestion="영상 제작 프로세스">제작 프로세스</button>
                     </div>
                 </div>
             `;

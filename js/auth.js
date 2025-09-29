@@ -38,6 +38,12 @@ function closePasswordModal() {
     }
 }
 
+// 전역에 함수 노출
+window.openAuthModal = openAuthModal;
+window.closeAuthModal = closeAuthModal;
+window.openPasswordModal = openPasswordModal;
+window.closePasswordModal = closePasswordModal;
+
 // Form Display Functions
 function showLogin() {
     document.getElementById('loginForm').style.display = 'block';
