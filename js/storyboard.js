@@ -1,9 +1,12 @@
-// Storyboard Management System
+// Storyboard Management System with Auto-Merge
 class StoryboardManager {
     constructor() {
         this.storyboardData = null;
+        this.mergedData = null;
+        this.currentSequence = null;
         this.currentScene = null;
         this.currentShot = null;
+        this.uploadedFiles = new Map(); // 업로드된 파일 추적
         this.init();
     }
 
@@ -12,6 +15,7 @@ class StoryboardManager {
         document.addEventListener('DOMContentLoaded', () => {
             this.setupFileUpload();
             this.setupDropdowns();
+            this.setupJSONUpload();
             this.loadFromLocalStorage();
             this.checkInitialData();
         });
@@ -56,58 +60,362 @@ class StoryboardManager {
         });
     }
 
-    handleFileUpload(file) {
+    setupJSONUpload() {
+        const jsonUploadInput = document.getElementById('jsonUploadInput');
+        if (!jsonUploadInput) return;
+
+        jsonUploadInput.addEventListener('change', (e) => {
+            const files = Array.from(e.target.files);
+            files.forEach(file => this.handleFileUpload(file));
+            e.target.value = ''; // Reset input
+        });
+    }
+
+    async handleFileUpload(file) {
         if (file.type !== 'application/json') {
-            alert('JSON 파일만 업로드 가능합니다.');
+            this.showNotification('JSON 파일만 업로드 가능합니다.', 'error');
             return;
         }
 
         const reader = new FileReader();
-        reader.onload = (e) => {
+        reader.onload = async (e) => {
             try {
                 const data = JSON.parse(e.target.result);
-                this.processStoryboardData(data);
+                await this.processUploadedFile(file.name, data);
             } catch (error) {
-                alert('JSON 파일 파싱 오류: ' + error.message);
+                this.showNotification('JSON 파일 파싱 오류: ' + error.message, 'error');
             }
         };
         reader.readAsText(file);
     }
 
-    processStoryboardData(data) {
-        // Validate data structure
-        if (!data.scenes || !Array.isArray(data.scenes)) {
-            alert('올바른 스토리보드 JSON 형식이 아닙니다.');
-            return;
-        }
+    async processUploadedFile(filename, data) {
+        // 파일 타입 감지
+        const fileType = this.detectFileType(data);
+        console.log(`Processing ${filename} as ${fileType}`);
 
-        this.storyboardData = data;
-        this.saveToLocalStorage();
-        this.populateSceneDropdown();
-        this.renderStoryboard();
+        // 파일 저장
+        this.uploadedFiles.set(fileType, data);
 
-        // Hide upload area after successful upload
-        const uploadSection = document.querySelector('.upload-section');
-        if (uploadSection) {
-            uploadSection.style.display = 'none';
-        }
-
-        // Show controls
-        const controls = document.querySelector('.storyboard-controls');
-        if (controls) {
-            controls.style.display = 'flex';
+        // 자동 병합 시도
+        if (this.uploadedFiles.size > 0) {
+            await this.autoMergeData();
         }
     }
 
-    populateSceneDropdown() {
+    detectFileType(data) {
+        // stage1 타입 감지 (current_work.treatment.sequences 구조)
+        if (data.current_work && data.current_work.treatment && data.current_work.scenario) {
+            return 'stage1';
+        }
+        // concept_art 타입 감지
+        else if (data.film_metadata && data.treatment && data.scenarios) {
+            return 'concept_art';
+        }
+        // stage2 타입 감지
+        else if (data.scenes && Array.isArray(data.scenes)) {
+            return 'stage2';
+        }
+        // 기본 스토리보드 타입
+        else if (data.storyboard || data.shots) {
+            return 'storyboard';
+        }
+        return 'unknown';
+    }
+
+    async autoMergeData() {
+        console.log('Auto-merging data...');
+
+        const stage1Data = this.uploadedFiles.get('stage1');
+        const conceptArtData = this.uploadedFiles.get('concept_art');
+        const stage2Data = this.uploadedFiles.get('stage2');
+        const storyboardData = this.uploadedFiles.get('storyboard');
+
+        // 병합 우선순위: stage1 + stage2 > concept_art + stage2 > stage2 > storyboard
+        if (stage1Data && stage2Data) {
+            this.mergedData = this.mergeStage1WithStage2(stage1Data, stage2Data);
+        } else if (stage1Data) {
+            this.mergedData = this.processStage1Data(stage1Data);
+        } else if (conceptArtData && stage2Data) {
+            this.mergedData = this.mergeConceptArtWithStage2(conceptArtData, stage2Data);
+        } else if (stage2Data) {
+            this.mergedData = this.processStage2Data(stage2Data);
+        } else if (conceptArtData) {
+            this.mergedData = this.processConceptArtData(conceptArtData);
+        } else if (storyboardData) {
+            this.mergedData = storyboardData;
+        }
+
+        if (this.mergedData) {
+            this.storyboardData = this.mergedData;
+            this.saveToLocalStorage();
+            this.updateMetadata();
+            this.populateSequenceDropdown();
+            this.populateSceneDropdown();
+            this.renderStoryboard();
+            this.hideUploadSection();
+            this.showControls();
+            this.showNotification('데이터가 성공적으로 병합되었습니다.', 'success');
+        }
+    }
+
+    mergeStage1WithStage2(stage1, stage2) {
+        console.log('Merging stage1 with stage2 data...');
+
+        // stage1에서 기본 구조 가져오기
+        const merged = {
+            // 메타데이터는 stage1에서
+            film_metadata: stage1.film_metadata || {},
+            treatment: stage1.current_work?.treatment || {},
+
+            // scenes 초기화
+            scenes: []
+        };
+
+        // stage1의 scenario.scenes를 기반으로 초기 구조 생성
+        const stage1Scenes = stage1.current_work?.scenario?.scenes || [];
+
+        // stage2의 상세 정보를 병합
+        if (stage2.scenes && Array.isArray(stage2.scenes)) {
+            stage2.scenes.forEach(s2Scene => {
+                // stage1에서 매칭되는 scene 찾기
+                const matchingStage1Scene = stage1Scenes.find(s1 =>
+                    s1.scene_id === s2Scene.scene_id ||
+                    s1.scene_number === parseInt(s2Scene.scene_id.replace('S', ''))
+                );
+
+                // sequence_id 찾기
+                let sequenceId = null;
+                if (merged.treatment.sequences) {
+                    sequenceId = matchingStage1Scene?.sequence_id || null;
+                }
+
+                merged.scenes.push({
+                    ...s2Scene,
+                    sequence_id: sequenceId,
+                    scenario_text: matchingStage1Scene?.scenario_text || s2Scene.scene_scenario,
+                    stage1_data: matchingStage1Scene || null
+                });
+            });
+        } else {
+            // stage2가 없으면 stage1의 scenes 사용
+            stage1Scenes.forEach(s1Scene => {
+                merged.scenes.push({
+                    scene_id: s1Scene.scene_id,
+                    scene_title: s1Scene.scenario_text?.split('\n')[0] || `Scene ${s1Scene.scene_number}`,
+                    scene_scenario: s1Scene.scenario_text,
+                    sequence_id: s1Scene.sequence_id,
+                    shots: [] // 샷 정보는 없음
+                });
+            });
+        }
+
+        return merged;
+    }
+
+    processStage1Data(stage1) {
+        console.log('Processing stage1 data...');
+
+        const scenes = [];
+        const stage1Scenes = stage1.current_work?.scenario?.scenes || [];
+
+        stage1Scenes.forEach(scene => {
+            scenes.push({
+                scene_id: scene.scene_id,
+                scene_title: scene.scenario_text?.split('\n')[0] || `Scene ${scene.scene_number}`,
+                scene_scenario: scene.scenario_text,
+                sequence_id: scene.sequence_id,
+                shots: [] // stage1에는 샷 정보가 없음
+            });
+        });
+
+        return {
+            film_metadata: stage1.film_metadata || {},
+            treatment: stage1.current_work?.treatment || {},
+            scenes: scenes
+        };
+    }
+
+    mergeConceptArtWithStage2(conceptArt, stage2) {
+        console.log('Merging concept_art with stage2 data...');
+
+        const merged = {
+            // 메타데이터는 concept_art에서
+            film_metadata: conceptArt.film_metadata || {},
+            treatment: conceptArt.treatment || {},
+            scenarios: conceptArt.scenarios || [],
+
+            // scenes는 stage2에서 가져오되, concept_art 정보로 보강
+            scenes: []
+        };
+
+        // stage2의 scenes를 기반으로 병합
+        if (stage2.scenes && Array.isArray(stage2.scenes)) {
+            merged.scenes = stage2.scenes.map(scene => {
+                // concept_art의 scenarios에서 매칭되는 시나리오 찾기
+                const matchingScenario = conceptArt.scenarios?.find(s =>
+                    s.scene_number === scene.scene_id ||
+                    s.title?.includes(scene.scene_title)
+                );
+
+                // treatment의 sequences에서 관련 sequence 찾기
+                let sequenceId = null;
+                if (conceptArt.treatment?.sequences) {
+                    conceptArt.treatment.sequences.forEach(seq => {
+                        if (seq.scenes?.includes(scene.scene_id)) {
+                            sequenceId = seq.sequence_id || seq.title;
+                        }
+                    });
+                }
+
+                return {
+                    ...scene,
+                    sequence_id: sequenceId,
+                    scenario_data: matchingScenario || null,
+                    concept_art_refs: scene.concept_art_references || null
+                };
+            });
+        }
+
+        return merged;
+    }
+
+    processStage2Data(data) {
+        // stage2 데이터만 있을 때 기본 구조 생성
+        return {
+            film_metadata: {
+                title_working: "제목 없음",
+                genre: "미정",
+                duration: "미정"
+            },
+            scenes: data.scenes || []
+        };
+    }
+
+    processConceptArtData(data) {
+        // concept_art 데이터만 있을 때 scenes 구조 생성
+        const scenes = [];
+
+        if (data.scenarios && Array.isArray(data.scenarios)) {
+            data.scenarios.forEach(scenario => {
+                scenes.push({
+                    scene_id: scenario.scene_number || `S${scenarios.indexOf(scenario) + 1}`,
+                    scene_title: scenario.title || "제목 없음",
+                    scene_scenario: scenario.content || "",
+                    shots: [] // 샷 정보는 없음
+                });
+            });
+        }
+
+        return {
+            ...data,
+            scenes: scenes
+        };
+    }
+
+    updateMetadata() {
+        if (!this.mergedData) return;
+
+        const metadata = this.mergedData.film_metadata || {};
+        const metadataSection = document.getElementById('filmMetadata');
+
+        if (metadataSection) {
+            metadataSection.style.display = 'block';
+
+            // 제목
+            const titleEl = document.getElementById('filmTitle');
+            if (titleEl) {
+                titleEl.textContent = metadata.title_working || metadata.title || '제목 없음';
+            }
+
+            // 장르
+            const genreEl = document.getElementById('filmGenre');
+            if (genreEl) {
+                genreEl.textContent = metadata.genre || '미정';
+            }
+
+            // 러닝타임
+            const durationEl = document.getElementById('filmDuration');
+            if (durationEl) {
+                durationEl.textContent = metadata.duration || metadata.runtime || '미정';
+            }
+
+            // 진행률 계산
+            this.updateProgress();
+        }
+    }
+
+    updateProgress() {
+        let totalShots = 0;
+        let completedShots = 0;
+
+        if (this.mergedData?.scenes) {
+            this.mergedData.scenes.forEach(scene => {
+                if (scene.shots && Array.isArray(scene.shots)) {
+                    totalShots += scene.shots.length;
+                    // 완료 상태는 나중에 구현 (shot.completed 등)
+                    completedShots += scene.shots.filter(s => s.completed).length;
+                }
+            });
+        }
+
+        const progressEl = document.getElementById('filmProgress');
+        const progressFill = document.getElementById('progressFill');
+        const progressText = document.getElementById('progressText');
+
+        if (progressEl) {
+            progressEl.textContent = `${completedShots}/${totalShots} 샷 완료`;
+        }
+
+        const percentage = totalShots > 0 ? Math.round((completedShots / totalShots) * 100) : 0;
+        if (progressFill) {
+            progressFill.style.width = `${percentage}%`;
+        }
+        if (progressText) {
+            progressText.textContent = `${percentage}%`;
+        }
+    }
+
+    populateSequenceDropdown() {
+        const sequenceSelect = document.getElementById('sequenceSelect');
+        if (!sequenceSelect) return;
+
+        // Clear existing options
+        sequenceSelect.innerHTML = '<option value="">전체 Sequence</option>';
+
+        // Check for sequences in treatment
+        const sequences = this.mergedData?.treatment?.sequences ||
+                         this.storyboardData?.treatment?.sequences || [];
+
+        if (sequences.length === 0) return;
+
+        // Add sequence options
+        sequences.forEach(sequence => {
+            const option = document.createElement('option');
+            option.value = sequence.sequence_id || sequence.sequence_title || sequence.title;
+            option.textContent = sequence.sequence_title || sequence.title || sequence.sequence_id;
+            sequenceSelect.appendChild(option);
+        });
+    }
+
+    populateSceneDropdown(sequenceId = null) {
         const sceneSelect = document.getElementById('sceneSelect');
-        if (!sceneSelect || !this.storyboardData) return;
+        if (!sceneSelect) return;
 
         // Clear existing options
         sceneSelect.innerHTML = '<option value="">전체 Scene</option>';
 
+        if (!this.storyboardData?.scenes) return;
+
+        let scenesToShow = this.storyboardData.scenes;
+
+        // Filter by sequence if specified
+        if (sequenceId) {
+            scenesToShow = scenesToShow.filter(scene => scene.sequence_id === sequenceId);
+        }
+
         // Add scene options
-        this.storyboardData.scenes.forEach(scene => {
+        scenesToShow.forEach(scene => {
             const option = document.createElement('option');
             option.value = scene.scene_id;
             option.textContent = `${scene.scene_id}: ${scene.scene_title}`;
@@ -125,7 +433,7 @@ class StoryboardManager {
         if (!sceneId || !this.storyboardData) return;
 
         // Find the selected scene
-        const scene = this.storyboardData.scenes.find(s => s.scene_id === sceneId);
+        const scene = this.storyboardData.scenes?.find(s => s.scene_id === sceneId);
         if (!scene || !scene.shots) return;
 
         // Add shot options
@@ -138,8 +446,23 @@ class StoryboardManager {
     }
 
     setupDropdowns() {
+        const sequenceSelect = document.getElementById('sequenceSelect');
         const sceneSelect = document.getElementById('sceneSelect');
         const shotSelect = document.getElementById('shotSelect');
+
+        if (sequenceSelect) {
+            sequenceSelect.addEventListener('change', (e) => {
+                this.currentSequence = e.target.value;
+                this.currentScene = null;
+                this.currentShot = null;
+                this.populateSceneDropdown(this.currentSequence);
+                this.renderStoryboard();
+
+                // Reset downstream dropdowns
+                if (sceneSelect) sceneSelect.value = '';
+                if (shotSelect) shotSelect.value = '';
+            });
+        }
 
         if (sceneSelect) {
             sceneSelect.addEventListener('change', (e) => {
@@ -149,9 +472,7 @@ class StoryboardManager {
                 this.renderStoryboard();
 
                 // Reset shot dropdown
-                if (shotSelect) {
-                    shotSelect.value = '';
-                }
+                if (shotSelect) shotSelect.value = '';
             });
         }
 
@@ -170,12 +491,17 @@ class StoryboardManager {
         // Clear container
         container.innerHTML = '';
 
-        if (!this.storyboardData || !this.storyboardData.scenes) {
+        if (!this.storyboardData?.scenes || this.storyboardData.scenes.length === 0) {
             this.renderEmptyState();
             return;
         }
 
         let scenesToRender = this.storyboardData.scenes;
+
+        // Filter by selected sequence
+        if (this.currentSequence) {
+            scenesToRender = scenesToRender.filter(s => s.sequence_id === this.currentSequence);
+        }
 
         // Filter by selected scene
         if (this.currentScene) {
@@ -197,8 +523,10 @@ class StoryboardManager {
         // Scene header
         const sceneHeader = document.createElement('div');
         sceneHeader.className = 'scene-header';
+
+        const sequenceInfo = scene.sequence_id ? ` [${scene.sequence_id}]` : '';
         sceneHeader.innerHTML = `
-            <h2 class="scene-title">${scene.scene_id}: ${scene.scene_title}</h2>
+            <h2 class="scene-title">${scene.scene_id}: ${scene.scene_title}${sequenceInfo}</h2>
             <p class="scene-description">${scene.scene_scenario ? scene.scene_scenario.substring(0, 150) + '...' : ''}</p>
         `;
         sceneSection.appendChild(sceneHeader);
@@ -300,8 +628,7 @@ class StoryboardManager {
         switch(tagText) {
             case 'Video':
                 console.log('Playing video for shot:', shot.shot_id);
-                // TODO: Implement video playback
-                alert('비디오 재생 기능은 준비 중입니다.');
+                this.showNotification('비디오 재생 기능은 준비 중입니다.', 'info');
                 break;
             case 'PT북사':
                 console.log('PT book copy for shot:', shot.shot_id);
@@ -330,33 +657,29 @@ class StoryboardManager {
         // Copy shot information to clipboard in PT format
         const ptText = `Shot ID: ${shot.shot_id}\nType: ${shot.shot_type || 'regular'}\n${shot.shot_text || shot.shot_summary || ''}`;
         navigator.clipboard.writeText(ptText).then(() => {
-            alert('PT북사에 복사되었습니다.');
+            this.showNotification('PT북사에 복사되었습니다.', 'success');
         }).catch(err => {
             console.error('Failed to copy:', err);
+            this.showNotification('복사 실패', 'error');
         });
     }
 
     editShotBlock(shot) {
-        // TODO: Implement shot editing modal
-        alert('블록 수정 기능은 준비 중입니다.');
+        this.showNotification('블록 수정 기능은 준비 중입니다.', 'info');
     }
 
     duplicateShot(shot) {
-        // TODO: Implement shot duplication
-        alert('샷 복제 기능은 준비 중입니다.');
+        this.showNotification('샷 복제 기능은 준비 중입니다.', 'info');
     }
 
     deleteShot(shot) {
-        // TODO: Implement shot deletion from data
-        alert('샷 삭제 기능은 준비 중입니다.');
+        this.showNotification('샷 삭제 기능은 준비 중입니다.', 'info');
     }
 
     showShotDetails(shot) {
         // Create a modal or expand view to show detailed shot information
         console.log('Shot details:', shot);
-        // TODO: Implement detailed view modal
 
-        // For now, show basic info in alert
         const details = `
 Shot ID: ${shot.shot_id}
 Type: ${shot.shot_type || 'regular'}
@@ -365,6 +688,30 @@ Camera: ${shot.camera_movement?.type || 'static'}
 Duration: ${shot.camera_movement?.duration || 'N/A'}
         `;
         alert(details);
+    }
+
+    downloadMergedJSON() {
+        if (!this.mergedData && !this.storyboardData) {
+            this.showNotification('다운로드할 데이터가 없습니다.', 'error');
+            return;
+        }
+
+        const dataToDownload = this.mergedData || this.storyboardData;
+        const blob = new Blob([JSON.stringify(dataToDownload, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+
+        const title = dataToDownload.film_metadata?.title_working || 'storyboard';
+        const filename = `${title}_storyboard_${new Date().toISOString().split('T')[0]}.json`;
+
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+
+        this.showNotification('JSON 파일이 다운로드되었습니다.', 'success');
     }
 
     renderEmptyState() {
@@ -383,31 +730,53 @@ Duration: ${shot.camera_movement?.duration || 'N/A'}
         `;
     }
 
+    hideUploadSection() {
+        const uploadSection = document.querySelector('.upload-section');
+        if (uploadSection) {
+            uploadSection.style.display = 'none';
+        }
+    }
+
+    showControls() {
+        const controls = document.querySelector('.storyboard-controls');
+        if (controls) {
+            controls.style.display = 'flex';
+        }
+    }
+
     saveToLocalStorage() {
         if (this.storyboardData) {
             localStorage.setItem('storyboardData', JSON.stringify(this.storyboardData));
         }
+        if (this.mergedData) {
+            localStorage.setItem('mergedData', JSON.stringify(this.mergedData));
+        }
     }
 
     loadFromLocalStorage() {
+        const savedMergedData = localStorage.getItem('mergedData');
         const savedData = localStorage.getItem('storyboardData');
-        if (savedData) {
+
+        if (savedMergedData) {
+            try {
+                this.mergedData = JSON.parse(savedMergedData);
+                this.storyboardData = this.mergedData;
+                this.updateMetadata();
+                this.populateSequenceDropdown();
+                this.populateSceneDropdown();
+                this.renderStoryboard();
+                this.hideUploadSection();
+                this.showControls();
+            } catch (error) {
+                console.error('Failed to load merged data:', error);
+            }
+        } else if (savedData) {
             try {
                 this.storyboardData = JSON.parse(savedData);
                 this.populateSceneDropdown();
                 this.renderStoryboard();
-
-                // Hide upload area if data exists
-                const uploadSection = document.querySelector('.upload-section');
-                if (uploadSection) {
-                    uploadSection.style.display = 'none';
-                }
-
-                // Show controls
-                const controls = document.querySelector('.storyboard-controls');
-                if (controls) {
-                    controls.style.display = 'flex';
-                }
+                this.hideUploadSection();
+                this.showControls();
             } catch (error) {
                 console.error('Failed to load saved storyboard data:', error);
             }
@@ -415,10 +784,16 @@ Duration: ${shot.camera_movement?.duration || 'N/A'}
     }
 
     clearStoryboard() {
+        if (!confirm('모든 데이터가 삭제됩니다. 계속하시겠습니까?')) return;
+
         this.storyboardData = null;
+        this.mergedData = null;
+        this.currentSequence = null;
         this.currentScene = null;
         this.currentShot = null;
+        this.uploadedFiles.clear();
         localStorage.removeItem('storyboardData');
+        localStorage.removeItem('mergedData');
 
         // Reset UI
         const uploadSection = document.querySelector('.upload-section');
@@ -431,19 +806,82 @@ Duration: ${shot.camera_movement?.duration || 'N/A'}
             controls.style.display = 'none';
         }
 
+        const metadataSection = document.getElementById('filmMetadata');
+        if (metadataSection) {
+            metadataSection.style.display = 'none';
+        }
+
         this.renderEmptyState();
+        this.showNotification('모든 데이터가 초기화되었습니다.', 'info');
     }
 
     checkInitialData() {
         // Check if there's no saved data
-        if (!this.storyboardData) {
+        if (!this.storyboardData && !this.mergedData) {
             const controls = document.querySelector('.storyboard-controls');
             if (controls) {
                 controls.style.display = 'none';
             }
         }
     }
+
+    showNotification(message, type = 'info') {
+        // 토스트 알림 구현
+        const notification = document.createElement('div');
+        notification.className = `notification notification-${type}`;
+        notification.textContent = message;
+        notification.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 12px 20px;
+            background: ${type === 'error' ? '#ff4444' : type === 'success' ? '#44ff44' : '#4444ff'};
+            color: white;
+            border-radius: 8px;
+            z-index: 10000;
+            animation: slideIn 0.3s ease;
+        `;
+
+        document.body.appendChild(notification);
+
+        setTimeout(() => {
+            notification.style.animation = 'slideOut 0.3s ease';
+            setTimeout(() => {
+                document.body.removeChild(notification);
+            }, 300);
+        }, 3000);
+    }
+
+    // 이전 processStoryboardData 메서드 유지 (하위 호환성)
+    processStoryboardData(data) {
+        // Validate data structure
+        if (!data.scenes || !Array.isArray(data.scenes)) {
+            this.showNotification('올바른 스토리보드 JSON 형식이 아닙니다.', 'error');
+            return;
+        }
+
+        this.storyboardData = data;
+        this.saveToLocalStorage();
+        this.populateSceneDropdown();
+        this.renderStoryboard();
+        this.hideUploadSection();
+        this.showControls();
+    }
 }
+
+// Add CSS for notifications
+const style = document.createElement('style');
+style.textContent = `
+@keyframes slideIn {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+@keyframes slideOut {
+    from { transform: translateX(0); opacity: 1; }
+    to { transform: translateX(100%); opacity: 0; }
+}
+`;
+document.head.appendChild(style);
 
 // Initialize Storyboard Manager
 const storyboardManager = new StoryboardManager();

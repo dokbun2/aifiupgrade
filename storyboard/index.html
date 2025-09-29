@@ -274,6 +274,44 @@
                     </div>
                 </div>
 
+                <!-- Film Metadata Header -->
+                <div class="film-metadata" id="filmMetadata" style="display: none;">
+                    <div class="metadata-content">
+                        <div class="metadata-main">
+                            <h2 class="film-title" id="filmTitle">-</h2>
+                            <div class="film-info">
+                                <span class="info-item">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <rect x="2" y="7" width="20" height="15" rx="2" ry="2"></rect>
+                                        <polyline points="17 2 12 7 7 2"></polyline>
+                                    </svg>
+                                    <span id="filmGenre">-</span>
+                                </span>
+                                <span class="info-item">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <circle cx="12" cy="12" r="10"></circle>
+                                        <polyline points="12 6 12 12 16 14"></polyline>
+                                    </svg>
+                                    <span id="filmDuration">-</span>
+                                </span>
+                                <span class="info-item">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                                        <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                                    </svg>
+                                    <span id="filmProgress">0/0 샷 완료</span>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="metadata-actions">
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+                            </div>
+                            <span class="progress-text" id="progressText">0%</span>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- File Upload Section -->
                 <div class="upload-section" id="uploadSection">
                     <div class="upload-area" id="uploadArea">
@@ -291,6 +329,12 @@
                 <!-- Storyboard Controls -->
                 <div class="storyboard-controls" style="display: none;">
                     <div class="control-group">
+                        <label class="control-label">Sequence:</label>
+                        <select id="sequenceSelect" class="dropdown-select">
+                            <option value="">전체 Sequence</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
                         <label class="control-label">Scene:</label>
                         <select id="sceneSelect" class="dropdown-select">
                             <option value="">전체 Scene</option>
@@ -303,12 +347,22 @@
                         </select>
                     </div>
                     <div class="control-group" style="margin-left: auto;">
-                        <button class="btn-secondary" onclick="loadTestData()">
+                        <button class="btn-secondary" onclick="document.getElementById('jsonUploadInput').click()">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
-                                <circle cx="12" cy="13" r="4"></circle>
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                <polyline points="17 8 12 3 7 8"></polyline>
+                                <line x1="12" y1="3" x2="12" y2="15"></line>
                             </svg>
-                            테스트 데이터
+                            JSON 업로드
+                        </button>
+                        <input type="file" id="jsonUploadInput" accept=".json" multiple style="display: none;">
+                        <button class="btn-secondary" onclick="storyboardManager.downloadMergedJSON()">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                <polyline points="7 10 12 15 17 10"></polyline>
+                                <line x1="12" y1="15" x2="12" y2="3"></line>
+                            </svg>
+                            JSON 다운로드
                         </button>
                         <button class="btn-secondary" onclick="storyboardManager.clearStoryboard()">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -563,75 +617,5 @@
     <script src="../js/gemini-api.js"></script>
     <script src="../js/gemini-ui.js"></script>
     <script src="../js/storyboard.js"></script>
-    <script>
-        // Test data loader function
-        async function loadTestData() {
-            try {
-                // Fetch the test JSON file from the project data folder
-                const response = await fetch('../data/test-storyboard.json');
-                const data = await response.json();
-                storyboardManager.processStoryboardData(data);
-                console.log('Test data loaded successfully');
-            } catch (error) {
-                console.error('Error loading test data:', error);
-                // If can't fetch the actual file, use sample data
-                const sampleData = {
-                    "film_id": "FILM_SAMPLE",
-                    "current_step": "visual_direction_2B",
-                    "timestamp": new Date().toISOString(),
-                    "scenes": [
-                        {
-                            "scene_id": "S01",
-                            "scene_title": "샘플 씬 1",
-                            "scene_scenario": "INT. 테스트 장소 - 낮\n\n테스트를 위한 샘플 씬입니다.",
-                            "shots": [
-                                {
-                                    "shot_id": "S01.01.01",
-                                    "shot_type": "regular",
-                                    "shot_text": "테스트 샷 1의 설명입니다.",
-                                    "shot_summary": "첫 번째 테스트 샷",
-                                    "camera_movement": {
-                                        "type": "dolly_in",
-                                        "speed": "slow",
-                                        "duration": "5s"
-                                    }
-                                },
-                                {
-                                    "shot_id": "S01.02.01",
-                                    "shot_type": "regular",
-                                    "shot_text": "테스트 샷 2의 설명입니다.",
-                                    "shot_summary": "두 번째 테스트 샷",
-                                    "camera_movement": {
-                                        "type": "pan",
-                                        "speed": "medium",
-                                        "duration": "3s"
-                                    }
-                                }
-                            ]
-                        },
-                        {
-                            "scene_id": "S02",
-                            "scene_title": "샘플 씬 2",
-                            "scene_scenario": "EXT. 테스트 장소 - 저녁\n\n두 번째 테스트 씬입니다.",
-                            "shots": [
-                                {
-                                    "shot_id": "S02.01.01",
-                                    "shot_type": "wide",
-                                    "shot_text": "와이드 샷 테스트입니다.",
-                                    "shot_summary": "전체적인 장면을 보여주는 샷",
-                                    "camera_movement": {
-                                        "type": "static",
-                                        "duration": "4s"
-                                    }
-                                }
-                            ]
-                        }
-                    ]
-                };
-                storyboardManager.processStoryboardData(sampleData);
-                console.log('Sample test data loaded successfully');
-            }
-        }
-    </script>
 </body>
 </html>

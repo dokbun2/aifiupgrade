@@ -1,5 +1,82 @@
 /* Storyboard Specific Styles */
 
+/* Film Metadata Header */
+.film-metadata {
+    margin-bottom: 30px;
+    padding: 24px;
+    background: linear-gradient(145deg, rgba(102, 126, 234, 0.05), rgba(118, 75, 162, 0.05));
+    border-radius: 12px;
+    border: 1px solid rgba(102, 126, 234, 0.2);
+}
+
+.metadata-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 24px;
+}
+
+.metadata-main {
+    flex: 1;
+}
+
+.film-title {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--foreground);
+    margin-bottom: 12px;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.film-info {
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+}
+
+.info-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14px;
+    color: var(--muted-foreground);
+}
+
+.info-item svg {
+    color: #667eea;
+}
+
+.metadata-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 200px;
+}
+
+.progress-bar {
+    flex: 1;
+    height: 8px;
+    background: var(--secondary);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #667eea, #764ba2);
+    transition: width 0.3s ease;
+}
+
+.progress-text {
+    font-size: 14px;
+    font-weight: 600;
+    color: #667eea;
+    min-width: 40px;
+    text-align: right;
+}
+
 /* Button Styles */
 .btn-secondary {
     display: inline-flex;
