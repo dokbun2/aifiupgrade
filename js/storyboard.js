@@ -737,6 +737,22 @@ class StoryboardManager {
             displayText = displayText.substring(0, 200) + '...';
         }
 
+        // concept_art_references 정보 추출 및 포맷팅
+        let conceptArtRefs = '';
+        if (shot.concept_art_references) {
+            const refs = shot.concept_art_references;
+
+            // Characters 정보
+            if (refs.characters && refs.characters.length > 0) {
+                conceptArtRefs += `C: ${refs.characters.join(', ')}\n`;
+            }
+
+            // Location 정보
+            if (refs.location) {
+                conceptArtRefs += `L: ${refs.location}`;
+            }
+        }
+
         card.innerHTML = `
             <div class="card-header">
                 <span class="shot-id">${shot.shot_id}</span>
@@ -756,6 +772,7 @@ class StoryboardManager {
             </div>
             <div class="card-content">
                 <p class="shot-text">${displayText}</p>
+                ${conceptArtRefs ? `<div class="concept-art-refs">${conceptArtRefs}</div>` : ''}
             </div>
             <div class="card-footer">
                 <div class="card-tags">
