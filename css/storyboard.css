@@ -94,6 +94,7 @@
 .btn-secondary {
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     gap: 8px;
     padding: 10px 16px;
     background: var(--secondary);

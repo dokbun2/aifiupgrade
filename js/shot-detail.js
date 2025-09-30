@@ -209,7 +209,20 @@ let isInitialized = false;
 
 // START 버튼 클릭 시 디폴트 값 설정
 function setStartDefaults() {
-    // 기본 블록 디폴트 값
+    // Stage2 데이터가 있으면 starting_frame의 camera_composition 적용
+    if (currentShotData && currentShotData.starting_frame) {
+        const cameraComposition = currentShotData.starting_frame.camera_composition || '';
+        const cameraInput = document.querySelector('.tab-pane[data-tab="scene"] .prompt-row-item[data-block="camera"] .prompt-input');
+
+        if (cameraInput && cameraComposition) {
+            cameraInput.value = cameraComposition;
+            console.log('✅ START 프레임 카메라 구도 적용:', cameraComposition);
+            showNotification('START 프레임이 적용되었습니다.', 'success');
+            return;
+        }
+    }
+
+    // Stage2 데이터가 없으면 기본값 적용
     const basicDefaults = {
         genre: 'drama',
         mood: 'warm',
@@ -276,7 +289,20 @@ function setStartDefaults() {
 
 // END 버튼 클릭 시 변경된 값 설정
 function setEndDefaults() {
-    // 기본 블록 변경된 값
+    // Stage2 데이터가 있으면 ending_frame의 camera_composition 적용
+    if (currentShotData && currentShotData.ending_frame) {
+        const cameraComposition = currentShotData.ending_frame.camera_composition || '';
+        const cameraInput = document.querySelector('.tab-pane[data-tab="scene"] .prompt-row-item[data-block="camera"] .prompt-input');
+
+        if (cameraInput && cameraComposition) {
+            cameraInput.value = cameraComposition;
+            console.log('✅ END 프레임 카메라 구도 적용:', cameraComposition);
+            showNotification('END 프레임이 적용되었습니다.', 'success');
+            return;
+        }
+    }
+
+    // Stage2 데이터가 없으면 기본값 적용
     const basicDefaults = {
         genre: 'thriller',
         mood: 'dark',
@@ -1303,6 +1329,8 @@ function handleStage1Upload(event) {
 
 // Stage 1 데이터를 각 블록에 매칭
 function mapStage1DataToBlocks(parsedData) {
+    console.log('🟢 mapStage1DataToBlocks 호출됨:', parsedData);
+
     // 1. 기본블록 매칭
     mapBasicBlock(parsedData.basic);
 
@@ -1320,8 +1348,12 @@ function mapStage1DataToBlocks(parsedData) {
     }
 
     // 5. 소품블록 매칭
+    console.log('🔍 소품 데이터 확인:', parsedData.props);
     if (parsedData.props && parsedData.props.length > 0) {
-        mapPropsBlock(parsedData.props[0], parsedData.locations[0]);
+        console.log('🟡 mapPropsBlock 호출 시작');
+        mapPropsBlock(parsedData.props);
+    } else {
+        console.log('❌ 소품 데이터가 없거나 비어있습니다.');
     }
 }
 
@@ -1439,27 +1471,48 @@ function mapLocationBlock(locationData) {
 }
 
 // 소품블록 데이터 매칭
-function mapPropsBlock(propsData, locationData) {
-    if (!propsData && !locationData) return;
+function mapPropsBlock(propsDataArray) {
+    if (!propsDataArray || propsDataArray.length === 0) {
+        console.log('❌ 소품 데이터가 없습니다.');
+        return;
+    }
 
-    const mapping = {
-        'props': propsData?.blocks?.itemName || '',
-        'lighting-tech': locationData?.blocks?.lighting || '',
-        'foreground': locationData?.blocks?.foreground || '',
-        'midground': locationData?.blocks?.midground || '',
-        'background': locationData?.blocks?.background || '',
-        'left-side': locationData?.blocks?.leftSide || '',
-        'right-side': locationData?.blocks?.rightSide || '',
-        'ceiling': locationData?.blocks?.ceilingSky || ''
-    };
+    console.log('🎭 소품 데이터 매칭 시작:', propsDataArray);
 
-    // 소품블록 탭의 입력 필드에 값 설정
-    Object.entries(mapping).forEach(([field, value]) => {
-        const input = document.querySelector(`.tab-pane[data-tab="props"] .prompt-row-item[data-block="${field}"] .prompt-input`);
-        if (input && value) {
-            input.value = value;
-        }
+    // 1. 소품 셀렉터 업데이트
+    const propsForSelector = propsDataArray.map((prop, index) => ({
+        index: index + 1,
+        name: prop.name || `소품 ${index + 1}`,
+        itemName: prop.blocks?.itemName || '',
+        propDetail: prop.detail || ''
+    }));
+
+    console.log('🔄 소품 셀렉터 데이터:', propsForSelector);
+    updatePropsSelector(propsForSelector);
+
+    // 2. 파싱된 소품 데이터를 전역 변수에 저장
+    parsedPropsData = {};
+    propsDataArray.forEach((prop, index) => {
+        const propNum = index + 1;
+        parsedPropsData[propNum] = {
+            name: prop.name || `소품 ${propNum}`,
+            itemName: prop.blocks?.itemName || '',
+            propDetail: prop.detail || ''
+        };
     });
+    console.log('💾 소품 데이터 저장 완료:', parsedPropsData);
+
+    // 3. addedProps Set을 초기화하고 모든 소품 추가
+    addedProps.clear();
+    propsDataArray.forEach((_, index) => {
+        addedProps.add(index + 1);
+    });
+
+    // 4. 소품 리스트 및 컨테이너 업데이트
+    updatePropsList();
+    updatePropsContainers();
+
+    console.log('✅ 소품 블록 매칭 완료');
 }
 
 // Stage 1 JSON 업로드 버튼 추가를 위한 전역 함수
@@ -1524,9 +1577,13 @@ window.shotDetail = {
 
     // Stage 1 JSON 로드
     loadStage1JSON: function(jsonData) {
-        if (window.stage1Parser) {
+        console.log('🔵 loadStage1JSON 호출됨:', jsonData);
+        if (jsonData) {
             shotDetailManager.stage1Data = jsonData;
             mapStage1DataToBlocks(jsonData);
+            console.log('✅ Stage1 데이터 매핑 완료');
+        } else {
+            console.log('❌ jsonData가 없습니다.');
         }
     }
 };
@@ -1892,6 +1949,10 @@ function updateLocationContainers() {
 
 // ===== 소품 관리 함수들 =====
 const addedProps = new Set([1]); // 기본으로 소품 1이 추가되어 있음
+let parsedPropsData = {}; // 파싱된 소품 데이터를 저장 (propNum: {itemName, propDetail})
+
+// ===== 연출블록 데이터 저장 =====
+let currentShotData = null; // 현재 샷의 Stage2 데이터 저장
 
 // 소품을 리스트에 추가하는 함수
 window.addPropsToList = function() {
@@ -1969,9 +2030,87 @@ function updatePropsContainers() {
     const propsTab = document.querySelector('.tab-pane[data-tab="props"]');
     if (!propsTab) return;
 
-    // 현재는 소품 블록이 컨테이너 구조가 아니므로,
-    // 필요시 여기에 컨테이너별 표시/숨김 로직 추가 가능
-    console.log('Selected props:', Array.from(addedProps));
+    // 각 컬럼 가져오기
+    const labelsColumn = propsTab.querySelector('.labels-column .label-list');
+    const promptColumn = propsTab.querySelector('.prompt-column .prompt-blocks');
+    const requestColumn = propsTab.querySelector('.request-column .request-blocks');
+
+    if (!labelsColumn || !promptColumn || !requestColumn) {
+        console.error('소품 블록 컬럼을 찾을 수 없습니다.');
+        return;
+    }
+
+    // 기존 입력값 저장 (사용자가 수정한 값 우선 보존)
+    const existingPromptValues = {};
+    const existingRequestValues = {};
+
+    promptColumn.querySelectorAll('.prompt-input[data-props-num]').forEach(input => {
+        const propNum = input.getAttribute('data-props-num');
+        if (propNum && input.value) {
+            existingPromptValues[propNum] = input.value;
+        }
+    });
+
+    requestColumn.querySelectorAll('.request-input[data-props-num]').forEach(input => {
+        const propNum = input.getAttribute('data-props-num');
+        if (propNum && input.value) {
+            existingRequestValues[propNum] = input.value;
+        }
+    });
+
+    // 기존 컨테이너 모두 제거
+    labelsColumn.innerHTML = '';
+    promptColumn.innerHTML = '';
+    requestColumn.innerHTML = '';
+
+    // 추가된 소품들에 대해 각 컬럼에 행 생성
+    const sortedProps = Array.from(addedProps).sort((a, b) => a - b);
+
+    sortedProps.forEach(num => {
+        // 소품 선택기에서 해당 소품 이름 가져오기
+        const selector = document.getElementById('propsSelector');
+        const option = selector ? selector.querySelector(`option[value="${num}"]`) : null;
+        const propsName = option ? option.textContent : `소품 ${num}`;
+
+        // Column 1: 라벨
+        const labelItem = document.createElement('div');
+        labelItem.className = 'label-item';
+        labelItem.setAttribute('data-block', `props${num}`);
+        labelItem.innerHTML = `
+            <span class="label-text">${propsName}</span>
+            <button class="label-tag">PROPS_${num}</button>
+        `;
+        labelsColumn.appendChild(labelItem);
+
+        // Column 2: 프롬프트 입력 (기존 값 or 파싱된 데이터 복원)
+        const promptItem = document.createElement('div');
+        promptItem.className = 'prompt-row-item';
+        promptItem.setAttribute('data-block', `props${num}`);
+
+        // 우선순위: 사용자가 수정한 값 > 파싱된 원본 데이터
+        let promptValue = existingPromptValues[num];
+        if (!promptValue && parsedPropsData[num]) {
+            const { itemName, propDetail } = parsedPropsData[num];
+            promptValue = [itemName, propDetail].filter(Boolean).join(', ');
+        }
+
+        promptItem.innerHTML = `
+            <input type="text" class="prompt-input" placeholder="" value="${promptValue || ''}" data-props-num="${num}">
+        `;
+        promptColumn.appendChild(promptItem);
+
+        // Column 3: 변경 요청 (기존 값 복원)
+        const requestItem = document.createElement('div');
+        requestItem.className = 'request-row-item';
+        requestItem.setAttribute('data-block', `props${num}`);
+        const savedRequestValue = existingRequestValues[num] || '';
+        requestItem.innerHTML = `
+            <input type="text" class="request-input" placeholder="" value="${savedRequestValue}" data-props-num="${num}">
+        `;
+        requestColumn.appendChild(requestItem);
+    });
+
+    console.log('✅ 소품 컨테이너 업데이트 완료:', sortedProps);
 }
 
 // ===== Stage2 JSON 통합 기능들 =====
@@ -2129,6 +2268,47 @@ window.stage2Integration = stage2Integration;
 document.addEventListener('DOMContentLoaded', function() {
     imageUploadManager.init();
 
+    // Stage1 자동 로드 (sessionStorage에서)
+    setTimeout(() => {
+        const stage1Data = sessionStorage.getItem('stage1ParsedData');
+        if (stage1Data) {
+            try {
+                const parsedData = JSON.parse(stage1Data);
+                console.log('📂 Stage1 데이터 자동 로드:', parsedData);
+                mapStage1DataToBlocks(parsedData);
+            } catch (error) {
+                console.error('Stage1 데이터 파싱 에러:', error);
+            }
+        } else {
+            console.log('⚠️ sessionStorage에 stage1ParsedData가 없습니다.');
+        }
+
+        // 현재 샷의 Stage2 데이터 로드 (URL에서 shotId 추출)
+        const urlParams = new URLSearchParams(window.location.search);
+        const shotId = urlParams.get('shotId');
+        if (shotId) {
+            const shotDataKey = `shot_${shotId}`;
+            const shotDataStr = sessionStorage.getItem(shotDataKey);
+            if (shotDataStr) {
+                try {
+                    currentShotData = JSON.parse(shotDataStr);
+                    console.log('📂 샷 데이터 로드 완료:', currentShotData);
+
+                    // 연출 블록의 장면 필드에 scene 값 설정
+                    if (currentShotData.scene) {
+                        const sceneInput = document.querySelector('.tab-pane[data-tab="scene"] .prompt-row-item[data-block="scene"] .prompt-input');
+                        if (sceneInput) {
+                            sceneInput.value = currentShotData.scene;
+                            console.log('✅ 장면 필드에 값 설정:', currentShotData.scene);
+                        }
+                    }
+                } catch (error) {
+                    console.error('샷 데이터 파싱 에러:', error);
+                }
+            }
+        }
+    }, 500);
+
     // Stage2 자동 매핑 기능 (UI 없이 백그라운드에서 동작)
     setTimeout(() => {
         // 세션 스토리지에서 Stage2 데이터 로드
@@ -2220,3 +2400,105 @@ async function loadStage2ParserScript() {
         document.head.appendChild(script);
     });
 }
+
+// ===== 소품 데이터 파싱 및 표시 =====
+let propsData = []; // 전역 소품 데이터 저장
+
+// Stage1 JSON 파일에서 소품 데이터 파싱
+function parsePropsFromStage1(jsonData) {
+    try {
+        if (!jsonData || !jsonData.visual_blocks || !jsonData.visual_blocks.props) {
+            console.warn('소품 데이터가 없습니다.');
+            return [];
+        }
+
+        const props = jsonData.visual_blocks.props;
+        console.log('📦 소품 데이터 파싱:', props.length, '개');
+
+        return props.map((prop, index) => ({
+            id: prop.id,
+            name: prop.name,
+            itemName: prop.blocks['5_ITEM_NAME'] || '',
+            propDetail: prop.prop_detail || '',
+            index: index + 1
+        }));
+    } catch (error) {
+        console.error('소품 데이터 파싱 오류:', error);
+        return [];
+    }
+}
+
+// 소품 셀렉터 업데이트
+function updatePropsSelector(props) {
+    console.log('🔵 updatePropsSelector 호출됨:', props);
+
+    const selector = document.getElementById('propsSelector');
+    if (!selector) {
+        console.error('❌ 소품 셀렉터를 찾을 수 없습니다. #propsSelector');
+        return;
+    }
+
+    console.log('✅ 소품 셀렉터 DOM 요소 찾음:', selector);
+
+    // 기존 옵션 제거
+    selector.innerHTML = '';
+
+    // 새로운 옵션 추가
+    props.forEach((prop, idx) => {
+        const option = document.createElement('option');
+        option.value = prop.index;
+        option.textContent = `${prop.name}`;
+        option.dataset.itemName = prop.itemName;
+        option.dataset.propDetail = prop.propDetail;
+        selector.appendChild(option);
+        console.log(`📌 옵션 추가 [${idx}]:`, {
+            value: prop.index,
+            text: prop.name,
+            itemName: prop.itemName,
+            propDetail: prop.propDetail
+        });
+    });
+
+    console.log('✅ 소품 셀렉터 업데이트 완료:', props.length, '개');
+}
+
+// 소품 선택 시 프롬프트 입력창 업데이트
+function updatePropsPromptInput() {
+    const selector = document.getElementById('propsSelector');
+    const selectedOption = selector.options[selector.selectedIndex];
+
+    if (!selectedOption) return;
+
+    const itemName = selectedOption.dataset.itemName || '';
+    const propDetail = selectedOption.dataset.propDetail || '';
+
+    // 프롬프트 조합: itemName, propDetail
+    const promptText = [itemName, propDetail].filter(Boolean).join(', ');
+
+    // 소품 블록의 프롬프트 입력창 찾기
+    const propsPromptInput = document.querySelector('.tab-pane[data-tab="props"] .prompt-row-item[data-block="props"] .prompt-input');
+
+    if (propsPromptInput) {
+        propsPromptInput.value = promptText;
+        console.log('✅ 소품 프롬프트 업데이트:', promptText);
+    }
+}
+
+// 소품 셀렉터 변경 이벤트 리스너
+document.addEventListener('DOMContentLoaded', () => {
+    const selector = document.getElementById('propsSelector');
+    if (selector) {
+        selector.addEventListener('change', updatePropsPromptInput);
+    }
+});
+
+// JSON 업로드 시 소품 데이터 파싱 (기존 파일 업로드 핸들러와 연동)
+window.parseAndLoadPropsData = function(jsonData) {
+    propsData = parsePropsFromStage1(jsonData);
+
+    if (propsData.length > 0) {
+        updatePropsSelector(propsData);
+        // 첫 번째 소품 자동 선택 및 프롬프트 표시
+        updatePropsPromptInput();
+    }
+};

@@ -1104,22 +1104,36 @@ class StoryboardManager {
         const iframe = document.getElementById('shotDetailFrame');
         if (iframe) {
             iframe.onload = () => {
-                setTimeout(() => {
-                    // 세션 스토리지에서 Stage 1 파싱된 데이터 가져오기
+                // shotDetail 객체가 준비될 때까지 재시도
+                const tryLoadStage1Data = (retries = 0) => {
+                    const maxRetries = 10;
                     const stage1Data = sessionStorage.getItem('stage1ParsedData');
-                    if (stage1Data) {
-                        try {
-                            const parsedData = JSON.parse(stage1Data);
-                            // iframe 내부의 shotDetail 객체에 데이터 전달
-                            if (iframe.contentWindow && iframe.contentWindow.shotDetail) {
-                                iframe.contentWindow.shotDetail.loadStage1JSON(parsedData);
-                                console.log('✅ Stage 1 데이터가 샷 디테일 모달에 전달되었습니다.');
-                            }
-                        } catch (error) {
-                            console.error('Stage 1 데이터 전달 실패:', error);
-                        }
+
+                    if (!stage1Data) {
+                        console.log('❌ Stage 1 데이터가 sessionStorage에 없습니다.');
+                        return;
                     }
-                }, 1000); // 페이지 로드 대기
+
+                    try {
+                        const parsedData = JSON.parse(stage1Data);
+
+                        // iframe 내부의 shotDetail 객체 확인
+                        if (iframe.contentWindow && iframe.contentWindow.shotDetail) {
+                            iframe.contentWindow.shotDetail.loadStage1JSON(parsedData);
+                            console.log('✅ Stage 1 데이터가 샷 디테일 모달에 전달되었습니다.');
+                        } else if (retries < maxRetries) {
+                            console.log(`⏳ shotDetail 객체 대기 중... (${retries + 1}/${maxRetries})`);
+                            setTimeout(() => tryLoadStage1Data(retries + 1), 300);
+                        } else {
+                            console.error('❌ shotDetail 객체를 찾을 수 없습니다. (최대 재시도 횟수 초과)');
+                        }
+                    } catch (error) {
+                        console.error('Stage 1 데이터 전달 실패:', error);
+                    }
+                };
+
+                // 초기 지연 후 시작
+                setTimeout(() => tryLoadStage1Data(), 500);
             };
         }
 
@@ -1167,22 +1181,36 @@ class StoryboardManager {
         const iframe = document.getElementById('shotDetailFrame');
         if (iframe) {
             iframe.onload = () => {
-                setTimeout(() => {
-                    // 세션 스토리지에서 Stage 1 파싱된 데이터 가져오기
+                // shotDetail 객체가 준비될 때까지 재시도
+                const tryLoadStage1Data = (retries = 0) => {
+                    const maxRetries = 10;
                     const stage1Data = sessionStorage.getItem('stage1ParsedData');
-                    if (stage1Data) {
-                        try {
-                            const parsedData = JSON.parse(stage1Data);
-                            // iframe 내부의 shotDetail 객체에 데이터 전달
-                            if (iframe.contentWindow && iframe.contentWindow.shotDetail) {
-                                iframe.contentWindow.shotDetail.loadStage1JSON(parsedData);
-                                console.log('✅ Stage 1 데이터가 샷 디테일 모달에 전달되었습니다.');
-                            }
-                        } catch (error) {
-                            console.error('Stage 1 데이터 전달 실패:', error);
-                        }
+
+                    if (!stage1Data) {
+                        console.log('❌ Stage 1 데이터가 sessionStorage에 없습니다.');
+                        return;
                     }
-                }, 1000); // 페이지 로드 대기
+
+                    try {
+                        const parsedData = JSON.parse(stage1Data);
+
+                        // iframe 내부의 shotDetail 객체 확인
+                        if (iframe.contentWindow && iframe.contentWindow.shotDetail) {
+                            iframe.contentWindow.shotDetail.loadStage1JSON(parsedData);
+                            console.log('✅ Stage 1 데이터가 샷 디테일 모달에 전달되었습니다.');
+                        } else if (retries < maxRetries) {
+                            console.log(`⏳ shotDetail 객체 대기 중... (${retries + 1}/${maxRetries})`);
+                            setTimeout(() => tryLoadStage1Data(retries + 1), 300);
+                        } else {
+                            console.error('❌ shotDetail 객체를 찾을 수 없습니다. (최대 재시도 횟수 초과)');
+                        }
+                    } catch (error) {
+                        console.error('Stage 1 데이터 전달 실패:', error);
+                    }
+                };
+
+                // 초기 지연 후 시작
+                setTimeout(() => tryLoadStage1Data(), 500);
             };
         }
 
