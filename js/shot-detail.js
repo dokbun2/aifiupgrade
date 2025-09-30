@@ -1,9 +1,138 @@
 // Shot Detail Modal JavaScript
 
 // Stage 1 JSON 파서 스크립트 로드
-const script = document.createElement('script');
-script.src = '../js/stage1-parser.js';
-document.head.appendChild(script);
+const script1 = document.createElement('script');
+script1.src = '../js/stage1-parser.js';
+document.head.appendChild(script1);
+
+// Stage 2 JSON 파서 스크립트 로드
+const script2 = document.createElement('script');
+script2.src = '../js/stage2-parser.js';
+document.head.appendChild(script2);
+
+// 이미지 업로드 관리
+const imageUploadManager = {
+    maxImages: 5,
+    uploadedImages: [],
+
+    init() {
+        const imageInput = document.getElementById('imageUploadInput');
+        const container = document.querySelector('.image-preview-container');
+        const placeholder = document.getElementById('uploadPlaceholder');
+
+        // 파일 선택 이벤트
+        if (imageInput) {
+            imageInput.addEventListener('change', (e) => this.handleImageSelect(e));
+        }
+
+        // 드래그 앤 드롭 이벤트
+        if (container) {
+            container.addEventListener('dragover', (e) => this.handleDragOver(e));
+            container.addEventListener('dragleave', (e) => this.handleDragLeave(e));
+            container.addEventListener('drop', (e) => this.handleDrop(e));
+        }
+
+        // 플레이스홀더 클릭 시 파일 선택
+        if (placeholder) {
+            placeholder.addEventListener('click', () => {
+                imageInput?.click();
+            });
+        }
+    },
+
+    handleImageSelect(e) {
+        const files = Array.from(e.target.files);
+        this.addImages(files);
+    },
+
+    handleDragOver(e) {
+        e.preventDefault();
+        e.currentTarget.classList.add('drag-over');
+    },
+
+    handleDragLeave(e) {
+        e.currentTarget.classList.remove('drag-over');
+    },
+
+    handleDrop(e) {
+        e.preventDefault();
+        e.currentTarget.classList.remove('drag-over');
+
+        const files = Array.from(e.dataTransfer.files);
+        const imageFiles = files.filter(file => file.type.startsWith('image/'));
+        this.addImages(imageFiles);
+    },
+
+    addImages(files) {
+        const remainingSlots = this.maxImages - this.uploadedImages.length;
+        const filesToAdd = files.slice(0, remainingSlots);
+
+        if (filesToAdd.length === 0) {
+            alert(`최대 ${this.maxImages}개까지만 업로드할 수 있습니다.`);
+            return;
+        }
+
+        filesToAdd.forEach(file => {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const imageData = {
+                    id: Date.now() + Math.random(),
+                    src: e.target.result,
+                    name: file.name
+                };
+                this.uploadedImages.push(imageData);
+                this.renderImages();
+            };
+            reader.readAsDataURL(file);
+        });
+    },
+
+    renderImages() {
+        const grid = document.getElementById('imagePreviewGrid');
+        if (!grid) return;
+
+        grid.innerHTML = '';
+
+        this.uploadedImages.forEach((image, index) => {
+            const item = document.createElement('div');
+            item.className = 'image-preview-item';
+            item.innerHTML = `
+                <img src="${image.src}" alt="${image.name}">
+                <span class="image-number">#${index + 1}</span>
+                <button class="image-remove-btn" onclick="imageUploadManager.removeImage(${image.id})">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            `;
+            grid.appendChild(item);
+        });
+
+        // 플레이스홀더 표시/숨김
+        const placeholder = document.getElementById('uploadPlaceholder');
+        if (placeholder) {
+            placeholder.style.display = this.uploadedImages.length === 0 ? 'flex' : 'none';
+        }
+    },
+
+    removeImage(id) {
+        this.uploadedImages = this.uploadedImages.filter(img => img.id !== id);
+        this.renderImages();
+    },
+
+    clearAll() {
+        this.uploadedImages = [];
+        this.renderImages();
+    }
+};
+
+// 전체 이미지 삭제 함수
+window.clearAllImages = function() {
+    if (confirm('모든 이미지를 삭제하시겠습니까?')) {
+        imageUploadManager.clearAll();
+    }
+};
 
 // 샷 상세 데이터 관리
 const shotDetailManager = {
@@ -78,6 +207,182 @@ let selectedImageIndex = 0;
 // 초기화 플래그
 let isInitialized = false;
 
+// START 버튼 클릭 시 디폴트 값 설정
+function setStartDefaults() {
+    // 기본 블록 디폴트 값
+    const basicDefaults = {
+        genre: 'drama',
+        mood: 'warm',
+        shot_size: 'medium',
+        shot_angle: 'eye-level',
+        shot_movement: 'static',
+        depth_of_field: 'normal',
+        focus: 'center',
+        lighting: 'natural',
+        time_of_day: 'morning',
+        weather: 'clear',
+        season: 'spring'
+    };
+
+    // 연출 블록 디폴트 값
+    const sceneDefaults = {
+        color_palette: 'warm-tones',
+        contrast: 'normal',
+        saturation: 'normal',
+        tone: 'bright',
+        texture: 'smooth',
+        pattern: 'none',
+        visual_effects: 'none',
+        special_effects: 'none',
+        transition_in: 'fade-in',
+        transition_out: 'fade-out',
+        timeline_duration: '3'
+    };
+
+    // 캐릭터 블록 디폴트
+    const characterDefaults = {
+        age: 'young-adult',
+        gender: 'neutral',
+        ethnicity: 'asian',
+        body_type: 'average',
+        hair_style: 'short',
+        hair_color: 'black',
+        clothing_style: 'casual',
+        clothing_color: 'neutral'
+    };
+
+    // 장소 블록 디폴트
+    const locationDefaults = {
+        type: 'interior',
+        specific: 'home',
+        architecture: 'modern',
+        size: 'medium',
+        condition: 'clean',
+        decoration: 'minimal'
+    };
+
+    // 소품 블록 디폴트
+    const propsDefaults = ['furniture', 'electronics'];
+
+    // 값 적용
+    applyDefaultValues('basic', basicDefaults);
+    applyDefaultValues('scene', sceneDefaults);
+    applyDefaultValues('character', characterDefaults);
+    applyDefaultValues('location', locationDefaults);
+    applyPropsDefaults(propsDefaults);
+
+    showNotification('START 기본값이 적용되었습니다.', 'success');
+}
+
+// END 버튼 클릭 시 변경된 값 설정
+function setEndDefaults() {
+    // 기본 블록 변경된 값
+    const basicDefaults = {
+        genre: 'thriller',
+        mood: 'dark',
+        shot_size: 'close-up',
+        shot_angle: 'low-angle',
+        shot_movement: 'tracking',
+        depth_of_field: 'shallow',
+        focus: 'selective',
+        lighting: 'dramatic',
+        time_of_day: 'night',
+        weather: 'rain',
+        season: 'winter'
+    };
+
+    // 연출 블록 변경된 값
+    const sceneDefaults = {
+        color_palette: 'cool-tones',
+        contrast: 'high',
+        saturation: 'desaturated',
+        tone: 'dark',
+        texture: 'gritty',
+        pattern: 'geometric',
+        visual_effects: 'blur',
+        special_effects: 'smoke',
+        transition_in: 'cut',
+        transition_out: 'fade-to-black',
+        timeline_duration: '5'
+    };
+
+    // 캐릭터 블록 변경
+    const characterDefaults = {
+        age: 'middle-aged',
+        gender: 'male',
+        ethnicity: 'caucasian',
+        body_type: 'athletic',
+        hair_style: 'long',
+        hair_color: 'gray',
+        clothing_style: 'formal',
+        clothing_color: 'dark'
+    };
+
+    // 장소 블록 변경
+    const locationDefaults = {
+        type: 'exterior',
+        specific: 'street',
+        architecture: 'urban',
+        size: 'large',
+        condition: 'worn',
+        decoration: 'industrial'
+    };
+
+    // 소품 블록 변경
+    const propsDefaults = ['vehicles', 'weapons', 'technology'];
+
+    // 값 적용
+    applyDefaultValues('basic', basicDefaults);
+    applyDefaultValues('scene', sceneDefaults);
+    applyDefaultValues('character', characterDefaults);
+    applyDefaultValues('location', locationDefaults);
+    applyPropsDefaults(propsDefaults);
+
+    showNotification('END 변경값이 적용되었습니다.', 'success');
+}
+
+// 디폴트 값 적용 헬퍼 함수
+function applyDefaultValues(blockType, values) {
+    Object.keys(values).forEach(key => {
+        // 셀렉트 요소 찾기
+        const selectElement = document.querySelector(`[data-block="${blockType}"] select[data-field="${key}"],
+                                                     .tab-pane[data-tab="${blockType}"] select[data-field="${key}"],
+                                                     select[name="${key}"]`);
+        if (selectElement) {
+            selectElement.value = values[key];
+            // 이벤트 발생시켜 UI 업데이트
+            selectElement.dispatchEvent(new Event('change'));
+        }
+
+        // 입력 필드 찾기
+        const inputElement = document.querySelector(`[data-block="${blockType}"] input[data-field="${key}"],
+                                                    .tab-pane[data-tab="${blockType}"] input[data-field="${key}"],
+                                                    input[name="${key}"]`);
+        if (inputElement) {
+            inputElement.value = values[key];
+            inputElement.dispatchEvent(new Event('input'));
+        }
+    });
+}
+
+// 소품 디폴트 적용 함수
+function applyPropsDefaults(props) {
+    // 모든 체크박스 해제
+    const allCheckboxes = document.querySelectorAll('.props-options input[type="checkbox"]');
+    allCheckboxes.forEach(cb => {
+        cb.checked = false;
+    });
+
+    // 선택된 소품 체크
+    props.forEach(prop => {
+        const checkbox = document.querySelector(`.props-options input[value="${prop}"]`);
+        if (checkbox) {
+            checkbox.checked = true;
+            checkbox.dispatchEvent(new Event('change'));
+        }
+    });
+}
+
 // 초기화
 document.addEventListener('DOMContentLoaded', function() {
     // 중복 초기화 방지
@@ -108,9 +413,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // 탭 네비게이션 초기화
 function initializeTabs() {
-    const tabButtons = document.querySelectorAll('.tab-btn');
+    const tabButtons = document.querySelectorAll('.tab-btn:not(.tab-action-btn)');
+    const actionButtons = document.querySelectorAll('.tab-action-btn');
     const tabPanes = document.querySelectorAll('.tab-pane');
 
+    // 일반 탭 버튼 이벤트
     tabButtons.forEach(button => {
         button.addEventListener('click', function() {
             const targetTab = this.getAttribute('data-tab');
@@ -130,6 +437,22 @@ function initializeTabs() {
             const timelineSection = document.querySelector('.timeline-section');
             if (timelineSection) {
                 timelineSection.style.display = targetTab === 'scene' ? 'block' : 'none';
+            }
+        });
+    });
+
+    // START/END 액션 버튼 이벤트
+    actionButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const action = this.getAttribute('data-action');
+            if (action === 'start') {
+                setStartDefaults();
+                this.classList.add('active');
+                document.querySelector('.tab-action-btn[data-action="end"]').classList.remove('active');
+            } else if (action === 'end') {
+                setEndDefaults();
+                this.classList.add('active');
+                document.querySelector('.tab-action-btn[data-action="start"]').classList.remove('active');
             }
         });
     });
@@ -728,6 +1051,66 @@ function closeShotDetail() {
 // 전역으로 노출
 window.closeShotDetail = closeShotDetail;
 
+// 캐릭터 관리 함수
+let activeCharacters = [1]; // 기본적으로 캐릭터 1이 선택됨
+
+function addCharacterToList() {
+    const selector = document.getElementById('characterSelector');
+    const characterNum = parseInt(selector.value);
+
+    if (!activeCharacters.includes(characterNum)) {
+        activeCharacters.push(characterNum);
+        activeCharacters.sort();
+        updateCharacterChips();
+        updateCharacterVisibility();
+    }
+}
+
+function removeCharacter(characterNum) {
+    // 최소 1개의 캐릭터는 유지
+    if (activeCharacters.length > 1) {
+        const index = activeCharacters.indexOf(characterNum);
+        if (index > -1) {
+            activeCharacters.splice(index, 1);
+            updateCharacterChips();
+            updateCharacterVisibility();
+        }
+    }
+}
+
+function updateCharacterChips() {
+    const listContainer = document.getElementById('addedCharactersList');
+    if (!listContainer) return;
+
+    listContainer.innerHTML = activeCharacters.map(num => `
+        <div class="selected-character-chip" data-character-num="${num}">
+            <span>캐릭터 ${num}</span>
+            <button class="chip-remove-btn" onclick="removeCharacter(${num})">×</button>
+        </div>
+    `).join('');
+}
+
+function updateCharacterVisibility() {
+    // 모든 캐릭터 컨테이너 숨기기
+    document.querySelectorAll('.character-container').forEach(container => {
+        const charNum = parseInt(container.dataset.character);
+        if (charNum) {
+            container.style.display = activeCharacters.includes(charNum) ? 'block' : 'none';
+        }
+    });
+}
+
+function clearAllCharacters() {
+    activeCharacters = [1]; // 캐릭터 1로 초기화
+    updateCharacterChips();
+    updateCharacterVisibility();
+}
+
+// 전역으로 노출
+window.addCharacterToList = addCharacterToList;
+window.removeCharacter = removeCharacter;
+window.clearAllCharacters = clearAllCharacters;
+
 // 이미지 업로드 기능 초기화
 function initializeImageUpload() {
     // 파일 업로드 트리거 함수를 전역으로 설정
@@ -1073,6 +1456,32 @@ window.uploadStage1JSON = function() {
     input.click();
 };
 
+// 이미지 생성 관련 함수
+window.regenerateImage = function() {
+    const generationResult = document.getElementById('generationResult');
+    if (!generationResult) return;
+
+    // 로딩 상태 표시
+    generationResult.innerHTML = `
+        <div style="text-align: center;">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="spin">
+                <path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                <path d="M9 12l2 2 4-4" stroke-opacity="0.3"/>
+            </svg>
+            <p>이미지 생성 중...</p>
+        </div>
+    `;
+
+    // 실제 이미지 생성 로직은 API 연동 후 구현
+    setTimeout(() => {
+        // 테스트용: 플레이스홀더 이미지로 대체
+        generationResult.classList.add('has-image');
+        generationResult.innerHTML = `
+            <img src="https://via.placeholder.com/220x220/ff6b6b/ffffff?text=Generated" alt="Generated Image">
+        `;
+    }, 2000);
+};
+
 // 외부에서 호출 가능한 함수들
 window.shotDetail = {
     open: function(shotId) {
@@ -1201,3 +1610,598 @@ window.clearFilmMetadataCache = function() {
     localStorage.removeItem('aifi_film_metadata_cache');
     console.log('Film metadata cache cleared');
 };
+
+// 추가된 캐릭터 목록 관리
+const addedCharacters = new Set([1]); // 기본으로 캐릭터 1이 추가되어 있음
+
+// 캐릭터를 리스트에 추가하는 함수
+window.addCharacterToList = function() {
+    const selector = document.getElementById('characterSelector');
+    const characterNum = parseInt(selector.value);
+
+    // 이미 추가된 캐릭터인지 확인
+    if (addedCharacters.has(characterNum)) {
+        showNotification(`캐릭터 ${characterNum}은(는) 이미 추가되어 있습니다.`, 'warning');
+        return;
+    }
+
+    // 캐릭터 추가
+    addedCharacters.add(characterNum);
+
+    // UI 업데이트
+    updateCharactersList();
+    updateCharacterContainers();
+
+    showNotification(`캐릭터 ${characterNum}이(가) 추가되었습니다.`, 'success');
+};
+
+// 캐릭터를 리스트에서 제거하는 함수
+window.removeCharacter = function(characterNum) {
+    // 최소 1개의 캐릭터는 유지
+    if (addedCharacters.size <= 1) {
+        showNotification('최소 1개의 캐릭터는 필요합니다.', 'warning');
+        return;
+    }
+
+    addedCharacters.delete(characterNum);
+    updateCharactersList();
+    updateCharacterContainers();
+
+    showNotification(`캐릭터 ${characterNum}이(가) 제거되었습니다.`, 'info');
+};
+
+// 모든 캐릭터 지우기
+window.clearAllCharacters = function() {
+    addedCharacters.clear();
+    addedCharacters.add(1); // 기본 캐릭터 1 추가
+    updateCharactersList();
+    updateCharacterContainers();
+
+    showNotification('모든 캐릭터가 제거되었습니다. (캐릭터 1 기본 유지)', 'info');
+};
+
+// 캐릭터 리스트 UI 업데이트
+function updateCharactersList() {
+    const listContainer = document.getElementById('addedCharactersList');
+    if (!listContainer) return;
+
+    // 리스트 초기화
+    listContainer.innerHTML = '';
+
+    // 추가된 캐릭터들을 정렬하여 표시
+    const sortedCharacters = Array.from(addedCharacters).sort((a, b) => a - b);
+
+    sortedCharacters.forEach(num => {
+        const item = document.createElement('div');
+        item.className = 'added-character-item';
+        item.setAttribute('data-character-num', num);
+        item.innerHTML = `
+            <span class="character-name">캐릭터 ${num}</span>
+            <button class="remove-character-btn" onclick="removeCharacter(${num})" title="제거">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+        `;
+        listContainer.appendChild(item);
+    });
+
+    // "모두 지우기" 버튼 표시/숨김
+    const clearAllBtn = document.querySelector('.clear-all-btn');
+    if (clearAllBtn) {
+        clearAllBtn.style.display = addedCharacters.size > 1 ? 'block' : 'none';
+    }
+}
+
+// 캐릭터 컨테이너 표시/숨김 업데이트
+function updateCharacterContainers() {
+    const characterTab = document.querySelector('.tab-pane[data-tab="character"]');
+    if (!characterTab) return;
+
+    // 모든 캐릭터 컨테이너 숨기기
+    const allContainers = characterTab.querySelectorAll('.character-container');
+    allContainers.forEach(container => {
+        const characterNum = parseInt(container.getAttribute('data-character'));
+        if (addedCharacters.has(characterNum)) {
+            container.style.display = 'block';
+        } else {
+            container.style.display = 'none';
+        }
+    });
+
+    // 스크롤 위치 초기화
+    const labelList = characterTab.querySelector('.label-list');
+    const promptBlocks = characterTab.querySelector('.prompt-blocks');
+    const requestBlocks = characterTab.querySelector('.request-blocks');
+
+    if (labelList && promptBlocks && requestBlocks) {
+        labelList.scrollTop = 0;
+        promptBlocks.scrollTop = 0;
+        requestBlocks.scrollTop = 0;
+    }
+}
+
+// 알림 메시지 표시 함수
+function showNotification(message, type = 'info') {
+    console.log(`[${type.toUpperCase()}] ${message}`);
+
+    // 기존 알림이 있으면 제거
+    const existingNotification = document.querySelector('.character-notification');
+    if (existingNotification) {
+        existingNotification.remove();
+    }
+
+    // 새 알림 생성
+    const notification = document.createElement('div');
+    notification.className = `character-notification notification-${type}`;
+    notification.textContent = message;
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 12px 20px;
+        background: ${type === 'success' ? 'rgba(76, 175, 80, 0.9)' :
+                     type === 'warning' ? 'rgba(255, 152, 0, 0.9)' :
+                     type === 'error' ? 'rgba(244, 67, 54, 0.9)' :
+                     'rgba(33, 150, 243, 0.9)'};
+        color: white;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        z-index: 10000;
+        animation: slideIn 0.3s ease;
+        font-size: 14px;
+    `;
+
+    document.body.appendChild(notification);
+
+    // 3초 후 제거
+    setTimeout(() => {
+        notification.style.animation = 'slideOut 0.3s ease';
+        setTimeout(() => notification.remove(), 300);
+    }, 3000);
+}
+
+// 애니메이션 스타일 추가
+if (!document.querySelector('#character-notification-styles')) {
+    const style = document.createElement('style');
+    style.id = 'character-notification-styles';
+    style.innerHTML = `
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        @keyframes slideOut {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+        }
+    `;
+    document.head.appendChild(style);
+}
+
+// ===== 장소 관리 함수들 =====
+const addedLocations = new Set([1]); // 기본으로 장소 1이 추가되어 있음
+
+// 장소를 리스트에 추가하는 함수
+window.addLocationToList = function() {
+    const selector = document.getElementById('locationSelector');
+    const locationNum = parseInt(selector.value);
+
+    if (addedLocations.has(locationNum)) {
+        showNotification(`장소 ${locationNum}은(는) 이미 추가되어 있습니다.`, 'warning');
+        return;
+    }
+
+    addedLocations.add(locationNum);
+    updateLocationsList();
+    updateLocationContainers();
+
+    showNotification(`장소 ${locationNum}이(가) 추가되었습니다.`, 'success');
+};
+
+// 장소를 리스트에서 제거하는 함수
+window.removeLocation = function(locationNum) {
+    if (addedLocations.size <= 1) {
+        showNotification('최소 1개의 장소는 필요합니다.', 'warning');
+        return;
+    }
+
+    addedLocations.delete(locationNum);
+    updateLocationsList();
+    updateLocationContainers();
+
+    showNotification(`장소 ${locationNum}이(가) 제거되었습니다.`, 'info');
+};
+
+// 모든 장소 지우기
+window.clearAllLocations = function() {
+    addedLocations.clear();
+    addedLocations.add(1);
+    updateLocationsList();
+    updateLocationContainers();
+
+    showNotification('모든 장소가 제거되었습니다. (장소 1 기본 유지)', 'info');
+};
+
+// 장소 리스트 UI 업데이트
+function updateLocationsList() {
+    const listContainer = document.getElementById('addedLocationsList');
+    if (!listContainer) return;
+
+    listContainer.innerHTML = '';
+    const sortedLocations = Array.from(addedLocations).sort((a, b) => a - b);
+
+    sortedLocations.forEach(num => {
+        const item = document.createElement('div');
+        item.className = 'added-location-item';
+        item.setAttribute('data-location-num', num);
+        item.innerHTML = `
+            <span class="location-name">장소 ${num}</span>
+            <button class="remove-location-btn" onclick="removeLocation(${num})" title="제거">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+        `;
+        listContainer.appendChild(item);
+    });
+
+    const clearAllBtn = document.querySelector('.added-locations-container .clear-all-btn');
+    if (clearAllBtn) {
+        clearAllBtn.style.display = addedLocations.size > 1 ? 'block' : 'none';
+    }
+}
+
+// 장소 컨테이너 표시/숨김 업데이트
+function updateLocationContainers() {
+    const locationTab = document.querySelector('.tab-pane[data-tab="location"]');
+    if (!locationTab) return;
+
+    // 현재는 장소 블록이 컨테이너 구조가 아니므로,
+    // 필요시 여기에 컨테이너별 표시/숨김 로직 추가 가능
+    console.log('Selected locations:', Array.from(addedLocations));
+}
+
+// ===== 소품 관리 함수들 =====
+const addedProps = new Set([1]); // 기본으로 소품 1이 추가되어 있음
+
+// 소품을 리스트에 추가하는 함수
+window.addPropsToList = function() {
+    const selector = document.getElementById('propsSelector');
+    const propsNum = parseInt(selector.value);
+
+    if (addedProps.has(propsNum)) {
+        showNotification(`소품 ${propsNum}은(는) 이미 추가되어 있습니다.`, 'warning');
+        return;
+    }
+
+    addedProps.add(propsNum);
+    updatePropsList();
+    updatePropsContainers();
+
+    showNotification(`소품 ${propsNum}이(가) 추가되었습니다.`, 'success');
+};
+
+// 소품을 리스트에서 제거하는 함수
+window.removeProps = function(propsNum) {
+    if (addedProps.size <= 1) {
+        showNotification('최소 1개의 소품은 필요합니다.', 'warning');
+        return;
+    }
+
+    addedProps.delete(propsNum);
+    updatePropsList();
+    updatePropsContainers();
+
+    showNotification(`소품 ${propsNum}이(가) 제거되었습니다.`, 'info');
+};
+
+// 모든 소품 지우기
+window.clearAllProps = function() {
+    addedProps.clear();
+    addedProps.add(1);
+    updatePropsList();
+    updatePropsContainers();
+
+    showNotification('모든 소품이 제거되었습니다. (소품 1 기본 유지)', 'info');
+};
+
+// 소품 리스트 UI 업데이트
+function updatePropsList() {
+    const listContainer = document.getElementById('addedPropsList');
+    if (!listContainer) return;
+
+    listContainer.innerHTML = '';
+    const sortedProps = Array.from(addedProps).sort((a, b) => a - b);
+
+    sortedProps.forEach(num => {
+        const item = document.createElement('div');
+        item.className = 'added-props-item';
+        item.setAttribute('data-props-num', num);
+        item.innerHTML = `
+            <span class="props-name">소품 ${num}</span>
+            <button class="remove-props-btn" onclick="removeProps(${num})" title="제거">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+        `;
+        listContainer.appendChild(item);
+    });
+
+    const clearAllBtn = document.querySelector('.added-props-container .clear-all-btn');
+    if (clearAllBtn) {
+        clearAllBtn.style.display = addedProps.size > 1 ? 'block' : 'none';
+    }
+}
+
+// 소품 컨테이너 표시/숨김 업데이트
+function updatePropsContainers() {
+    const propsTab = document.querySelector('.tab-pane[data-tab="props"]');
+    if (!propsTab) return;
+
+    // 현재는 소품 블록이 컨테이너 구조가 아니므로,
+    // 필요시 여기에 컨테이너별 표시/숨김 로직 추가 가능
+    console.log('Selected props:', Array.from(addedProps));
+}
+
+// ===== Stage2 JSON 통합 기능들 =====
+
+// Stage2 파서를 이용한 장면 프롬프트 매핑
+// Stage2 자동 매핑 (UI 없이 백그라운드에서 동작)
+const stage2Integration = {
+    /**
+     * Stage2 데이터에서 현재 샷의 scene 자동 적용
+     */
+    autoApplySceneFromStage2() {
+        const currentShotId = this.extractCurrentShotId();
+        if (!currentShotId) {
+            console.log('💡 현재 샷 ID를 감지할 수 없습니다.');
+            return;
+        }
+
+        if (!window.stage2Parser || !window.stage2Parser.data) {
+            console.log('💡 Stage2 데이터가 로드되지 않았습니다.');
+            return;
+        }
+
+        // 장면 데이터 자동 적용
+        this.applySceneToPrompt(currentShotId);
+        console.log(`✅ Stage2 데이터에서 샷 ${currentShotId}의 scene 자동 적용 완료`);
+    },
+
+    /**
+     * 현재 샷 ID 추출
+     */
+    extractCurrentShotId() {
+        // URL 파라미터에서 추출
+        const urlParams = new URLSearchParams(window.location.search);
+        let shotId = urlParams.get('shot_id');
+
+        if (shotId) return shotId;
+
+        // 모달 제목에서 추출
+        const modalTitle = document.querySelector('.modal-title');
+        if (modalTitle) {
+            const match = modalTitle.textContent.match(/S\d{2}\.\d{2}\.\d{2}/);
+            if (match) return match[0];
+        }
+
+        // 페이지 제목에서 추출
+        const match = document.title.match(/S\d{2}\.\d{2}\.\d{2}/);
+        if (match) return match[0];
+
+        return null;
+    },
+
+    /**
+     * 장면 데이터를 연출 블록 프롬프트에 적용
+     */
+    applySceneToPrompt(shotId) {
+        if (!window.stage2Parser) {
+            this.showMessage('Stage2 파서가 준비되지 않았습니다.', 'error');
+            return;
+        }
+
+        const sceneData = window.stage2Parser.getSceneByshotId(shotId);
+        if (!sceneData) {
+            this.showMessage(`샷 ID '${shotId}'에 대한 데이터를 찾을 수 없습니다.`, 'error');
+            return;
+        }
+
+        // 연출 블록의 장면 프롬프트 입력 필드 찾기
+        const sceneInput = this.findScenePromptInput();
+        if (!sceneInput) {
+            this.showMessage('연출 블록의 장면 프롬프트 입력 필드를 찾을 수 없습니다.', 'error');
+            return;
+        }
+
+        // 장면 데이터 적용
+        sceneInput.value = sceneData.scene;
+
+        // 입력 이벤트 트리거 (다른 시스템과 동기화)
+        sceneInput.dispatchEvent(new Event('input', { bubbles: true }));
+        sceneInput.dispatchEvent(new Event('change', { bubbles: true }));
+
+        // 성공 메시지 표시
+        this.showMessage(`✅ 샷 ${shotId}의 장면 정보가 적용되었습니다.`, 'success');
+
+        // 디버그 정보 출력
+        console.log(`🎬 샷 ${shotId} 장면 데이터 적용:`, sceneData);
+    },
+
+    /**
+     * 연출 블록의 장면 프롬프트 입력 필드 찾기
+     */
+    findScenePromptInput() {
+        // 여러 가능한 선택자로 시도
+        const selectors = [
+            '[data-prompt="scene"]',
+            '.scene-prompt-input',
+            '.prompt-input[data-field="scene"]',
+            '.prompt-blocks .prompt-input:first-child',
+            '.tab-pane[data-tab="scene"] .prompt-input:first-child'
+        ];
+
+        for (const selector of selectors) {
+            const element = document.querySelector(selector);
+            if (element) return element;
+        }
+
+        // 연출 탭의 첫 번째 프롬프트 입력 필드 찾기
+        const sceneTab = document.querySelector('.tab-pane[data-tab="scene"]');
+        if (sceneTab) {
+            const promptInput = sceneTab.querySelector('.prompt-input');
+            if (promptInput) return promptInput;
+        }
+
+        return null;
+    },
+
+    /**
+     * 메시지 표시
+     */
+    showMessage(message, type = 'info') {
+        console.log(`[Stage2 Integration] ${message}`);
+
+        // 기존 알림 시스템이 있으면 사용
+        if (window.showNotification) {
+            window.showNotification(message, type);
+        } else {
+            // 간단한 알림 표시
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 12px 20px;
+                background: ${type === 'success' ? '#4caf50' : type === 'error' ? '#f44336' : type === 'warning' ? '#ff9800' : '#2196f3'};
+                color: white;
+                border-radius: 6px;
+                z-index: 10000;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+                font-size: 14px;
+                max-width: 400px;
+            `;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.remove();
+            }, 4000);
+        }
+    }
+};
+
+// 전역 함수 등록
+window.stage2Integration = stage2Integration;
+
+// 페이지 로드 시 이미지 업로드 관리자 초기화
+document.addEventListener('DOMContentLoaded', function() {
+    imageUploadManager.init();
+
+    // Stage2 자동 매핑 기능 (UI 없이 백그라운드에서 동작)
+    setTimeout(() => {
+        // 세션 스토리지에서 Stage2 데이터 로드
+        loadStage2FromSessionStorage();
+
+        // Stage2 데이터가 있으면 자동으로 scene 적용
+        setTimeout(() => {
+            if (window.stage2Parser && window.stage2Parser.data) {
+                stage2Integration.autoApplySceneFromStage2();
+            }
+        }, 1500);
+    }, 1000);
+});
+
+// 세션 스토리지에서 Stage2 데이터 로드
+function loadStage2FromSessionStorage() {
+    try {
+        const stage2CacheData = sessionStorage.getItem('stage2ParsedData');
+        if (!stage2CacheData) {
+            console.log('💡 세션 스토리지에 Stage2 데이터가 없습니다.');
+            return;
+        }
+
+        const parsedCache = JSON.parse(stage2CacheData);
+        console.log('🔄 세션 스토리지에서 Stage2 데이터 로드 중...', parsedCache.filmId);
+
+        // Stage2 파서가 로드될 때까지 대기 후 데이터 복원
+        waitForStage2Parser().then(() => {
+            // Stage2 파서 데이터 복원
+            window.stage2Parser.data = parsedCache.data;
+            window.stage2Parser.shotsMap = new Map(parsedCache.shotsMap);
+            window.stage2Parser.scenesMap = new Map(parsedCache.scenesMap);
+
+            console.log('✅ Stage2 데이터 세션 복원 완료:', {
+                scenes: window.stage2Parser.scenesMap.size,
+                shots: window.stage2Parser.shotsMap.size
+            });
+
+            // 자동 매핑 활성화
+            window.stage2AutoMappingEnabled = true;
+
+        }).catch(error => {
+            console.error('❌ Stage2 파서 로드 실패:', error);
+        });
+
+    } catch (error) {
+        console.error('❌ Stage2 세션 데이터 로드 에러:', error);
+    }
+}
+
+// Stage2 파서 로드 대기 (shot-detail 전용)
+async function waitForStage2Parser() {
+    // 이미 로드되어 있으면 바로 반환
+    if (window.stage2Parser) {
+        return Promise.resolve();
+    }
+
+    let attempts = 0;
+    const maxAttempts = 30; // 3초 대기
+
+    return new Promise((resolve, reject) => {
+        const checkParser = () => {
+            if (window.stage2Parser) {
+                resolve();
+            } else if (attempts >= maxAttempts) {
+                // Stage2 파서 동적 로드 시도
+                loadStage2ParserScript().then(resolve).catch(reject);
+            } else {
+                attempts++;
+                setTimeout(checkParser, 100);
+            }
+        };
+        checkParser();
+    });
+}
+
+// Stage2 파서 스크립트 동적 로드 (shot-detail 전용)
+async function loadStage2ParserScript() {
+    return new Promise((resolve, reject) => {
+        const script = document.createElement('script');
+        script.src = 'js/stage2-parser.js'; // shot-detail.html 기준 경로
+        script.onload = () => {
+            console.log('✅ Stage2 파서 스크립트 동적 로드 완료');
+            resolve();
+        };
+        script.onerror = () => {
+            reject(new Error('Stage2 파서 스크립트 로드 실패'));
+        };
+        document.head.appendChild(script);
+    });
+}

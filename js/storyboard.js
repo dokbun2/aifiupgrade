@@ -94,13 +94,28 @@ class StoryboardManager {
         const reader = new FileReader();
         reader.onload = async (e) => {
             try {
-                const data = JSON.parse(e.target.result);
+                // JSON 텍스트 전처리 (±, BOM 제거 등)
+                let jsonText = e.target.result;
+
+                // BOM 제거
+                if (jsonText.charCodeAt(0) === 0xFEFF) {
+                    jsonText = jsonText.slice(1);
+                }
+
+                // 시작 부분의 ± 문자 제거
+                jsonText = jsonText.replace(/^[±\u00B1]+\s*/, '');
+
+                // 기타 제어 문자 제거
+                jsonText = jsonText.replace(/^[\x00-\x1F\x7F-\x9F]+/, '');
+
+                const data = JSON.parse(jsonText);
                 await this.processUploadedFile(file.name, data);
             } catch (error) {
-                this.showNotification('JSON 파일 파싱 오류: ' + error.message, 'error');
+                console.error('JSON 파싱 에러 상세:', error);
+                this.showNotification(`JSON 파일 파싱 오류: ${error.message}`, 'error');
             }
         };
-        reader.readAsText(file);
+        reader.readAsText(file, 'UTF-8');
     }
 
     async processUploadedFile(filename, data) {
@@ -136,6 +151,8 @@ class StoryboardManager {
         }
         // stage2 타입 감지
         else if (data.scenes && Array.isArray(data.scenes)) {
+            // Stage 2 파일이 업로드되면 파싱하여 저장
+            this.parseStage2Data(data);
             return 'stage2';
         }
         // 기본 스토리보드 타입
@@ -172,6 +189,137 @@ class StoryboardManager {
         } else {
             console.warn('⚠️ Stage 1 파서가 로드되지 않았습니다.');
         }
+    }
+
+    // Stage 2 데이터 파싱
+    parseStage2Data(data) {
+        console.log('🎬 Stage2 JSON 파싱 시작:', data.film_id);
+
+        // Stage2 파서 초기화 및 파싱
+        if (window.stage2Parser) {
+            window.stage2Parser.data = data;
+            window.stage2Parser.parseData();
+
+            // 파싱된 데이터를 세션 스토리지에 저장
+            const stage2CacheData = {
+                data: data,
+                shotsMap: Array.from(window.stage2Parser.shotsMap.entries()),
+                scenesMap: Array.from(window.stage2Parser.scenesMap.entries()),
+                timestamp: Date.now(),
+                filmId: data.film_id || 'unknown'
+            };
+            sessionStorage.setItem('stage2ParsedData', JSON.stringify(stage2CacheData));
+
+            console.log('✅ Stage2 데이터 파싱 완료:', {
+                scenes: window.stage2Parser.scenesMap.size,
+                shots: window.stage2Parser.shotsMap.size
+            });
+
+            // 연출 블록 자동 매핑 활성화 (shot-detail 모달에서 사용)
+            this.enableStage2AutoMapping();
+
+        } else {
+            console.warn('⚠️ Stage2 파서가 로드되지 않았습니다.');
+
+            // Stage2 파서 스크립트 동적 로드 시도
+            this.loadStage2Parser().then(() => {
+                console.log('🔄 Stage2 파서 동적 로드 완료, 재시도 중...');
+                setTimeout(() => this.parseStage2Data(data), 500);
+            }).catch(error => {
+                console.error('❌ Stage2 파서 로드 실패:', error);
+            });
+        }
+    }
+
+    // Stage2 파서 동적 로드
+    async loadStage2Parser() {
+        return new Promise((resolve, reject) => {
+            if (window.stage2Parser) {
+                resolve();
+                return;
+            }
+
+            const script = document.createElement('script');
+            script.src = '../js/stage2-parser.js';
+            script.onload = () => {
+                console.log('✅ Stage2 파서 스크립트 로드 완료');
+                resolve();
+            };
+            script.onerror = () => {
+                reject(new Error('Stage2 파서 스크립트 로드 실패'));
+            };
+            document.head.appendChild(script);
+        });
+    }
+
+    // Stage2 자동 매핑 활성화
+    enableStage2AutoMapping() {
+        // 전역 변수로 Stage2 자동 매핑 활성화 상태 저장
+        window.stage2AutoMappingEnabled = true;
+
+        console.log('🎯 Stage2 자동 매핑 활성화됨');
+
+        // 스토리보드 카드에 Stage2 매핑 표시 추가
+        setTimeout(() => {
+            this.addStage2IndicatorToCards();
+        }, 1000);
+    }
+
+    // 스토리보드 카드에 Stage2 매핑 표시 추가
+    addStage2IndicatorToCards() {
+        const cards = document.querySelectorAll('.shot-card');
+        cards.forEach(card => {
+            // 기존 표시가 있으면 제거
+            const existingIndicator = card.querySelector('.stage2-indicator');
+            if (existingIndicator) {
+                existingIndicator.remove();
+            }
+
+            // 샷 ID 추출
+            const shotId = this.extractShotIdFromCard(card);
+            if (!shotId || !window.stage2Parser) return;
+
+            // Stage2 데이터가 있는지 확인
+            const sceneData = window.stage2Parser.getSceneByshotId(shotId);
+            if (sceneData) {
+                // Stage2 매핑 표시 추가
+                const indicator = document.createElement('div');
+                indicator.className = 'stage2-indicator';
+                indicator.style.cssText = `
+                    position: absolute;
+                    top: 8px;
+                    right: 8px;
+                    background: rgba(0, 188, 212, 0.9);
+                    color: white;
+                    padding: 4px 8px;
+                    border-radius: 4px;
+                    font-size: 10px;
+                    font-weight: 600;
+                    z-index: 10;
+                `;
+                indicator.textContent = 'S2';
+                indicator.title = 'Stage2 장면 데이터 매핑됨';
+
+                card.style.position = 'relative';
+                card.appendChild(indicator);
+            }
+        });
+    }
+
+    // 카드에서 샷 ID 추출
+    extractShotIdFromCard(card) {
+        // 카드의 제목이나 데이터 속성에서 샷 ID 추출
+        const shotTitle = card.querySelector('.shot-title, .card-title, h3');
+        if (shotTitle) {
+            const match = shotTitle.textContent.match(/S\d{2}\.\d{2}\.\d{2}/);
+            if (match) return match[0];
+        }
+
+        // 데이터 속성에서 추출
+        const shotId = card.getAttribute('data-shot-id') || card.getAttribute('data-shot');
+        if (shotId) return shotId;
+
+        return null;
     }
 
     async autoMergeData() {
@@ -333,7 +481,7 @@ class StoryboardManager {
                     id: char.id,
                     name: char.name || char.id,
                     blocks: char.blocks || {},
-                    appearance_summary: char.appearance_summary || null,
+                    character_detail: char.character_detail || null,
                     voice_style: char.voice_style || null
                 };
 
@@ -345,7 +493,7 @@ class StoryboardManager {
                     id: char.id,
                     type: 'character',
                     ...char.blocks,
-                    appearance_summary: char.appearance_summary || null,
+                    character_detail: char.character_detail || null,
                     voice_style: char.voice_style || null,
                     universal: conceptArtData.universal,
                     universal_translated: conceptArtData.universal_translated
@@ -360,7 +508,7 @@ class StoryboardManager {
                     id: loc.id,
                     name: loc.name || loc.id,
                     blocks: loc.blocks || {},
-                    appearance_summary: loc.appearance_summary || null,
+                    character_detail: loc.character_detail || null,
                     voice_style: loc.voice_style || null
                 };
 
@@ -370,7 +518,7 @@ class StoryboardManager {
                     id: loc.id,
                     type: 'location',
                     ...loc.blocks,
-                    appearance_summary: loc.appearance_summary || null,
+                    character_detail: loc.character_detail || null,
                     voice_style: loc.voice_style || null,
                     universal: conceptArtData.universal,
                     universal_translated: conceptArtData.universal_translated
@@ -385,7 +533,7 @@ class StoryboardManager {
                     id: prop.id,
                     name: prop.name || prop.id,
                     blocks: prop.blocks || {},
-                    appearance_summary: prop.appearance_summary || null,
+                    character_detail: prop.character_detail || null,
                     voice_style: prop.voice_style || null
                 };
 
@@ -395,7 +543,7 @@ class StoryboardManager {
                     id: prop.id,
                     type: 'props',
                     ...prop.blocks,
-                    appearance_summary: prop.appearance_summary || null,
+                    character_detail: prop.character_detail || null,
                     voice_style: prop.voice_style || null,
                     universal: conceptArtData.universal,
                     universal_translated: conceptArtData.universal_translated

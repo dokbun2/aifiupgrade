@@ -677,13 +677,13 @@ function loadDataByTypeAndId(type, id) {
 
     // Check if data has blocks (Stage1 format) or universal prompts
     if (data && typeof data === 'object') {
-        // Check for blocks (Stage1 format) - exclude appearance_summary and voice_style from blocks check
-        const hasBlocks = Object.keys(data).some(key => key.includes('_') && key !== 'appearance_summary' && key !== 'voice_style');
+        // Check for blocks (Stage1 format) - exclude character_detail and voice_style from blocks check
+        const hasBlocks = Object.keys(data).some(key => key.includes('_') && key !== 'character_detail' && key !== 'voice_style');
 
         if (hasBlocks) {
             // Stage1 format - sort blocks by number
             const blockKeys = Object.keys(data)
-                .filter(key => key.includes('_') && key !== 'appearance_summary' && key !== 'voice_style')
+                .filter(key => key.includes('_') && key !== 'character_detail' && key !== 'voice_style')
                 .sort((a, b) => {
                     // Extract numbers from keys like "1_STYLE", "10_CHARACTER_SHEET"
                     const numA = parseInt(a.split('_')[0]);
@@ -718,7 +718,7 @@ function loadDataByTypeAndId(type, id) {
             const combinedPrompt = formattedBlocks.join('\n');
 
             conceptData.universal = combinedPrompt;
-            conceptData.universal_translated = data.appearance_summary || null;
+            conceptData.universal_translated = data.character_detail || null;
 
             // Display the formatted blocks with line breaks
             const universalElement = document.getElementById('universal-prompt');
@@ -731,10 +731,10 @@ function loadDataByTypeAndId(type, id) {
             // Display appearance_summary in translated area
             const universalTransElement = document.getElementById('universal-prompt-translated');
             if (universalTransElement) {
-                if (data.appearance_summary) {
-                    universalTransElement.innerHTML = `<div style="color: #888; font-size: 12px; margin-bottom: 10px;">Appearance_summary:</div>${data.appearance_summary}`;
+                if (data.character_detail) {
+                    universalTransElement.innerHTML = `<div style="color: #888; font-size: 12px; margin-bottom: 10px;">Character Detail:</div>${data.character_detail}`;
                 } else {
-                    universalTransElement.innerHTML = `<div style="color: #888; font-size: 12px; margin-bottom: 10px;">Appearance_summary:</div>No appearance summary available`;
+                    universalTransElement.innerHTML = `<div style="color: #888; font-size: 12px; margin-bottom: 10px;">Character Detail:</div>No character detail available`;
                 }
             }
 
@@ -1023,20 +1023,20 @@ function transformStage1Data(data) {
                 id: char.id,
                 name: char.name || char.id,
                 blocks: char.blocks || {},
-                appearance_summary: char.appearance_summary || null,
+                character_detail: char.character_detail || null,
                 voice_style: char.voice_style || null
             };
 
             // Store the character data
             transformed.characters.push(charData);
 
-            // Store the blocks, appearance_summary and voice_style as prompts for this character
+            // Store the blocks, character_detail and voice_style as prompts for this character
             // ID와 type을 함께 저장
             transformed.prompts[char.id] = {
                 id: char.id,
                 type: 'character',
                 ...char.blocks,
-                appearance_summary: char.appearance_summary || null,
+                character_detail: char.character_detail || null,
                 voice_style: char.voice_style || null,
                 universal: transformed.universal,
                 universal_translated: transformed.universal_translated
@@ -1051,7 +1051,7 @@ function transformStage1Data(data) {
                 id: loc.id,
                 name: loc.name || loc.id,
                 blocks: loc.blocks || {},
-                appearance_summary: loc.appearance_summary || null,
+                character_detail: loc.character_detail || null,
                 voice_style: loc.voice_style || null
             };
 
@@ -1060,7 +1060,7 @@ function transformStage1Data(data) {
                 id: loc.id,
                 type: 'location',
                 ...loc.blocks,
-                appearance_summary: loc.appearance_summary || null,
+                character_detail: loc.character_detail || null,
                 voice_style: loc.voice_style || null,
                 universal: transformed.universal,
                 universal_translated: transformed.universal_translated
@@ -1075,7 +1075,7 @@ function transformStage1Data(data) {
                 id: prop.id,
                 name: prop.name || prop.id,
                 blocks: prop.blocks || {},
-                appearance_summary: prop.appearance_summary || null,
+                character_detail: prop.character_detail || null,
                 voice_style: prop.voice_style || null
             };
 
@@ -1084,7 +1084,7 @@ function transformStage1Data(data) {
                 id: prop.id,
                 type: 'props',
                 ...prop.blocks,
-                appearance_summary: prop.appearance_summary || null,
+                character_detail: prop.character_detail || null,
                 voice_style: prop.voice_style || null,
                 universal: transformed.universal,
                 universal_translated: transformed.universal_translated
