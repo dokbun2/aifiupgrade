@@ -346,6 +346,16 @@
                         </select>
                     </div>
                     <div class="control-group" style="margin-left: auto;">
+                        <button class="btn-secondary" onclick="openScenarioModal()">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                <polyline points="14 2 14 8 20 8"></polyline>
+                                <line x1="16" y1="13" x2="8" y2="13"></line>
+                                <line x1="16" y1="17" x2="8" y2="17"></line>
+                                <polyline points="10 9 9 9 8 9"></polyline>
+                            </svg>
+                            시나리오
+                        </button>
                         <button class="btn-secondary" onclick="document.getElementById('jsonUploadInput').click()">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
@@ -605,6 +615,91 @@
                     <button type="button" class="btn-danger-text" onclick="clearAPIKey()" id="clearBtn" style="display: none;">
                         API Key 삭제
                     </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scenario Modal -->
+    <div id="scenarioModal" class="auth-modal">
+        <div class="auth-modal-content" style="max-width: 900px;">
+            <button class="modal-close" onclick="closeScenarioModal()">×</button>
+            <div class="scenario-container">
+                <div class="scenario-header">
+                    <h2>시나리오 전체 보기</h2>
+                    <p>스토리보드의 모든 시나리오 내용을 확인하고 복사할 수 있습니다.</p>
+                </div>
+
+                <div class="scenario-tabs">
+                    <button class="tab-btn active" onclick="showScenarioTab('overview')">개요</button>
+                    <button class="tab-btn" onclick="showScenarioTab('treatment')">트리트먼트</button>
+                    <button class="tab-btn" onclick="showScenarioTab('scenario')">시나리오</button>
+                    <button class="tab-btn" onclick="showScenarioTab('shots')">샷 리스트</button>
+                </div>
+
+                <div class="scenario-content">
+                    <!-- Overview Tab -->
+                    <div id="overview-tab" class="tab-content active">
+                        <div class="scenario-section">
+                            <h3>로그라인</h3>
+                            <div class="scenario-text" id="scenario-logline">-</div>
+                        </div>
+                        <div class="scenario-section">
+                            <h3>시놉시스</h3>
+                            <div class="scenario-subsection">
+                                <h4>Act 1</h4>
+                                <div class="scenario-text" id="scenario-act1">-</div>
+                            </div>
+                            <div class="scenario-subsection">
+                                <h4>Act 2</h4>
+                                <div class="scenario-text" id="scenario-act2">-</div>
+                            </div>
+                            <div class="scenario-subsection">
+                                <h4>Act 3</h4>
+                                <div class="scenario-text" id="scenario-act3">-</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Treatment Tab -->
+                    <div id="treatment-tab" class="tab-content">
+                        <div id="treatment-content">
+                            <!-- Treatment sequences will be dynamically added here -->
+                        </div>
+                    </div>
+
+                    <!-- Scenario Tab -->
+                    <div id="scenario-tab" class="tab-content">
+                        <div id="scenario-content">
+                            <!-- Scenes will be dynamically added here -->
+                        </div>
+                    </div>
+
+                    <!-- Shots Tab -->
+                    <div id="shots-tab" class="tab-content">
+                        <div id="shots-content">
+                            <!-- Shots will be dynamically added here -->
+                        </div>
+                    </div>
+                </div>
+
+                <div class="scenario-actions">
+                    <button class="btn-secondary" onclick="copyAllScenario()">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                        </svg>
+                        전체 복사
+                    </button>
+                    <button class="btn-secondary" onclick="downloadScenario()">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                            <polyline points="7 10 12 15 17 10"></polyline>
+                            <line x1="12" y1="15" x2="12" y2="3"></line>
+                        </svg>
+                        텍스트 다운로드
+                    </button>
+                    <button class="btn-primary" onclick="closeScenarioModal()">닫기</button>
                 </div>
             </div>
         </div>

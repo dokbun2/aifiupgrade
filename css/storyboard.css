@@ -638,3 +638,237 @@
         opacity: 1;
     }
 }
+
+/* Scenario Modal Styles */
+.scenario-container {
+    padding: 30px;
+}
+
+.scenario-header {
+    margin-bottom: 25px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding-bottom: 20px;
+}
+
+.scenario-header h2 {
+    color: rgba(255, 255, 255, 0.95);
+    font-size: 24px;
+    margin-bottom: 8px;
+}
+
+.scenario-header p {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 14px;
+}
+
+/* Scenario Tabs */
+.scenario-tabs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 25px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.tab-btn {
+    padding: 10px 20px;
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    color: rgba(255, 255, 255, 0.6);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.tab-btn:hover {
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.tab-btn.active {
+    color: var(--primary);
+    border-bottom-color: var(--primary);
+}
+
+/* Scenario Content */
+.scenario-content {
+    max-height: 500px;
+    overflow-y: auto;
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    margin-bottom: 25px;
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+.scenario-section {
+    margin-bottom: 25px;
+}
+
+.scenario-section h3 {
+    color: var(--primary);
+    font-size: 16px;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid rgba(255, 107, 107, 0.2);
+}
+
+.scenario-subsection {
+    margin-bottom: 20px;
+    padding-left: 20px;
+}
+
+.scenario-subsection h4 {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 14px;
+    margin-bottom: 8px;
+}
+
+.scenario-text {
+    color: rgba(255, 255, 255, 0.9);
+    line-height: 1.6;
+    font-size: 14px;
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 6px;
+    white-space: pre-wrap;
+}
+
+/* Treatment Content */
+.treatment-sequence {
+    margin-bottom: 25px;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 8px;
+    border-left: 3px solid var(--primary);
+}
+
+.treatment-sequence h4 {
+    color: var(--primary);
+    font-size: 15px;
+    margin-bottom: 8px;
+}
+
+.treatment-sequence .sequence-function {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 12px;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+}
+
+/* Scene Content */
+.scene-item {
+    margin-bottom: 30px;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 8px;
+}
+
+.scene-item h4 {
+    color: rgba(255, 255, 255, 0.95);
+    font-size: 16px;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.scene-number {
+    background: var(--primary);
+    color: white;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+/* Shot Content */
+.shot-item {
+    margin-bottom: 25px;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 8px;
+}
+
+.shot-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.shot-id {
+    color: var(--primary);
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.shot-meta {
+    display: flex;
+    gap: 10px;
+}
+
+.shot-type,
+.camera-type {
+    font-size: 11px;
+    padding: 2px 6px;
+    background: rgba(255, 107, 107, 0.2);
+    color: var(--primary);
+    border-radius: 3px;
+}
+
+.shot-text {
+    color: rgba(255, 255, 255, 0.85);
+    line-height: 1.5;
+    font-size: 13px;
+}
+
+.shot-movement {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+/* Scenario Actions */
+.scenario-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+    padding-top: 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.scenario-actions .btn-secondary,
+.scenario-actions .btn-primary {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Scrollbar Styling */
+.scenario-content::-webkit-scrollbar {
+    width: 8px;
+}
+
+.scenario-content::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 4px;
+}
+
+.scenario-content::-webkit-scrollbar-thumb {
+    background: rgba(255, 107, 107, 0.3);
+    border-radius: 4px;
+}
+
+.scenario-content::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 107, 107, 0.5);
+}

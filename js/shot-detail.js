@@ -92,6 +92,9 @@ document.addEventListener('DOMContentLoaded', function() {
         initializeScrollSync();
         loadShotData();
 
+        // localStorage에서 캐시된 film_metadata 로드
+        loadCachedFilmMetadata();
+
         // URL 파라미터에서 샷 ID 가져오기
         const urlParams = new URLSearchParams(window.location.search);
         const shotId = urlParams.get('shotId');
@@ -300,10 +303,68 @@ function loadShotById(shotId) {
     if (shotData) {
         const data = JSON.parse(shotData);
         shotDetailManager.shotData = data;
+
+        // 병합된 데이터가 있으면 현재 샷에 맞는 데이터 추출
+        if (data.merged_data) {
+            extractAndMapShotSpecificData(data);
+        }
+
         populateForm(data);
 
         // 헤더 업데이트
-        document.querySelector('.shot-id').textContent = data.id;
+        document.querySelector('.shot-id').textContent = data.id || data.shot_id;
+    }
+}
+
+// 현재 샷에 해당하는 시퀀스/씬 데이터 추출 및 매칭
+function extractAndMapShotSpecificData(shotData) {
+    const mergedData = shotData.merged_data;
+
+    // Stage 1 데이터가 있으면 파싱
+    if (mergedData.stage1_original || mergedData.visual_blocks || mergedData.film_metadata) {
+        const stage1Data = mergedData.stage1_original || mergedData;
+
+        // film_metadata가 있으면 기본블록에 매핑
+        if (stage1Data.film_metadata) {
+            mapFilmMetadataToBasicBlock(stage1Data.film_metadata);
+            // localStorage에 캐시 저장
+            cacheFilmMetadata(stage1Data.film_metadata);
+        }
+
+        // Stage1JSONParser를 사용하여 데이터 파싱
+        if (window.stage1Parser) {
+            window.stage1Parser.data = stage1Data;
+            window.stage1Parser.parseAllBlocks();
+            const parsedData = window.stage1Parser.parsedData;
+
+            // 현재 샷의 씬/시퀀스에 해당하는 데이터 찾기
+            const currentSequenceId = shotData.sequence_id;
+            const currentSceneId = shotData.scene_id;
+
+            // 시퀀스에서 해당 데이터 찾기
+            let sequenceData = null;
+            if (parsedData.direction && parsedData.direction.sequences) {
+                sequenceData = parsedData.direction.sequences.find(seq =>
+                    seq.sequence_id === currentSequenceId
+                );
+            }
+
+            // 씬에서 해당 데이터 찾기
+            let sceneData = null;
+            if (parsedData.direction && parsedData.direction.scenes) {
+                sceneData = parsedData.direction.scenes.find(scene =>
+                    scene.scene_id === currentSceneId ||
+                    scene.sequence_id === currentSequenceId
+                );
+            }
+
+            // 각 블록에 매칭
+            mapStage1DataToBlocks(parsedData);
+
+            console.log(`✅ 샷 ${shotData.shot_id}에 대한 데이터 매칭 완료`);
+            console.log('  - Sequence:', currentSequenceId, sequenceData);
+            console.log('  - Scene:', currentSceneId, sceneData);
+        }
     }
 }
 
@@ -871,11 +932,11 @@ function mapBasicBlock(basicData) {
     if (!basicData) return;
 
     const mapping = {
-        'style': basicData.style,
-        'artist': basicData.artist,
-        'medium': basicData.medium,
-        'genre': basicData.genre,
-        'era': basicData.era,
+        'style': basicData.style || 'Cinematic',  // film_metadata.style 값
+        'artist': basicData.artist || '',
+        'medium': basicData.medium || '',
+        'genre': basicData.genre || '',
+        'era': basicData.era || '',
         'quality': 'professional, Masterpiece, Highly detailed',
         'parameter': basicData.aspectRatio ? `--ar ${basicData.aspectRatio}` : '--ar 9:16'
     };
@@ -885,6 +946,7 @@ function mapBasicBlock(basicData) {
         const input = document.querySelector(`.tab-pane[data-tab="basic"] .prompt-row-item[data-block="${field}"] .prompt-input`);
         if (input && value) {
             input.value = value;
+            console.log(`✅ ${field} 필드에 값 설정: ${value}`);
         }
     });
 }
@@ -1043,4 +1105,99 @@ window.shotDetail = {
             mapStage1DataToBlocks(jsonData);
         }
     }
+};
+
+// film_metadata를 기본블록에 매핑하는 함수
+function mapFilmMetadataToBasicBlock(filmMetadata) {
+    console.log('Mapping film_metadata to basic block:', filmMetadata);
+
+    // 매핑 정의
+    // style → 아트스타일 프롬프트
+    // artist → 아티스트 프롬프트
+    // medium → 매체
+    // genre → 장르
+    // era → 시대
+    // aspect_ratio → 매개변수
+
+    const mapping = {
+        'style': filmMetadata.style || '',  // "Cinematic"
+        'artist': filmMetadata.artist || '',  // "Wes Anderson"
+        'medium': filmMetadata.medium || '',  // "Digital Cinematography"
+        'genre': filmMetadata.genre || '',  // "Office Comedy"
+        'era': filmMetadata.era || '',  // "Modern Office, 2025"
+        'parameter': filmMetadata.aspect_ratio ? `--ar ${filmMetadata.aspect_ratio}` : ''  // "--ar 9:16"
+    };
+
+    // quality 필드는 기본값 설정
+    const qualityField = document.querySelector('.tab-pane[data-tab="basic"] .prompt-row-item[data-block="quality"] .prompt-input');
+    if (qualityField && !qualityField.value) {
+        qualityField.value = 'professional, Masterpiece, Highly detailed';
+    }
+
+    // 기본블록 탭의 입력 필드에 값 설정
+    Object.entries(mapping).forEach(([field, value]) => {
+        const input = document.querySelector(`.tab-pane[data-tab="basic"] .prompt-row-item[data-block="${field}"] .prompt-input`);
+        if (input && value) {
+            input.value = value;
+            console.log(`Set ${field}: ${value}`);
+        }
+    });
+
+    // shotDetailManager에도 저장
+    if (shotDetailManager.shotData && shotDetailManager.shotData.blocks) {
+        shotDetailManager.shotData.blocks.basic = {
+            ...shotDetailManager.shotData.blocks.basic,
+            ...mapping,
+            quality: 'professional, Masterpiece, Highly detailed'
+        };
+    }
+}
+
+// film_metadata를 localStorage에 캐시하는 함수
+function cacheFilmMetadata(filmMetadata) {
+    try {
+        const cacheKey = 'aifi_film_metadata_cache';
+        const cacheData = {
+            filmMetadata: filmMetadata,
+            timestamp: Date.now(),
+            filmId: filmMetadata.film_id || 'unknown'
+        };
+
+        localStorage.setItem(cacheKey, JSON.stringify(cacheData));
+        console.log('Film metadata cached to localStorage');
+    } catch (error) {
+        console.error('Error caching film metadata:', error);
+    }
+}
+
+// localStorage에서 캐시된 film_metadata 로드하는 함수
+function loadCachedFilmMetadata() {
+    try {
+        const cacheKey = 'aifi_film_metadata_cache';
+        const cachedData = localStorage.getItem(cacheKey);
+
+        if (cachedData) {
+            const parsed = JSON.parse(cachedData);
+            console.log('Loading cached film metadata:', parsed);
+
+            // 24시간 이내 캐시만 사용 (옵션)
+            const cacheAge = Date.now() - parsed.timestamp;
+            const maxAge = 24 * 60 * 60 * 1000; // 24시간
+
+            if (cacheAge < maxAge && parsed.filmMetadata) {
+                // 캐시된 데이터를 기본블록에 매핑
+                mapFilmMetadataToBasicBlock(parsed.filmMetadata);
+                return true;
+            }
+        }
+    } catch (error) {
+        console.error('Error loading cached film metadata:', error);
+    }
+    return false;
+}
+
+// 캐시 삭제 함수 (필요시 사용)
+window.clearFilmMetadataCache = function() {
+    localStorage.removeItem('aifi_film_metadata_cache');
+    console.log('Film metadata cache cleared');
 };

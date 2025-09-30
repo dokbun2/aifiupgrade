@@ -894,6 +894,7 @@ body {
     z-index: 10;
     background: #242424;
     border-bottom: 1px solid #333;
+    flex-shrink: 0;
 }
 
 /* 라벨 리스트 - 동기화된 스크롤 */
@@ -956,6 +957,13 @@ body {
     padding: 8px 15px;
     height: 40px;
     margin: 0;
+    min-height: 40px;
+    box-sizing: border-box;
+}
+
+/* 번역 버튼이 없는 헤더는 중앙 정렬 */
+.column-header-wrapper:not(:has(.translate-btn)) {
+    justify-content: center;
 }
 
 .column-header {

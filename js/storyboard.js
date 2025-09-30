@@ -147,6 +147,18 @@ class StoryboardManager {
 
     // Stage 1 데이터 파싱
     parseStage1Data(data) {
+        // film_metadata가 있으면 localStorage에 캐시 저장
+        if (data.film_metadata) {
+            const cacheKey = 'aifi_film_metadata_cache';
+            const cacheData = {
+                filmMetadata: data.film_metadata,
+                timestamp: Date.now(),
+                filmId: data.film_id || 'unknown'
+            };
+            localStorage.setItem(cacheKey, JSON.stringify(cacheData));
+            console.log('✅ Film metadata가 localStorage에 캐시되었습니다:', data.film_metadata);
+        }
+
         if (window.stage1Parser) {
             // Stage1JSONParser를 사용하여 데이터 파싱
             window.stage1Parser.data = data;
@@ -187,6 +199,13 @@ class StoryboardManager {
 
         if (this.mergedData) {
             this.storyboardData = this.mergedData;
+
+            // 병합된 데이터에 Stage 1이 포함되어 있으면 파싱하여 저장
+            if (this.mergedData.stage1_original || this.mergedData.visual_blocks) {
+                const stage1Data = this.mergedData.stage1_original || this.mergedData;
+                this.parseStage1Data(stage1Data);
+            }
+
             this.saveToLocalStorage();
             this.updateMetadata();
             this.populateSequenceDropdown();
@@ -206,6 +225,12 @@ class StoryboardManager {
             // 메타데이터는 stage1에서
             film_metadata: stage1.film_metadata || {},
             treatment: stage1.current_work?.treatment || {},
+
+            // Stage 1의 visual_blocks 데이터 보존
+            visual_blocks: stage1.visual_blocks || {},
+
+            // Stage 1 원본 데이터 전체 보존
+            stage1_original: stage1,
 
             // scenes 초기화
             scenes: []
@@ -899,8 +924,16 @@ class StoryboardManager {
     }
 
     editShotBlock(shot) {
+        // 현재 씬과 시퀀스 정보 포함하여 확장된 샷 데이터 생성
+        const extendedShot = {
+            ...shot,
+            scene_id: this.currentScene,
+            sequence_id: this.currentSequence,
+            merged_data: this.mergedData // 병합된 전체 데이터 포함
+        };
+
         // 샷 데이터를 sessionStorage에 저장
-        sessionStorage.setItem(`shot_${shot.shot_id}`, JSON.stringify(shot));
+        sessionStorage.setItem(`shot_${shot.shot_id}`, JSON.stringify(extendedShot));
 
         // 모달 컨테이너 표시 (편집 모드)
         const modalContainer = document.getElementById('shotDetailModal');
@@ -918,6 +951,29 @@ class StoryboardManager {
 
         // 모달 표시
         modalContainer.style.display = 'flex';
+
+        // iframe 로드 완료 후 Stage 1 데이터 전달
+        const iframe = document.getElementById('shotDetailFrame');
+        if (iframe) {
+            iframe.onload = () => {
+                setTimeout(() => {
+                    // 세션 스토리지에서 Stage 1 파싱된 데이터 가져오기
+                    const stage1Data = sessionStorage.getItem('stage1ParsedData');
+                    if (stage1Data) {
+                        try {
+                            const parsedData = JSON.parse(stage1Data);
+                            // iframe 내부의 shotDetail 객체에 데이터 전달
+                            if (iframe.contentWindow && iframe.contentWindow.shotDetail) {
+                                iframe.contentWindow.shotDetail.loadStage1JSON(parsedData);
+                                console.log('✅ Stage 1 데이터가 샷 디테일 모달에 전달되었습니다.');
+                            }
+                        } catch (error) {
+                            console.error('Stage 1 데이터 전달 실패:', error);
+                        }
+                    }
+                }, 1000); // 페이지 로드 대기
+            };
+        }
 
         // ESC 키로 닫기
         document.addEventListener('keydown', this.handleEscKey);
@@ -958,6 +1014,29 @@ class StoryboardManager {
 
         // 모달 표시
         modalContainer.style.display = 'flex';
+
+        // iframe 로드 완료 후 Stage 1 데이터 전달
+        const iframe = document.getElementById('shotDetailFrame');
+        if (iframe) {
+            iframe.onload = () => {
+                setTimeout(() => {
+                    // 세션 스토리지에서 Stage 1 파싱된 데이터 가져오기
+                    const stage1Data = sessionStorage.getItem('stage1ParsedData');
+                    if (stage1Data) {
+                        try {
+                            const parsedData = JSON.parse(stage1Data);
+                            // iframe 내부의 shotDetail 객체에 데이터 전달
+                            if (iframe.contentWindow && iframe.contentWindow.shotDetail) {
+                                iframe.contentWindow.shotDetail.loadStage1JSON(parsedData);
+                                console.log('✅ Stage 1 데이터가 샷 디테일 모달에 전달되었습니다.');
+                            }
+                        } catch (error) {
+                            console.error('Stage 1 데이터 전달 실패:', error);
+                        }
+                    }
+                }, 1000); // 페이지 로드 대기
+            };
+        }
 
         // ESC 키로 닫기
         document.addEventListener('keydown', this.handleEscKey);
@@ -1209,3 +1288,358 @@ window.toggleSceneDescription = function(button) {
 };
 
 window.storyboardManager = storyboardManager;
+
+// Scenario Modal Functions
+window.openScenarioModal = function() {
+    const modal = document.getElementById('scenarioModal');
+    if (!modal) return;
+
+    // Get merged data or storyboard data
+    const data = storyboardManager.mergedData || storyboardManager.storyboardData;
+
+    if (!data) {
+        storyboardManager.showNotification('시나리오 데이터가 없습니다. JSON 파일을 먼저 업로드해주세요.', 'error');
+        return;
+    }
+
+    // Populate modal with data
+    populateScenarioModal(data);
+
+    // Show modal
+    modal.style.display = 'block';
+};
+
+window.closeScenarioModal = function() {
+    const modal = document.getElementById('scenarioModal');
+    if (modal) {
+        modal.style.display = 'none';
+    }
+};
+
+window.showScenarioTab = function(tabName) {
+    // Update tab buttons
+    const tabButtons = document.querySelectorAll('.tab-btn');
+    tabButtons.forEach(btn => {
+        btn.classList.remove('active');
+        if (btn.textContent.includes(getTabLabel(tabName))) {
+            btn.classList.add('active');
+        }
+    });
+
+    // Show selected tab content
+    const tabContents = document.querySelectorAll('.tab-content');
+    tabContents.forEach(content => {
+        content.classList.remove('active');
+    });
+
+    const selectedTab = document.getElementById(`${tabName}-tab`);
+    if (selectedTab) {
+        selectedTab.classList.add('active');
+    }
+};
+
+function getTabLabel(tabName) {
+    const labels = {
+        'overview': '개요',
+        'treatment': '트리트먼트',
+        'scenario': '시나리오',
+        'shots': '샷 리스트'
+    };
+    return labels[tabName] || tabName;
+}
+
+function populateScenarioModal(data) {
+    // Get Stage 1 data if available
+    const stage1Data = data.stage1_original || data;
+
+    // Populate Overview Tab
+    if (stage1Data.current_work) {
+        // Logline
+        const loglineEl = document.getElementById('scenario-logline');
+        if (loglineEl && stage1Data.current_work.logline) {
+            loglineEl.textContent = stage1Data.current_work.logline;
+        }
+
+        // Synopsis
+        if (stage1Data.current_work.synopsis) {
+            const synopsis = stage1Data.current_work.synopsis;
+
+            const act1El = document.getElementById('scenario-act1');
+            if (act1El && synopsis.act1) {
+                act1El.textContent = synopsis.act1;
+            }
+
+            const act2El = document.getElementById('scenario-act2');
+            if (act2El && synopsis.act2) {
+                act2El.textContent = synopsis.act2;
+            }
+
+            const act3El = document.getElementById('scenario-act3');
+            if (act3El && synopsis.act3) {
+                act3El.textContent = synopsis.act3;
+            }
+        }
+    }
+
+    // Populate Treatment Tab
+    const treatmentContent = document.getElementById('treatment-content');
+    if (treatmentContent) {
+        treatmentContent.innerHTML = '';
+
+        const treatment = stage1Data.current_work?.treatment || data.treatment;
+        if (treatment && treatment.sequences) {
+            treatment.sequences.forEach(seq => {
+                const seqDiv = document.createElement('div');
+                seqDiv.className = 'treatment-sequence';
+                seqDiv.innerHTML = `
+                    <h4>${seq.sequence_id}: ${seq.sequence_title}</h4>
+                    <div class="sequence-function">${seq.narrative_function || ''}</div>
+                    <div class="scenario-text">${seq.treatment_text || ''}</div>
+                `;
+                treatmentContent.appendChild(seqDiv);
+            });
+        }
+    }
+
+    // Populate Scenario Tab
+    const scenarioContent = document.getElementById('scenario-content');
+    if (scenarioContent) {
+        scenarioContent.innerHTML = '';
+
+        // Get scenes from Stage 1
+        const scenes = stage1Data.current_work?.scenario?.scenes || data.scenes || [];
+
+        scenes.forEach(scene => {
+            const sceneDiv = document.createElement('div');
+            sceneDiv.className = 'scene-item';
+
+            // Scene header with scene number
+            const sceneTitle = scene.scene_title || scene.scenario_text?.split('\n')[0] || `Scene ${scene.scene_number}`;
+
+            sceneDiv.innerHTML = `
+                <h4>
+                    <span class="scene-number">${scene.scene_id || `S${scene.scene_number}`}</span>
+                    ${sceneTitle}
+                </h4>
+                <div class="scenario-text">${scene.scenario_text || scene.scene_scenario || ''}</div>
+            `;
+            scenarioContent.appendChild(sceneDiv);
+        });
+    }
+
+    // Populate Shots Tab
+    const shotsContent = document.getElementById('shots-content');
+    if (shotsContent) {
+        shotsContent.innerHTML = '';
+
+        // Get Stage 2 scenes with shots
+        const stage2Scenes = data.scenes || [];
+
+        stage2Scenes.forEach(scene => {
+            if (scene.shots && scene.shots.length > 0) {
+                // Create scene section
+                const sceneSection = document.createElement('div');
+                sceneSection.className = 'scene-section';
+                sceneSection.innerHTML = `<h3>${scene.scene_id}: ${scene.scene_title}</h3>`;
+
+                // Add shots for this scene
+                scene.shots.forEach(shot => {
+                    const shotDiv = document.createElement('div');
+                    shotDiv.className = 'shot-item';
+
+                    const cameraMovement = shot.camera_movement || {};
+
+                    shotDiv.innerHTML = `
+                        <div class="shot-header">
+                            <span class="shot-id">${shot.shot_id}</span>
+                            <div class="shot-meta">
+                                <span class="shot-type">${shot.shot_type || 'regular'}</span>
+                                <span class="camera-type">${cameraMovement.type || 'static'}</span>
+                            </div>
+                        </div>
+                        <div class="shot-text">${shot.shot_text || ''}</div>
+                        ${cameraMovement.type ? `
+                            <div class="shot-movement">
+                                카메라: ${cameraMovement.type} |
+                                시간: ${cameraMovement.duration || 'N/A'} |
+                                속도: ${cameraMovement.speed || 'normal'}
+                            </div>
+                        ` : ''}
+                    `;
+                    sceneSection.appendChild(shotDiv);
+                });
+
+                shotsContent.appendChild(sceneSection);
+            }
+        });
+    }
+}
+
+// Copy all scenario content
+window.copyAllScenario = function() {
+    const data = storyboardManager.mergedData || storyboardManager.storyboardData;
+    if (!data) return;
+
+    let fullText = '=== 시나리오 전체 내용 ===\n\n';
+
+    // Get Stage 1 data
+    const stage1Data = data.stage1_original || data;
+
+    // Add Logline
+    if (stage1Data.current_work?.logline) {
+        fullText += '## 로그라인\n' + stage1Data.current_work.logline + '\n\n';
+    }
+
+    // Add Synopsis
+    if (stage1Data.current_work?.synopsis) {
+        const synopsis = stage1Data.current_work.synopsis;
+        fullText += '## 시놉시스\n';
+        if (synopsis.act1) fullText += '### Act 1\n' + synopsis.act1 + '\n\n';
+        if (synopsis.act2) fullText += '### Act 2\n' + synopsis.act2 + '\n\n';
+        if (synopsis.act3) fullText += '### Act 3\n' + synopsis.act3 + '\n\n';
+    }
+
+    // Add Treatment
+    const treatment = stage1Data.current_work?.treatment || data.treatment;
+    if (treatment?.sequences) {
+        fullText += '## 트리트먼트\n';
+        treatment.sequences.forEach(seq => {
+            fullText += `### ${seq.sequence_id}: ${seq.sequence_title}\n`;
+            fullText += `[${seq.narrative_function || ''}]\n`;
+            fullText += `${seq.treatment_text || ''}\n\n`;
+        });
+    }
+
+    // Add Scenarios
+    const scenes = stage1Data.current_work?.scenario?.scenes || [];
+    if (scenes.length > 0) {
+        fullText += '## 시나리오\n';
+        scenes.forEach(scene => {
+            fullText += `### ${scene.scene_id || `S${scene.scene_number}`}\n`;
+            fullText += `${scene.scenario_text || ''}\n\n`;
+        });
+    }
+
+    // Add Shots
+    const stage2Scenes = data.scenes || [];
+    let hasShots = false;
+    stage2Scenes.forEach(scene => {
+        if (scene.shots && scene.shots.length > 0) {
+            if (!hasShots) {
+                fullText += '## 샷 리스트\n';
+                hasShots = true;
+            }
+            fullText += `### ${scene.scene_id}: ${scene.scene_title}\n`;
+            scene.shots.forEach(shot => {
+                fullText += `- ${shot.shot_id} [${shot.shot_type || 'regular'}]: ${shot.shot_text}\n`;
+                if (shot.camera_movement) {
+                    fullText += `  카메라: ${shot.camera_movement.type} (${shot.camera_movement.duration || 'N/A'})\n`;
+                }
+            });
+            fullText += '\n';
+        }
+    });
+
+    // Copy to clipboard
+    navigator.clipboard.writeText(fullText).then(() => {
+        storyboardManager.showNotification('시나리오가 클립보드에 복사되었습니다.', 'success');
+    }).catch(err => {
+        console.error('복사 실패:', err);
+        storyboardManager.showNotification('복사에 실패했습니다.', 'error');
+    });
+};
+
+// Download scenario as text file
+window.downloadScenario = function() {
+    const data = storyboardManager.mergedData || storyboardManager.storyboardData;
+    if (!data) return;
+
+    let fullText = '';
+
+    // Get Stage 1 data
+    const stage1Data = data.stage1_original || data;
+
+    // Add metadata
+    if (data.film_metadata) {
+        fullText += `제목: ${data.film_metadata.title_working || '제목 없음'}\n`;
+        fullText += `장르: ${data.film_metadata.genre || '미정'}\n`;
+        fullText += `러닝타임: ${data.film_metadata.duration_minutes || '미정'}분\n`;
+        fullText += '=' .repeat(50) + '\n\n';
+    }
+
+    // Add Logline
+    if (stage1Data.current_work?.logline) {
+        fullText += '# 로그라인\n' + stage1Data.current_work.logline + '\n\n';
+    }
+
+    // Add Synopsis
+    if (stage1Data.current_work?.synopsis) {
+        const synopsis = stage1Data.current_work.synopsis;
+        fullText += '# 시놉시스\n\n';
+        if (synopsis.act1) fullText += '## Act 1\n' + synopsis.act1 + '\n\n';
+        if (synopsis.act2) fullText += '## Act 2\n' + synopsis.act2 + '\n\n';
+        if (synopsis.act3) fullText += '## Act 3\n' + synopsis.act3 + '\n\n';
+    }
+
+    // Add Treatment
+    const treatment = stage1Data.current_work?.treatment || data.treatment;
+    if (treatment?.sequences) {
+        fullText += '# 트리트먼트\n\n';
+        treatment.sequences.forEach(seq => {
+            fullText += `## ${seq.sequence_id}: ${seq.sequence_title}\n`;
+            fullText += `기능: ${seq.narrative_function || ''}\n\n`;
+            fullText += `${seq.treatment_text || ''}\n\n`;
+        });
+    }
+
+    // Add Scenarios
+    const scenes = stage1Data.current_work?.scenario?.scenes || [];
+    if (scenes.length > 0) {
+        fullText += '# 시나리오\n\n';
+        scenes.forEach(scene => {
+            fullText += `## ${scene.scene_id || `S${scene.scene_number}`}\n`;
+            fullText += `${scene.scenario_text || ''}\n\n`;
+            fullText += '-'.repeat(50) + '\n\n';
+        });
+    }
+
+    // Add Shots if available
+    const stage2Scenes = data.scenes || [];
+    let hasShots = false;
+    stage2Scenes.forEach(scene => {
+        if (scene.shots && scene.shots.length > 0) {
+            if (!hasShots) {
+                fullText += '# 샷 리스트\n\n';
+                hasShots = true;
+            }
+            fullText += `## ${scene.scene_id}: ${scene.scene_title}\n\n`;
+            scene.shots.forEach(shot => {
+                fullText += `### ${shot.shot_id}\n`;
+                fullText += `타입: ${shot.shot_type || 'regular'}\n`;
+                fullText += `내용: ${shot.shot_text}\n`;
+                if (shot.camera_movement) {
+                    fullText += `카메라: ${shot.camera_movement.type} (${shot.camera_movement.duration || 'N/A'})\n`;
+                }
+                fullText += '\n';
+            });
+            fullText += '-'.repeat(50) + '\n\n';
+        }
+    });
+
+    // Create blob and download
+    const blob = new Blob([fullText], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+
+    const title = data.film_metadata?.title_working || 'scenario';
+    const filename = `${title}_scenario_${new Date().toISOString().split('T')[0]}.txt`;
+
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
+    storyboardManager.showNotification('시나리오 텍스트 파일이 다운로드되었습니다.', 'success');
+};

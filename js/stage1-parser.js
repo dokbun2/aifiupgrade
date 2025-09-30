@@ -65,14 +65,19 @@ class Stage1JSONParser {
             title: metadata.title_working || '',
             genre: metadata.genre || '',
             duration: metadata.duration_minutes ? `${metadata.duration_minutes}분` : '',
-            style: metadata.style || '',
-            artist: metadata.artist || '',
-            medium: metadata.medium || '',
-            era: metadata.era || '',
-            aspectRatio: metadata.aspect_ratio || ''
+            style: metadata.style || '',  // "Cinematic" 값이 여기에 들어감
+            artist: metadata.artist || '',  // "Wes Anderson" 값이 여기에 들어감
+            medium: metadata.medium || '',  // "Digital Cinematography" 값이 여기에 들어감
+            era: metadata.era || '',  // "Modern Office, 2025" 값이 여기에 들어감
+            aspectRatio: metadata.aspect_ratio || ''  // "9:16" 값이 여기에 들어감
         };
 
         console.log('📋 기본블록 추출:', this.parsedData.basic);
+        console.log('  - style:', this.parsedData.basic.style);
+        console.log('  - artist:', this.parsedData.basic.artist);
+        console.log('  - medium:', this.parsedData.basic.medium);
+        console.log('  - genre:', this.parsedData.basic.genre);
+        console.log('  - era:', this.parsedData.basic.era);
     }
 
     /**
