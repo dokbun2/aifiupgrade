@@ -639,12 +639,12 @@ body {
     display: flex;
     flex-direction: row;
     flex: 1;
-    min-height: 800px; /* 600px에서 800px로 증가 */
+    min-height: auto;
     height: auto;
     overflow: visible;
     width: 100%;
     gap: 0;
-    margin-bottom: 80px; /* 하단 여백 증가 */
+    margin-bottom: 20px;
 }
 
 /* Left Section - 왼쪽 메인 영역 */
@@ -656,7 +656,7 @@ body {
     min-width: 700px;
     overflow: visible !important;
     height: auto;
-    padding-bottom: 20px;
+    padding-bottom: 0;
     border-right: 1px solid #2a2a2a;
 }
 
@@ -1725,21 +1725,33 @@ body {
     color: #ccc;
 }
 
+/* Final Prompt Container - 독립적인 하단 섹션 */
+.final-prompt-container {
+    width: 100%;
+    padding: 20px;
+    background-color: #0f0f0f;
+    border-top: 1px solid #2a2a2a;
+}
+
 /* Final Prompt Section - 새로운 디자인 */
-.tab-pane .final-prompt-section {
+.final-prompt-section {
     background: linear-gradient(135deg,
         rgba(0, 188, 212, 0.03) 0%,
         rgba(255, 107, 107, 0.02) 50%,
         rgba(0, 188, 212, 0.03) 100%);
     border: 1px solid rgba(0, 188, 212, 0.15);
     border-radius: 12px;
-    margin: 30px 20px 80px 20px;
-    flex-shrink: 0;
     position: relative;
     padding: 0;
-    min-height: 280px;
+    min-height: 200px;
+    max-height: 300px;
     box-shadow: 0 4px 20px rgba(0, 188, 212, 0.08);
     overflow: hidden;
+}
+
+/* 각 탭 내부의 final-prompt-section은 숨김 처리 */
+.tab-pane .final-prompt-section {
+    display: none !important;
 }
 
 .tab-pane .final-prompt-section::before {
@@ -1856,7 +1868,7 @@ body {
 
 .final-prompt-textarea {
     width: 100%;
-    height: 200px; /* 180px에서 200px로 증가 */
+    height: 150px;
     padding: 10px 15px;
     background: linear-gradient(135deg, rgba(0, 188, 212, 0.02) 0%, rgba(255, 255, 255, 0.01) 100%);
     border: 1px solid rgba(0, 188, 212, 0.15);
@@ -1869,8 +1881,8 @@ body {
     transition: all 0.3s ease;
     margin: 10px 15px;
     width: calc(100% - 30px);
-    min-height: 180px; /* 최소 높이 증가 */
-    max-height: 500px; /* 최대 높이 증가 */
+    min-height: 120px;
+    max-height: 250px;
 }
 
 .final-prompt-textarea:hover {

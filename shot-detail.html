@@ -21,88 +21,17 @@
 
         <!-- 메인 컨텐츠 영역 -->
         <div class="modal-body">
-            <!-- 이미지 업로드 및 생성 결과 섹션 컨테이너 -->
-            <div class="image-section-container">
-                <!-- 이미지 업로드 섹션 -->
-                <div class="image-upload-section">
-                    <div class="image-upload-header">
-                        <h3>이미지 업로드 (최대 5개)</h3>
-                        <div class="upload-controls">
-                            <label for="imageUploadInput" class="upload-btn">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                                    <polyline points="17 8 12 3 7 8"></polyline>
-                                    <line x1="12" y1="3" x2="12" y2="15"></line>
-                                </svg>
-                                이미지 추가
-                            </label>
-                            <input type="file" id="imageUploadInput" accept="image/*" multiple style="display: none;">
-                            <button class="clear-all-btn" onclick="clearAllImages()">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <polyline points="3 6 5 6 21 6"></polyline>
-                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                                </svg>
-                                전체 삭제
-                            </button>
-                        </div>
-                    </div>
-                    <div class="image-preview-container">
-                        <div class="image-preview-grid" id="imagePreviewGrid">
-                            <!-- 이미지 프리뷰가 여기에 동적으로 추가됩니다 -->
-                        </div>
-                        <div class="upload-placeholder" id="uploadPlaceholder">
-                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
-                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-                                <circle cx="8.5" cy="8.5" r="1.5"></circle>
-                                <polyline points="21 15 16 10 5 21"></polyline>
-                            </svg>
-                            <p>이미지를 업로드하거나 드래그 앤 드롭하세요</p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- 이미지 생성 결과 섹션 -->
-                <div class="image-generation-section">
-                    <div class="generation-header">
-                        <h3>생성된 이미지</h3>
-                        <button class="regenerate-btn" onclick="regenerateImage()">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <polyline points="1 4 1 10 7 10"></polyline>
-                                <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
-                            </svg>
-                            재생성
-                        </button>
-                    </div>
-                    <div class="generation-result-container">
-                        <div class="generation-result" id="generationResult">
-                            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" opacity="0.3">
-                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-                                <circle cx="8.5" cy="8.5" r="1.5"></circle>
-                                <polyline points="21 15 16 10 5 21"></polyline>
-                            </svg>
-                            <p>이미지가 생성되면 여기에 표시됩니다</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
             <!-- 하단 콘텐츠 컨테이너 -->
             <div class="bottom-content">
                 <!-- 좌측 영역 -->
                 <div class="left-section">
                 <!-- 탭 네비게이션 -->
                 <div class="tab-navigation">
-                    <div class="tab-buttons-left">
-                        <button class="tab-btn active" data-tab="basic">기본 블록</button>
-                        <button class="tab-btn" data-tab="scene">연출 블록</button>
-                        <button class="tab-btn" data-tab="character">캐릭터 블록</button>
-                        <button class="tab-btn" data-tab="location">장소 블록</button>
-                        <button class="tab-btn" data-tab="props">소품 블록</button>
-                    </div>
-                    <div class="tab-buttons-right">
-                        <button class="tab-btn tab-action-btn" data-action="start">START</button>
-                        <button class="tab-btn tab-action-btn" data-action="end">END</button>
-                    </div>
+                    <button class="tab-btn active" data-tab="basic">기본 블록</button>
+                    <button class="tab-btn" data-tab="scene">연출 블록</button>
+                    <button class="tab-btn" data-tab="character">캐릭터 블록</button>
+                    <button class="tab-btn" data-tab="location">장소 블록</button>
+                    <button class="tab-btn" data-tab="props">소품 블록</button>
                 </div>
 
                 <!-- 탭 컨텐츠 -->
@@ -112,9 +41,7 @@
                         <div class="basic-block-three-columns">
                             <!-- Column 1: 블록 라벨명 -->
                             <div class="block-column labels-column">
-                                <div class="column-header-wrapper">
-                                    <h4 class="column-header">블록 라벨명</h4>
-                                </div>
+                                <h4 class="column-header">블록 라벨명</h4>
                                 <div class="label-list">
                                     <div class="label-item" data-block="style">
                                         <span class="label-text">아트 스타일</span>
@@ -149,9 +76,7 @@
 
                             <!-- Column 2: 프롬프트 -->
                             <div class="block-column prompt-column">
-                                <div class="column-header-wrapper">
-                                    <h4 class="column-header">프롬프트</h4>
-                                </div>
+                                <h4 class="column-header">프롬프트</h4>
                                 <div class="prompt-blocks">
                                     <!-- 아트 스타일 -->
                                     <div class="prompt-row-item" data-block="style">
@@ -187,17 +112,7 @@
 
                             <!-- Column 3: 변경 요청 -->
                             <div class="block-column request-column">
-                                <div class="column-header-wrapper">
-                                    <h4 class="column-header">변경 요청</h4>
-                                    <button class="translate-btn" onclick="translateRequests(this)" data-lang="ko">
-                                        <svg class="translate-icon" width="16" height="16" viewBox="0 0 16 16" fill="none">
-                                            <path d="M3.5 1.5H8.5L7.5 4.5H9.5L8.5 1.5H11.5V3.5H10.5L9.5 6.5H12.5V8.5H8.5L7.5 11.5H9.5L10.5 8.5H13.5V10.5H11.5L10.5 13.5H7.5L8.5 10.5H6.5L5.5 13.5H2.5L3.5 10.5H1.5V8.5H4.5L5.5 5.5H2.5V3.5H6.5L7.5 0.5H4.5" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
-                                            <path d="M11 10L13 14L15 10" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
-                                            <path d="M11.5 13H14.5" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
-                                        </svg>
-                                        <span class="translate-text">EN</span>
-                                    </button>
-                                </div>
+                                <h4 class="column-header">변경 요청</h4>
                                 <div class="request-blocks">
                                     <!-- 각 블록별 변경 요청 -->
                                     <div class="request-row-item" data-block="style">
@@ -321,123 +236,22 @@
                                         </select>
                                     </div>
                                     <div class="request-row-item" data-block="artist">
-                                        <input type="text" class="request-input" placeholder="아티스트 이름 입력">
+                                        <input type="text" class="request-input" placeholder="요청사항 입력">
                                     </div>
                                     <div class="request-row-item" data-block="medium">
-                                        <select class="request-dropdown">
-                                            <option value="">▼ 매체 선택</option>
-                                            <!-- 사진 및 디지털 -->
-                                            <optgroup label="사진 및 디지털">
-                                                <option value="photography">Photography - 사진</option>
-                                                <option value="3d-modeling">3D Modeling - 3D 모델링</option>
-                                                <option value="animation">Animation - 애니메이션</option>
-                                                <option value="concept-art">Concept Art - 컨셉 아트</option>
-                                                <option value="digital-art">Digital Art - 디지털 아트</option>
-                                                <option value="vector-graphics">Vector Graphics - 벡터 그래픽</option>
-                                                <option value="typography">Typography - 타이포그래피</option>
-                                            </optgroup>
-                                            <!-- 회화 -->
-                                            <optgroup label="회화">
-                                                <option value="acrylic-painting">Acrylic Painting - 아크릴화</option>
-                                                <option value="oil-painting">Oil Painting - 유화</option>
-                                                <option value="watercolor">Watercolor - 수채화</option>
-                                                <option value="painting">Painting - 회화</option>
-                                                <option value="gouache-painting">Gouache Painting - 과슈화</option>
-                                                <option value="encaustic-painting">Encaustic Painting - 밀랍화</option>
-                                                <option value="fresco">Fresco - 프레스코화</option>
-                                            </optgroup>
-                                            <!-- 드로잉 및 스케치 -->
-                                            <optgroup label="드로잉 및 스케치">
-                                                <option value="illustration">Illustration - 일러스트레이션</option>
-                                                <option value="manga">Manga - 만화</option>
-                                                <option value="pencil-sketch">Pencil Sketch - 연필 스케치</option>
-                                                <option value="sketch">Sketch - 스케치</option>
-                                                <option value="ballpoint-pen-sketch">Ballpoint Pen Sketch - 볼펜 스케치</option>
-                                                <option value="chalk-art">Chalk Art - 분필 아트</option>
-                                                <option value="charcoal-drawing">Charcoal Drawing - 목탄화</option>
-                                                <option value="colored-pencil">Colored Pencil - 색연필</option>
-                                                <option value="crayon-art">Crayon Art - 크레용 아트</option>
-                                                <option value="ink-drawing">Ink Drawing - 잉크 드로잉</option>
-                                                <option value="line-drawing">Line Drawing - 선화</option>
-                                                <option value="marker-art">Marker Art - 마커 아트</option>
-                                                <option value="pastel-drawing">Pastel Drawing - 파스텔화</option>
-                                                <option value="pen-and-ink">Pen and Ink - 펜과 잉크</option>
-                                                <option value="stippling">Stippling - 점묘법</option>
-                                                <option value="sumi-e">Sumi-e - 수묵화</option>
-                                            </optgroup>
-                                            <!-- 판화 및 인쇄 -->
-                                            <optgroup label="판화 및 인쇄">
-                                                <option value="block-print">Block Print - 판화</option>
-                                                <option value="collagraphy">Collagraphy - 콜라그라피</option>
-                                                <option value="cyanotype">Cyanotype - 시아노타입</option>
-                                                <option value="etching">Etching - 에칭</option>
-                                                <option value="linocut">Linocut - 리노컷</option>
-                                                <option value="lithography">Lithography - 석판화</option>
-                                                <option value="poster-design">Poster Design - 포스터 디자인</option>
-                                                <option value="risograph">Risograph - 리소그래프</option>
-                                                <option value="screen-printing">Screen Printing - 스크린 인쇄</option>
-                                                <option value="woodcut">Woodcut - 목판화</option>
-                                                <option value="ukiyo-e">Ukiyo-e - 우키요에</option>
-                                            </optgroup>
-                                            <!-- 현대 및 실험적 매체 -->
-                                            <optgroup label="현대 및 실험적 매체">
-                                                <option value="acrylic-pour">Acrylic Pour - 아크릴 부어넣기</option>
-                                                <option value="airbrush">Airbrush - 에어브러시</option>
-                                                <option value="augmented-reality-art">Augmented Reality Art - 증강현실 아트</option>
-                                                <option value="blacklight-painting">Blacklight Painting - 블랙라이트 페인팅</option>
-                                                <option value="collage">Collage - 콜라주</option>
-                                                <option value="comic-art">Comic Art - 코믹 아트</option>
-                                                <option value="futuristic-digital">Futuristic Digital - 미래적 디지털</option>
-                                                <option value="generative-art">Generative Art - 생성 예술</option>
-                                                <option value="glitch-art">Glitch Art - 글리치 아트</option>
-                                                <option value="graffiti">Graffiti - 그래피티</option>
-                                                <option value="holography">Holography - 홀로그래피</option>
-                                                <option value="isometric-art">Isometric Art - 아이소메트릭 아트</option>
-                                                <option value="mixed-media">Mixed Media - 혼합 매체</option>
-                                                <option value="neon-art">Neon Art - 네온 아트</option>
-                                                <option value="pixel-art">Pixel Art - 픽셀 아트</option>
-                                                <option value="sci-fi-art">Sci-Fi Art - SF 아트</option>
-                                                <option value="spray-paint">Spray Paint - 스프레이 페인트</option>
-                                                <option value="stencil-art">Stencil Art - 스텐실 아트</option>
-                                                <option value="street-art">Street Art - 거리 예술</option>
-                                            </optgroup>
-                                            <!-- 공예 및 전통 예술 -->
-                                            <optgroup label="공예 및 전통 예술">
-                                                <option value="batik">Batik - 바틱</option>
-                                                <option value="calligraphy">Calligraphy - 서예</option>
-                                                <option value="cross-stitch">Cross Stitch - 십자수</option>
-                                                <option value="cut-paper">Cut Paper - 종이 커팅</option>
-                                                <option value="embroidery">Embroidery - 자수</option>
-                                                <option value="mosaic">Mosaic - 모자이크</option>
-                                                <option value="origami">Origami - 종이접기</option>
-                                                <option value="paint-by-numbers">Paint-by-Numbers - 숫자 따라 그리기</option>
-                                                <option value="pointillism">Pointillism - 점묘법</option>
-                                                <option value="pressed-flower">Pressed Flower - 압화</option>
-                                                <option value="quilling">Quilling - 종이 감기 공예</option>
-                                                <option value="sculpture">Sculpture - 조각</option>
-                                                <option value="textile-art">Textile Art - 섬유 예술</option>
-                                            </optgroup>
-                                        </select>
+                                        <input type="text" class="request-input" placeholder="요청사항 입력">
                                     </div>
                                     <div class="request-row-item" data-block="genre">
-                                        <select class="request-dropdown">
-                                            <option value="">▼</option>
-                                        </select>
+                                        <input type="text" class="request-input" placeholder="요청사항 입력">
                                     </div>
                                     <div class="request-row-item" data-block="era">
-                                        <select class="request-dropdown">
-                                            <option value="">▼</option>
-                                        </select>
+                                        <input type="text" class="request-input" placeholder="요청사항 입력">
                                     </div>
                                     <div class="request-row-item" data-block="quality">
-                                        <select class="request-dropdown">
-                                            <option value="">▼</option>
-                                        </select>
+                                        <input type="text" class="request-input" placeholder="요청사항 입력">
                                     </div>
                                     <div class="request-row-item" data-block="parameter">
-                                        <select class="request-dropdown">
-                                            <option value="">▼</option>
-                                        </select>
+                                        <input type="text" class="request-input" placeholder="요청사항 입력">
                                     </div>
                                 </div>
                             </div>
@@ -464,9 +278,7 @@
                         <div class="basic-block-three-columns">
                             <!-- Column 1: 블록 라벨명 -->
                             <div class="block-column labels-column">
-                                <div class="column-header-wrapper">
-                                    <h4 class="column-header">블록 라벨명</h4>
-                                </div>
+                                <h4 class="column-header">블록 라벨명</h4>
                                 <div class="label-list">
                                     <div class="label-item" data-block="scene">
                                         <span class="label-text">장면</span>
@@ -493,9 +305,7 @@
 
                             <!-- Column 2: 프롬프트 -->
                             <div class="block-column prompt-column">
-                                <div class="column-header-wrapper">
-                                    <h4 class="column-header">프롬프트</h4>
-                                </div>
+                                <h4 class="column-header">프롬프트</h4>
                                 <div class="prompt-blocks">
                                     <div class="prompt-row-item" data-block="scene">
                                         <input type="text" class="prompt-input" placeholder="" value="">
@@ -517,42 +327,22 @@
 
                             <!-- Column 3: 변경 요청 -->
                             <div class="block-column request-column">
-                                <div class="column-header-wrapper">
-                                    <h4 class="column-header">변경 요청</h4>
-                                    <button class="translate-btn" onclick="translateRequests(this)" data-lang="ko">
-                                        <svg class="translate-icon" width="16" height="16" viewBox="0 0 16 16" fill="none">
-                                            <path d="M3.5 1.5H8.5L7.5 4.5H9.5L8.5 1.5H11.5V3.5H10.5L9.5 6.5H12.5V8.5H8.5L7.5 11.5H9.5L10.5 8.5H13.5V10.5H11.5L10.5 13.5H7.5L8.5 10.5H6.5L5.5 13.5H2.5L3.5 10.5H1.5V8.5H4.5L5.5 5.5H2.5V3.5H6.5L7.5 0.5H4.5" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
-                                            <path d="M11 10L13 14L15 10" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
-                                            <path d="M11.5 13H14.5" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
-                                        </svg>
-                                        <span class="translate-text">EN</span>
-                                    </button>
-                                </div>
+                                <h4 class="column-header">변경 요청</h4>
                                 <div class="request-blocks">
                                     <div class="request-row-item" data-block="scene">
-                                        <select class="request-dropdown">
-                                            <option value="">▼</option>
-                                        </select>
+                                        <input type="text" class="request-input" placeholder="요청사항 입력">
                                     </div>
                                     <div class="request-row-item" data-block="camera">
-                                        <select class="request-dropdown">
-                                            <option value="">▼</option>
-                                        </select>
+                                        <input type="text" class="request-input" placeholder="요청사항 입력">
                                     </div>
                                     <div class="request-row-item" data-block="camera-tech">
-                                        <select class="request-dropdown">
-                                            <option value="">▼</option>
-                                        </select>
+                                        <input type="text" class="request-input" placeholder="요청사항 입력">
                                     </div>
                                     <div class="request-row-item" data-block="lighting">
-                                        <select class="request-dropdown">
-                                            <option value="">▼</option>
-                                        </select>
+                                        <input type="text" class="request-input" placeholder="요청사항 입력">
                                     </div>
                                     <div class="request-row-item" data-block="mood">
-                                        <select class="request-dropdown">
-                                            <option value="">▼</option>
-                                        </select>
+                                        <input type="text" class="request-input" placeholder="요청사항 입력">
                                     </div>
                                 </div>
                             </div>
@@ -576,256 +366,84 @@
 
                     <!-- 캐릭터 블록 탭 -->
                     <div class="tab-pane" data-tab="character">
-                        <!-- 캐릭터 선택 컴팩트 레이아웃 -->
-                        <div class="character-compact-container">
-                            <div class="character-select-section">
-                                <label class="character-selector-label">캐릭터 선택:</label>
-                                <select class="character-selector" id="characterSelector">
-                                    <option value="1">캐릭터 1</option>
-                                    <option value="2">캐릭터 2</option>
-                                    <option value="3">캐릭터 3</option>
-                                    <option value="4">캐릭터 4</option>
-                                </select>
-                                <button class="add-character-btn" onclick="addCharacterToList()">
-                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <line x1="12" y1="5" x2="12" y2="19"></line>
-                                        <line x1="5" y1="12" x2="19" y2="12"></line>
-                                    </svg>
-                                </button>
-                            </div>
-
-                            <div class="selected-characters-section">
-                                <span class="selected-label">선택됨:</span>
-                                <div class="selected-characters-list" id="addedCharactersList">
-                                    <div class="selected-character-chip" data-character-num="1">
-                                        <span>캐릭터 1</span>
-                                        <button class="chip-remove-btn" onclick="removeCharacter(1)">×</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
                         <div class="basic-block-three-columns">
                             <!-- Column 1: 블록 라벨명 -->
                             <div class="block-column labels-column">
-                                <div class="column-header-wrapper">
-                                    <h4 class="column-header">블록 라벨명</h4>
-                                </div>
+                                <h4 class="column-header">블록 라벨명</h4>
                                 <div class="label-list">
-                                    <!-- 캐릭터1 컨테이너 -->
-                                    <div class="character-container" data-character="1">
-                                        <div class="label-item" data-block="character1">
-                                            <span class="label-text">캐릭터1</span>
-                                            <button class="label-tag">CHARACTER_1</button>
-                                        </div>
-                                        <div class="label-item" data-block="character1-detail">
-                                            <span class="label-text">캐릭터1 상세</span>
-                                            <button class="label-tag">CHAR1_DETAIL</button>
-                                        </div>
-                                        <div class="label-item" data-block="character1-action">
-                                            <span class="label-text">캐릭터1 동작</span>
-                                            <button class="label-tag">CHAR1_ACTION</button>
-                                        </div>
+                                    <div class="label-item" data-block="character1">
+                                        <span class="label-text">캐릭터1</span>
+                                        <button class="label-tag">CHARACTER_1</button>
                                     </div>
-
-                                    <!-- 캐릭터2 컨테이너 -->
-                                    <div class="character-container" data-character="2" style="display: none;">
-                                        <div class="label-item" data-block="character2">
-                                            <span class="label-text">캐릭터2</span>
-                                            <button class="label-tag">CHARACTER_2</button>
-                                        </div>
-                                        <div class="label-item" data-block="character2-detail">
-                                            <span class="label-text">캐릭터2 상세</span>
-                                            <button class="label-tag">CHAR2_DETAIL</button>
-                                        </div>
-                                        <div class="label-item" data-block="character2-action">
-                                            <span class="label-text">캐릭터2 동작</span>
-                                            <button class="label-tag">CHAR2_ACTION</button>
-                                        </div>
+                                    <div class="label-item" data-block="character1-detail">
+                                        <span class="label-text">캐릭터1 상세</span>
+                                        <button class="label-tag">CHAR1_DETAIL</button>
                                     </div>
-
-                                    <!-- 캐릭터3 컨테이너 -->
-                                    <div class="character-container" data-character="3" style="display: none;">
-                                        <div class="label-item" data-block="character3">
-                                            <span class="label-text">캐릭터3</span>
-                                            <button class="label-tag">CHARACTER_3</button>
-                                        </div>
-                                        <div class="label-item" data-block="character3-detail">
-                                            <span class="label-text">캐릭터3 상세</span>
-                                            <button class="label-tag">CHAR3_DETAIL</button>
-                                        </div>
-                                        <div class="label-item" data-block="character3-action">
-                                            <span class="label-text">캐릭터3 동작</span>
-                                            <button class="label-tag">CHAR3_ACTION</button>
-                                        </div>
+                                    <div class="label-item" data-block="character1-action">
+                                        <span class="label-text">캐릭터1 동작</span>
+                                        <button class="label-tag">CHAR1_ACTION</button>
                                     </div>
-
-                                    <!-- 캐릭터4 컨테이너 -->
-                                    <div class="character-container" data-character="4" style="display: none;">
-                                        <div class="label-item" data-block="character4">
-                                            <span class="label-text">캐릭터4</span>
-                                            <button class="label-tag">CHARACTER_4</button>
-                                        </div>
-                                        <div class="label-item" data-block="character4-detail">
-                                            <span class="label-text">캐릭터4 상세</span>
-                                            <button class="label-tag">CHAR4_DETAIL</button>
-                                        </div>
-                                        <div class="label-item" data-block="character4-action">
-                                            <span class="label-text">캐릭터4 동작</span>
-                                            <button class="label-tag">CHAR4_ACTION</button>
-                                        </div>
+                                    <div class="label-item" data-block="character2">
+                                        <span class="label-text">캐릭터2</span>
+                                        <button class="label-tag">CHARACTER_2</button>
+                                    </div>
+                                    <div class="label-item" data-block="character2-detail">
+                                        <span class="label-text">캐릭터2 상세</span>
+                                        <button class="label-tag">CHAR2_DETAIL</button>
+                                    </div>
+                                    <div class="label-item" data-block="character2-action">
+                                        <span class="label-text">캐릭터2 동작</span>
+                                        <button class="label-tag">CHAR2_ACTION</button>
                                     </div>
                                 </div>
                             </div>
 
                             <!-- Column 2: 프롬프트 -->
                             <div class="block-column prompt-column">
-                                <div class="column-header-wrapper">
-                                    <h4 class="column-header">프롬프트</h4>
-                                </div>
+                                <h4 class="column-header">프롬프트</h4>
                                 <div class="prompt-blocks">
-                                    <!-- 캐릭터1 프롬프트 -->
-                                    <div class="character-container" data-character="1">
-                                        <div class="prompt-row-item" data-block="character1">
-                                            <input type="text" class="prompt-input" placeholder="" value="">
-                                        </div>
-                                        <div class="prompt-row-item" data-block="character1-detail">
-                                            <input type="text" class="prompt-input" placeholder="" value="">
-                                        </div>
-                                        <div class="prompt-row-item" data-block="character1-action">
-                                            <input type="text" class="prompt-input" placeholder="" value="">
-                                        </div>
+                                    <div class="prompt-row-item" data-block="character1">
+                                        <input type="text" class="prompt-input" placeholder="" value="">
                                     </div>
-
-                                    <!-- 캐릭터2 프롬프트 -->
-                                    <div class="character-container" data-character="2" style="display: none;">
-                                        <div class="prompt-row-item" data-block="character2">
-                                            <input type="text" class="prompt-input" placeholder="" value="">
-                                        </div>
-                                        <div class="prompt-row-item" data-block="character2-detail">
-                                            <input type="text" class="prompt-input" placeholder="" value="">
-                                        </div>
-                                        <div class="prompt-row-item" data-block="character2-action">
-                                            <input type="text" class="prompt-input" placeholder="" value="">
-                                        </div>
+                                    <div class="prompt-row-item" data-block="character1-detail">
+                                        <input type="text" class="prompt-input" placeholder="" value="">
                                     </div>
-
-                                    <!-- 캐릭터3 프롬프트 -->
-                                    <div class="character-container" data-character="3" style="display: none;">
-                                        <div class="prompt-row-item" data-block="character3">
-                                            <input type="text" class="prompt-input" placeholder="" value="">
-                                        </div>
-                                        <div class="prompt-row-item" data-block="character3-detail">
-                                            <input type="text" class="prompt-input" placeholder="" value="">
-                                        </div>
-                                        <div class="prompt-row-item" data-block="character3-action">
-                                            <input type="text" class="prompt-input" placeholder="" value="">
-                                        </div>
+                                    <div class="prompt-row-item" data-block="character1-action">
+                                        <input type="text" class="prompt-input" placeholder="" value="">
                                     </div>
-
-                                    <!-- 캐릭터4 프롬프트 -->
-                                    <div class="character-container" data-character="4" style="display: none;">
-                                        <div class="prompt-row-item" data-block="character4">
-                                            <input type="text" class="prompt-input" placeholder="" value="">
-                                        </div>
-                                        <div class="prompt-row-item" data-block="character4-detail">
-                                            <input type="text" class="prompt-input" placeholder="" value="">
-                                        </div>
-                                        <div class="prompt-row-item" data-block="character4-action">
-                                            <input type="text" class="prompt-input" placeholder="" value="">
-                                        </div>
+                                    <div class="prompt-row-item" data-block="character2">
+                                        <input type="text" class="prompt-input" placeholder="" value="">
+                                    </div>
+                                    <div class="prompt-row-item" data-block="character2-detail">
+                                        <input type="text" class="prompt-input" placeholder="" value="">
+                                    </div>
+                                    <div class="prompt-row-item" data-block="character2-action">
+                                        <input type="text" class="prompt-input" placeholder="" value="">
                                     </div>
                                 </div>
                             </div>
 
                             <!-- Column 3: 변경 요청 -->
                             <div class="block-column request-column">
-                                <div class="column-header-wrapper">
-                                    <h4 class="column-header">변경 요청</h4>
-                                    <button class="translate-btn" onclick="translateRequests(this)" data-lang="ko">
-                                        <svg class="translate-icon" width="16" height="16" viewBox="0 0 16 16" fill="none">
-                                            <path d="M3.5 1.5H8.5L7.5 4.5H9.5L8.5 1.5H11.5V3.5H10.5L9.5 6.5H12.5V8.5H8.5L7.5 11.5H9.5L10.5 8.5H13.5V10.5H11.5L10.5 13.5H7.5L8.5 10.5H6.5L5.5 13.5H2.5L3.5 10.5H1.5V8.5H4.5L5.5 5.5H2.5V3.5H6.5L7.5 0.5H4.5" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
-                                            <path d="M11 10L13 14L15 10" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
-                                            <path d="M11.5 13H14.5" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
-                                        </svg>
-                                        <span class="translate-text">EN</span>
-                                    </button>
-                                </div>
+                                <h4 class="column-header">변경 요청</h4>
                                 <div class="request-blocks">
-                                    <!-- 캐릭터1 변경 요청 -->
-                                    <div class="character-container" data-character="1">
-                                        <div class="request-row-item" data-block="character1">
-                                            <select class="request-dropdown">
-                                                <option value="">▼</option>
-                                            </select>
-                                        </div>
-                                        <div class="request-row-item" data-block="character1-detail">
-                                            <select class="request-dropdown">
-                                                <option value="">▼</option>
-                                            </select>
-                                        </div>
-                                        <div class="request-row-item" data-block="character1-action">
-                                            <select class="request-dropdown">
-                                                <option value="">▼</option>
-                                            </select>
-                                        </div>
+                                    <div class="request-row-item" data-block="character1">
+                                        <input type="text" class="request-input" placeholder="요청사항 입력">
                                     </div>
-
-                                    <!-- 캐릭터2 변경 요청 -->
-                                    <div class="character-container" data-character="2" style="display: none;">
-                                        <div class="request-row-item" data-block="character2">
-                                            <select class="request-dropdown">
-                                                <option value="">▼</option>
-                                            </select>
-                                        </div>
-                                        <div class="request-row-item" data-block="character2-detail">
-                                            <select class="request-dropdown">
-                                                <option value="">▼</option>
-                                            </select>
-                                        </div>
-                                        <div class="request-row-item" data-block="character2-action">
-                                            <select class="request-dropdown">
-                                                <option value="">▼</option>
-                                            </select>
-                                        </div>
+                                    <div class="request-row-item" data-block="character1-detail">
+                                        <input type="text" class="request-input" placeholder="요청사항 입력">
                                     </div>
-
-                                    <!-- 캐릭터3 변경 요청 -->
-                                    <div class="character-container" data-character="3" style="display: none;">
-                                        <div class="request-row-item" data-block="character3">
-                                            <select class="request-dropdown">
-                                                <option value="">▼</option>
-                                            </select>
-                                        </div>
-                                        <div class="request-row-item" data-block="character3-detail">
-                                            <select class="request-dropdown">
-                                                <option value="">▼</option>
-                                            </select>
-                                        </div>
-                                        <div class="request-row-item" data-block="character3-action">
-                                            <select class="request-dropdown">
-                                                <option value="">▼</option>
-                                            </select>
-                                        </div>
+                                    <div class="request-row-item" data-block="character1-action">
+                                        <input type="text" class="request-input" placeholder="요청사항 입력">
                                     </div>
-
-                                    <!-- 캐릭터4 변경 요청 -->
-                                    <div class="character-container" data-character="4" style="display: none;">
-                                        <div class="request-row-item" data-block="character4">
-                                            <select class="request-dropdown">
-                                                <option value="">▼</option>
-                                            </select>
-                                        </div>
-                                        <div class="request-row-item" data-block="character4-detail">
-                                            <select class="request-dropdown">
-                                                <option value="">▼</option>
-                                            </select>
-                                        </div>
-                                        <div class="request-row-item" data-block="character4-action">
-                                            <select class="request-dropdown">
-                                                <option value="">▼</option>
-                                            </select>
-                                        </div>
+                                    <div class="request-row-item" data-block="character2">
+                                        <input type="text" class="request-input" placeholder="요청사항 입력">
+                                    </div>
+                                    <div class="request-row-item" data-block="character2-detail">
+                                        <input type="text" class="request-input" placeholder="요청사항 입력">
+                                    </div>
+                                    <div class="request-row-item" data-block="character2-action">
+                                        <input type="text" class="request-input" placeholder="요청사항 입력">
                                     </div>
                                 </div>
                             </div>
@@ -849,41 +467,10 @@
 
                     <!-- 장소 블록 탭 -->
                     <div class="tab-pane" data-tab="location">
-                        <!-- 장소 선택 컴팩트 레이아웃 -->
-                        <div class="location-compact-container">
-                            <div class="location-select-section">
-                                <label class="location-selector-label">장소 선택:</label>
-                                <select class="location-selector" id="locationSelector">
-                                    <option value="1">장소 1</option>
-                                    <option value="2">장소 2</option>
-                                    <option value="3">장소 3</option>
-                                    <option value="4">장소 4</option>
-                                </select>
-                                <button class="add-location-btn" onclick="addLocationToList()">
-                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <line x1="12" y1="5" x2="12" y2="19"></line>
-                                        <line x1="5" y1="12" x2="19" y2="12"></line>
-                                    </svg>
-                                </button>
-                            </div>
-
-                            <div class="selected-locations-section">
-                                <span class="selected-label">선택됨:</span>
-                                <div class="selected-locations-list" id="addedLocationsList">
-                                    <div class="selected-location-chip" data-location-num="1">
-                                        <span>장소 1</span>
-                                        <button class="chip-remove-btn" onclick="removeLocation(1)">×</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
                         <div class="basic-block-three-columns">
                             <!-- Column 1: 블록 라벨명 -->
                             <div class="block-column labels-column">
-                                <div class="column-header-wrapper">
-                                    <h4 class="column-header">블록 라벨명</h4>
-                                </div>
+                                <h4 class="column-header">블록 라벨명</h4>
                                 <div class="label-list">
                                     <div class="label-item" data-block="location">
                                         <span class="label-text">장소 명</span>
@@ -922,9 +509,7 @@
 
                             <!-- Column 2: 프롬프트 -->
                             <div class="block-column prompt-column">
-                                <div class="column-header-wrapper">
-                                    <h4 class="column-header">프롬프트</h4>
-                                </div>
+                                <h4 class="column-header">프롬프트</h4>
                                 <div class="prompt-blocks">
                                     <div class="prompt-row-item" data-block="location">
                                         <input type="text" class="prompt-input" placeholder="" value="">
@@ -955,57 +540,31 @@
 
                             <!-- Column 3: 변경 요청 -->
                             <div class="block-column request-column">
-                                <div class="column-header-wrapper">
-                                    <h4 class="column-header">변경 요청</h4>
-                                    <button class="translate-btn" onclick="translateRequests(this)" data-lang="ko">
-                                        <svg class="translate-icon" width="16" height="16" viewBox="0 0 16 16" fill="none">
-                                            <path d="M3.5 1.5H8.5L7.5 4.5H9.5L8.5 1.5H11.5V3.5H10.5L9.5 6.5H12.5V8.5H8.5L7.5 11.5H9.5L10.5 8.5H13.5V10.5H11.5L10.5 13.5H7.5L8.5 10.5H6.5L5.5 13.5H2.5L3.5 10.5H1.5V8.5H4.5L5.5 5.5H2.5V3.5H6.5L7.5 0.5H4.5" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
-                                            <path d="M11 10L13 14L15 10" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
-                                            <path d="M11.5 13H14.5" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
-                                        </svg>
-                                        <span class="translate-text">EN</span>
-                                    </button>
-                                </div>
+                                <h4 class="column-header">변경 요청</h4>
                                 <div class="request-blocks">
                                     <div class="request-row-item" data-block="location">
-                                        <select class="request-dropdown">
-                                            <option value="">▼</option>
-                                        </select>
+                                        <input type="text" class="request-input" placeholder="요청사항 입력">
                                     </div>
                                     <div class="request-row-item" data-block="atmosphere">
-                                        <select class="request-dropdown">
-                                            <option value="">▼</option>
-                                        </select>
+                                        <input type="text" class="request-input" placeholder="요청사항 입력">
                                     </div>
                                     <div class="request-row-item" data-block="color-tone">
-                                        <select class="request-dropdown">
-                                            <option value="">▼</option>
-                                        </select>
+                                        <input type="text" class="request-input" placeholder="요청사항 입력">
                                     </div>
                                     <div class="request-row-item" data-block="scale">
-                                        <select class="request-dropdown">
-                                            <option value="">▼</option>
-                                        </select>
+                                        <input type="text" class="request-input" placeholder="요청사항 입력">
                                     </div>
                                     <div class="request-row-item" data-block="architecture">
-                                        <select class="request-dropdown">
-                                            <option value="">▼</option>
-                                        </select>
+                                        <input type="text" class="request-input" placeholder="요청사항 입력">
                                     </div>
                                     <div class="request-row-item" data-block="material">
-                                        <select class="request-dropdown">
-                                            <option value="">▼</option>
-                                        </select>
+                                        <input type="text" class="request-input" placeholder="요청사항 입력">
                                     </div>
                                     <div class="request-row-item" data-block="weather">
-                                        <select class="request-dropdown">
-                                            <option value="">▼</option>
-                                        </select>
+                                        <input type="text" class="request-input" placeholder="요청사항 입력">
                                     </div>
                                     <div class="request-row-item" data-block="natural-light">
-                                        <select class="request-dropdown">
-                                            <option value="">▼</option>
-                                        </select>
+                                        <input type="text" class="request-input" placeholder="요청사항 입력">
                                     </div>
                                 </div>
                             </div>
@@ -1029,41 +588,10 @@
 
                     <!-- 소품 블록 탭 -->
                     <div class="tab-pane" data-tab="props">
-                        <!-- 소품 선택 컴팩트 레이아웃 -->
-                        <div class="props-compact-container">
-                            <div class="props-select-section">
-                                <label class="props-selector-label">소품 선택:</label>
-                                <select class="props-selector" id="propsSelector">
-                                    <option value="1">소품 1</option>
-                                    <option value="2">소품 2</option>
-                                    <option value="3">소품 3</option>
-                                    <option value="4">소품 4</option>
-                                </select>
-                                <button class="add-props-btn" onclick="addPropsToList()">
-                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <line x1="12" y1="5" x2="12" y2="19"></line>
-                                        <line x1="5" y1="12" x2="19" y2="12"></line>
-                                    </svg>
-                                </button>
-                            </div>
-
-                            <div class="selected-props-section">
-                                <span class="selected-label">선택됨:</span>
-                                <div class="selected-props-list" id="addedPropsList">
-                                    <div class="selected-props-chip" data-props-num="1">
-                                        <span>소품 1</span>
-                                        <button class="chip-remove-btn" onclick="removeProps(1)">×</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
                         <div class="basic-block-three-columns">
                             <!-- Column 1: 블록 라벨명 -->
                             <div class="block-column labels-column">
-                                <div class="column-header-wrapper">
-                                    <h4 class="column-header">블록 라벨명</h4>
-                                </div>
+                                <h4 class="column-header">블록 라벨명</h4>
                                 <div class="label-list">
                                     <div class="label-item" data-block="props">
                                         <span class="label-text">소품</span>
@@ -1102,9 +630,7 @@
 
                             <!-- Column 2: 프롬프트 -->
                             <div class="block-column prompt-column">
-                                <div class="column-header-wrapper">
-                                    <h4 class="column-header">프롬프트</h4>
-                                </div>
+                                <h4 class="column-header">프롬프트</h4>
                                 <div class="prompt-blocks">
                                     <div class="prompt-row-item" data-block="props">
                                         <input type="text" class="prompt-input" placeholder="" value="">
@@ -1135,57 +661,31 @@
 
                             <!-- Column 3: 변경 요청 -->
                             <div class="block-column request-column">
-                                <div class="column-header-wrapper">
-                                    <h4 class="column-header">변경 요청</h4>
-                                    <button class="translate-btn" onclick="translateRequests(this)" data-lang="ko">
-                                        <svg class="translate-icon" width="16" height="16" viewBox="0 0 16 16" fill="none">
-                                            <path d="M3.5 1.5H8.5L7.5 4.5H9.5L8.5 1.5H11.5V3.5H10.5L9.5 6.5H12.5V8.5H8.5L7.5 11.5H9.5L10.5 8.5H13.5V10.5H11.5L10.5 13.5H7.5L8.5 10.5H6.5L5.5 13.5H2.5L3.5 10.5H1.5V8.5H4.5L5.5 5.5H2.5V3.5H6.5L7.5 0.5H4.5" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
-                                            <path d="M11 10L13 14L15 10" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
-                                            <path d="M11.5 13H14.5" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
-                                        </svg>
-                                        <span class="translate-text">EN</span>
-                                    </button>
-                                </div>
+                                <h4 class="column-header">변경 요청</h4>
                                 <div class="request-blocks">
                                     <div class="request-row-item" data-block="props">
-                                        <select class="request-dropdown">
-                                            <option value="">▼</option>
-                                        </select>
+                                        <input type="text" class="request-input" placeholder="요청사항 입력">
                                     </div>
                                     <div class="request-row-item" data-block="lighting-tech">
-                                        <select class="request-dropdown">
-                                            <option value="">▼</option>
-                                        </select>
+                                        <input type="text" class="request-input" placeholder="요청사항 입력">
                                     </div>
                                     <div class="request-row-item" data-block="foreground">
-                                        <select class="request-dropdown">
-                                            <option value="">▼</option>
-                                        </select>
+                                        <input type="text" class="request-input" placeholder="요청사항 입력">
                                     </div>
                                     <div class="request-row-item" data-block="midground">
-                                        <select class="request-dropdown">
-                                            <option value="">▼</option>
-                                        </select>
+                                        <input type="text" class="request-input" placeholder="요청사항 입력">
                                     </div>
                                     <div class="request-row-item" data-block="background">
-                                        <select class="request-dropdown">
-                                            <option value="">▼</option>
-                                        </select>
+                                        <input type="text" class="request-input" placeholder="요청사항 입력">
                                     </div>
                                     <div class="request-row-item" data-block="left-side">
-                                        <select class="request-dropdown">
-                                            <option value="">▼</option>
-                                        </select>
+                                        <input type="text" class="request-input" placeholder="요청사항 입력">
                                     </div>
                                     <div class="request-row-item" data-block="right-side">
-                                        <select class="request-dropdown">
-                                            <option value="">▼</option>
-                                        </select>
+                                        <input type="text" class="request-input" placeholder="요청사항 입력">
                                     </div>
                                     <div class="request-row-item" data-block="ceiling">
-                                        <select class="request-dropdown">
-                                            <option value="">▼</option>
-                                        </select>
+                                        <input type="text" class="request-input" placeholder="요청사항 입력">
                                     </div>
                                 </div>
                             </div>
@@ -1208,10 +708,23 @@
                     </div>
                 </div>
 
+                <!-- 하단 버튼 그룹 -->
+                <div class="bottom-actions">
+                    <button class="action-btn generate-btn">생성</button>
+                    <button class="action-btn copy-btn">복사</button>
+                    <button class="action-btn save-btn">저장</button>
+                </div>
             </div>
 
             <!-- 우측 영역 -->
             <div class="right-section">
+                <!-- 상단 타임라인 영역 (연출 블록용) -->
+                <div class="timeline-section" style="display:none;">
+                    <div class="timeline-controls">
+                        <button class="timeline-btn start-btn active">START</button>
+                        <button class="timeline-btn end-btn">END</button>
+                    </div>
+                </div>
 
                 <!-- 파일 선택 영역 -->
                 <div class="file-selection-section">
