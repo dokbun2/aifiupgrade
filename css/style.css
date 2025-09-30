@@ -107,6 +107,18 @@ body {
     font-size: 20px;
 }
 
+.logo-text {
+    font-size: 20px;
+    font-weight: 800;
+    background: linear-gradient(135deg, #ff6b6b, #ff8e53, #ffb347, #ffd93d);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-fill-color: transparent;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
 .main-nav {
     display: flex;
     align-items: center;
@@ -837,13 +849,13 @@ body:has(.hero-section) .sidebar-toggle {
 
 /* Stage Selection Section - Content */
 .stage-section-content {
-    margin-top: 32px;
+    margin-top: 80px;
     position: relative;
-    min-height: calc(100vh - 200px);
+    min-height: calc(100vh - 300px);
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 40px 20px;
+    padding: 60px 20px 40px;
 }
 
 /* START 페이지 전체 콘텐츠 배경 이미지 */
@@ -877,33 +889,38 @@ body:has(.hero-section) .sidebar-toggle {
 }
 
 /* START 페이지 텍스트 가독성 개선 */
+.start-page-wrapper .page-header {
+    text-align: left;
+    padding-left: 20px;
+    padding-top: 20px;
+}
+
 .start-page-wrapper .page-title {
     color: #ffffff;
     text-shadow:
-        2px 2px 4px rgba(0, 0, 0, 0.9),
-        -1px -1px 2px rgba(0, 0, 0, 0.5),
-        0 0 20px rgba(0, 0, 0, 0.8);
+        3px 3px 6px rgba(0, 0, 0, 1),
+        -1px -1px 3px rgba(0, 0, 0, 0.8),
+        0 0 30px rgba(0, 0, 0, 0.9);
     font-weight: 700;
     letter-spacing: 2px;
-    background: linear-gradient(135deg, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.4));
-    padding: 15px 30px;
-    border-radius: 10px;
-    backdrop-filter: blur(10px);
-    display: inline-block;
+    background: transparent;
+    padding: 0;
+    display: block;
+    margin: 0 0 2px 0;
+    text-align: left;
 }
 
 .start-page-wrapper .page-description {
     color: #ffffff;
     text-shadow:
-        2px 2px 3px rgba(0, 0, 0, 0.9),
-        0 0 15px rgba(0, 0, 0, 0.7);
+        2px 2px 4px rgba(0, 0, 0, 1),
+        0 0 20px rgba(0, 0, 0, 0.9);
     font-weight: 500;
-    background: rgba(0, 0, 0, 0.6);
-    padding: 10px 25px;
-    border-radius: 8px;
-    backdrop-filter: blur(8px);
-    display: inline-block;
-    margin-top: 10px;
+    background: transparent;
+    padding: 0;
+    display: block;
+    margin-top: 0;
+    text-align: left;
 }
 
 /* Stage Selection Section - Full Page */
@@ -951,12 +968,124 @@ body:has(.hero-section) .sidebar-toggle {
 /* START 페이지의 2개 카드 레이아웃 */
 .stage-grid[style*="repeat(2, 1fr)"] {
     grid-template-columns: repeat(2, 1fr) !important;
-    max-width: 800px !important;
-    margin: 0 auto 60px !important;
+    max-width: 1100px !important;
+    margin: 60px auto 60px !important;
 }
 
 .stage-grid[style*="repeat(2, 1fr)"] .stage-card {
-    min-height: 200px;
+    min-height: 100px;
+    max-height: 120px;
+    min-width: 400px;
+    padding: 18px 20px;
+}
+
+/* START 페이지 스테이지 카드 스타일 개선 */
+.start-page-wrapper .stage-card {
+    background: linear-gradient(135deg, rgba(25, 25, 25, 0.98), rgba(35, 35, 35, 0.95));
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 20px;
+    position: relative;
+    overflow: visible;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    padding: 20px 20px;
+}
+
+/* 호버 시 상단 줄 효과 제거 */
+
+.start-page-wrapper .stage-card:hover {
+    background: linear-gradient(135deg, rgba(35, 35, 35, 0.98), rgba(45, 45, 45, 0.95));
+    border-color: rgba(255, 107, 107, 0.4);
+    transform: translateY(-4px) scale(1.02);
+    box-shadow:
+        0 20px 40px rgba(0, 0, 0, 0.6),
+        0 0 60px rgba(255, 107, 107, 0.1);
+}
+
+/* START 페이지 카드 내부 레이아웃 수정 */
+.start-page-wrapper .stage-number {
+    flex-shrink: 0;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    font-weight: 700;
+    background: linear-gradient(135deg, rgba(255, 107, 107, 0.2), rgba(107, 255, 255, 0.1));
+    border-radius: 10px;
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.start-page-wrapper .stage-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 6px;
+    min-width: 0;
+}
+
+.start-page-wrapper .stage-name {
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    color: #ffffff;
+    gap: 6px;
+}
+
+.start-page-wrapper .stage-name svg {
+    width: 16px;
+    height: 16px;
+    opacity: 0.7;
+    transition: all 0.3s ease;
+    flex-shrink: 0;
+}
+
+.start-page-wrapper .stage-card:hover .stage-name svg {
+    opacity: 1;
+    transform: translate(2px, -2px);
+}
+
+.start-page-wrapper .stage-info {
+    font-size: 13px;
+    margin: 0;
+    color: rgba(255, 255, 255, 0.6);
+    letter-spacing: 0.2px;
+    line-height: 1.3;
+}
+
+.start-page-wrapper .stage-status {
+    margin-left: auto;
+    flex-shrink: 0;
+}
+
+.start-page-wrapper .status-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 18px;
+    background: linear-gradient(135deg, rgba(255, 107, 107, 0.9), rgba(255, 140, 140, 0.9));
+    color: white;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    transition: all 0.3s ease;
+    box-shadow: 0 3px 12px rgba(255, 107, 107, 0.3);
+    white-space: nowrap;
+}
+
+.start-page-wrapper .stage-card:hover .status-badge {
+    background: linear-gradient(135deg, rgba(255, 107, 107, 1), rgba(255, 140, 140, 1));
+    transform: scale(1.05);
+    box-shadow: 0 6px 20px rgba(255, 107, 107, 0.5);
 }
 
 .stage-card {
@@ -972,34 +1101,17 @@ body:has(.hero-section) .sidebar-toggle {
     overflow: hidden;
 }
 
-.stage-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 4px;
-    background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
-    transform: scaleX(0);
-    transform-origin: left;
-    transition: transform 0.3s ease;
-}
-
 .stage-card:hover {
     transform: translateY(-4px);
     border-color: #667eea;
     box-shadow: 0 12px 40px rgba(102, 126, 234, 0.2);
 }
 
-.stage-card:hover::before {
-    transform: scaleX(1);
-}
-
 .stage-number {
     font-size: 48px;
     font-weight: 700;
     color: rgba(102, 126, 234, 0.3);
-    margin-bottom: 20px;
+    margin-bottom: 0px;
     line-height: 1;
 }
 
@@ -1070,6 +1182,16 @@ body:has(.hero-section) .sidebar-toggle {
 @media (max-width: 1024px) {
     .stage-grid {
         grid-template-columns: repeat(2, 1fr);
+    }
+
+    .stage-grid[style*="repeat(2, 1fr)"] {
+        grid-template-columns: 1fr !important;
+        max-width: 600px !important;
+    }
+
+    .stage-grid[style*="repeat(2, 1fr)"] .stage-card {
+        min-width: unset;
+        width: 100%;
     }
 }
 

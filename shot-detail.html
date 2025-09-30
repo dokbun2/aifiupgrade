@@ -112,7 +112,17 @@
 
                             <!-- Column 3: 변경 요청 -->
                             <div class="block-column request-column">
-                                <h4 class="column-header">변경 요청</h4>
+                                <div class="column-header-wrapper">
+                                    <h4 class="column-header">변경 요청</h4>
+                                    <button class="translate-btn" onclick="translateRequests(this)" data-lang="ko">
+                                        <svg class="translate-icon" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                            <path d="M3.5 1.5H8.5L7.5 4.5H9.5L8.5 1.5H11.5V3.5H10.5L9.5 6.5H12.5V8.5H8.5L7.5 11.5H9.5L10.5 8.5H13.5V10.5H11.5L10.5 13.5H7.5L8.5 10.5H6.5L5.5 13.5H2.5L3.5 10.5H1.5V8.5H4.5L5.5 5.5H2.5V3.5H6.5L7.5 0.5H4.5" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
+                                            <path d="M11 10L13 14L15 10" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
+                                            <path d="M11.5 13H14.5" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
+                                        </svg>
+                                        <span class="translate-text">EN</span>
+                                    </button>
+                                </div>
                                 <div class="request-blocks">
                                     <!-- 각 블록별 변경 요청 -->
                                     <div class="request-row-item" data-block="style">
@@ -236,13 +246,102 @@
                                         </select>
                                     </div>
                                     <div class="request-row-item" data-block="artist">
-                                        <select class="request-dropdown">
-                                            <option value="">▼</option>
-                                        </select>
+                                        <input type="text" class="request-input" placeholder="아티스트 이름 입력">
                                     </div>
                                     <div class="request-row-item" data-block="medium">
                                         <select class="request-dropdown">
-                                            <option value="">▼</option>
+                                            <option value="">▼ 매체 선택</option>
+                                            <!-- 사진 및 디지털 -->
+                                            <optgroup label="사진 및 디지털">
+                                                <option value="photography">Photography - 사진</option>
+                                                <option value="3d-modeling">3D Modeling - 3D 모델링</option>
+                                                <option value="animation">Animation - 애니메이션</option>
+                                                <option value="concept-art">Concept Art - 컨셉 아트</option>
+                                                <option value="digital-art">Digital Art - 디지털 아트</option>
+                                                <option value="vector-graphics">Vector Graphics - 벡터 그래픽</option>
+                                                <option value="typography">Typography - 타이포그래피</option>
+                                            </optgroup>
+                                            <!-- 회화 -->
+                                            <optgroup label="회화">
+                                                <option value="acrylic-painting">Acrylic Painting - 아크릴화</option>
+                                                <option value="oil-painting">Oil Painting - 유화</option>
+                                                <option value="watercolor">Watercolor - 수채화</option>
+                                                <option value="painting">Painting - 회화</option>
+                                                <option value="gouache-painting">Gouache Painting - 과슈화</option>
+                                                <option value="encaustic-painting">Encaustic Painting - 밀랍화</option>
+                                                <option value="fresco">Fresco - 프레스코화</option>
+                                            </optgroup>
+                                            <!-- 드로잉 및 스케치 -->
+                                            <optgroup label="드로잉 및 스케치">
+                                                <option value="illustration">Illustration - 일러스트레이션</option>
+                                                <option value="manga">Manga - 만화</option>
+                                                <option value="pencil-sketch">Pencil Sketch - 연필 스케치</option>
+                                                <option value="sketch">Sketch - 스케치</option>
+                                                <option value="ballpoint-pen-sketch">Ballpoint Pen Sketch - 볼펜 스케치</option>
+                                                <option value="chalk-art">Chalk Art - 분필 아트</option>
+                                                <option value="charcoal-drawing">Charcoal Drawing - 목탄화</option>
+                                                <option value="colored-pencil">Colored Pencil - 색연필</option>
+                                                <option value="crayon-art">Crayon Art - 크레용 아트</option>
+                                                <option value="ink-drawing">Ink Drawing - 잉크 드로잉</option>
+                                                <option value="line-drawing">Line Drawing - 선화</option>
+                                                <option value="marker-art">Marker Art - 마커 아트</option>
+                                                <option value="pastel-drawing">Pastel Drawing - 파스텔화</option>
+                                                <option value="pen-and-ink">Pen and Ink - 펜과 잉크</option>
+                                                <option value="stippling">Stippling - 점묘법</option>
+                                                <option value="sumi-e">Sumi-e - 수묵화</option>
+                                            </optgroup>
+                                            <!-- 판화 및 인쇄 -->
+                                            <optgroup label="판화 및 인쇄">
+                                                <option value="block-print">Block Print - 판화</option>
+                                                <option value="collagraphy">Collagraphy - 콜라그라피</option>
+                                                <option value="cyanotype">Cyanotype - 시아노타입</option>
+                                                <option value="etching">Etching - 에칭</option>
+                                                <option value="linocut">Linocut - 리노컷</option>
+                                                <option value="lithography">Lithography - 석판화</option>
+                                                <option value="poster-design">Poster Design - 포스터 디자인</option>
+                                                <option value="risograph">Risograph - 리소그래프</option>
+                                                <option value="screen-printing">Screen Printing - 스크린 인쇄</option>
+                                                <option value="woodcut">Woodcut - 목판화</option>
+                                                <option value="ukiyo-e">Ukiyo-e - 우키요에</option>
+                                            </optgroup>
+                                            <!-- 현대 및 실험적 매체 -->
+                                            <optgroup label="현대 및 실험적 매체">
+                                                <option value="acrylic-pour">Acrylic Pour - 아크릴 부어넣기</option>
+                                                <option value="airbrush">Airbrush - 에어브러시</option>
+                                                <option value="augmented-reality-art">Augmented Reality Art - 증강현실 아트</option>
+                                                <option value="blacklight-painting">Blacklight Painting - 블랙라이트 페인팅</option>
+                                                <option value="collage">Collage - 콜라주</option>
+                                                <option value="comic-art">Comic Art - 코믹 아트</option>
+                                                <option value="futuristic-digital">Futuristic Digital - 미래적 디지털</option>
+                                                <option value="generative-art">Generative Art - 생성 예술</option>
+                                                <option value="glitch-art">Glitch Art - 글리치 아트</option>
+                                                <option value="graffiti">Graffiti - 그래피티</option>
+                                                <option value="holography">Holography - 홀로그래피</option>
+                                                <option value="isometric-art">Isometric Art - 아이소메트릭 아트</option>
+                                                <option value="mixed-media">Mixed Media - 혼합 매체</option>
+                                                <option value="neon-art">Neon Art - 네온 아트</option>
+                                                <option value="pixel-art">Pixel Art - 픽셀 아트</option>
+                                                <option value="sci-fi-art">Sci-Fi Art - SF 아트</option>
+                                                <option value="spray-paint">Spray Paint - 스프레이 페인트</option>
+                                                <option value="stencil-art">Stencil Art - 스텐실 아트</option>
+                                                <option value="street-art">Street Art - 거리 예술</option>
+                                            </optgroup>
+                                            <!-- 공예 및 전통 예술 -->
+                                            <optgroup label="공예 및 전통 예술">
+                                                <option value="batik">Batik - 바틱</option>
+                                                <option value="calligraphy">Calligraphy - 서예</option>
+                                                <option value="cross-stitch">Cross Stitch - 십자수</option>
+                                                <option value="cut-paper">Cut Paper - 종이 커팅</option>
+                                                <option value="embroidery">Embroidery - 자수</option>
+                                                <option value="mosaic">Mosaic - 모자이크</option>
+                                                <option value="origami">Origami - 종이접기</option>
+                                                <option value="paint-by-numbers">Paint-by-Numbers - 숫자 따라 그리기</option>
+                                                <option value="pointillism">Pointillism - 점묘법</option>
+                                                <option value="pressed-flower">Pressed Flower - 압화</option>
+                                                <option value="quilling">Quilling - 종이 감기 공예</option>
+                                                <option value="sculpture">Sculpture - 조각</option>
+                                                <option value="textile-art">Textile Art - 섬유 예술</option>
+                                            </optgroup>
                                         </select>
                                     </div>
                                     <div class="request-row-item" data-block="genre">
@@ -339,7 +438,17 @@
 
                             <!-- Column 3: 변경 요청 -->
                             <div class="block-column request-column">
-                                <h4 class="column-header">변경 요청</h4>
+                                <div class="column-header-wrapper">
+                                    <h4 class="column-header">변경 요청</h4>
+                                    <button class="translate-btn" onclick="translateRequests(this)" data-lang="ko">
+                                        <svg class="translate-icon" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                            <path d="M3.5 1.5H8.5L7.5 4.5H9.5L8.5 1.5H11.5V3.5H10.5L9.5 6.5H12.5V8.5H8.5L7.5 11.5H9.5L10.5 8.5H13.5V10.5H11.5L10.5 13.5H7.5L8.5 10.5H6.5L5.5 13.5H2.5L3.5 10.5H1.5V8.5H4.5L5.5 5.5H2.5V3.5H6.5L7.5 0.5H4.5" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
+                                            <path d="M11 10L13 14L15 10" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
+                                            <path d="M11.5 13H14.5" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
+                                        </svg>
+                                        <span class="translate-text">EN</span>
+                                    </button>
+                                </div>
                                 <div class="request-blocks">
                                     <div class="request-row-item" data-block="scene">
                                         <select class="request-dropdown">
@@ -447,7 +556,17 @@
 
                             <!-- Column 3: 변경 요청 -->
                             <div class="block-column request-column">
-                                <h4 class="column-header">변경 요청</h4>
+                                <div class="column-header-wrapper">
+                                    <h4 class="column-header">변경 요청</h4>
+                                    <button class="translate-btn" onclick="translateRequests(this)" data-lang="ko">
+                                        <svg class="translate-icon" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                            <path d="M3.5 1.5H8.5L7.5 4.5H9.5L8.5 1.5H11.5V3.5H10.5L9.5 6.5H12.5V8.5H8.5L7.5 11.5H9.5L10.5 8.5H13.5V10.5H11.5L10.5 13.5H7.5L8.5 10.5H6.5L5.5 13.5H2.5L3.5 10.5H1.5V8.5H4.5L5.5 5.5H2.5V3.5H6.5L7.5 0.5H4.5" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
+                                            <path d="M11 10L13 14L15 10" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
+                                            <path d="M11.5 13H14.5" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
+                                        </svg>
+                                        <span class="translate-text">EN</span>
+                                    </button>
+                                </div>
                                 <div class="request-blocks">
                                     <div class="request-row-item" data-block="character1">
                                         <select class="request-dropdown">
@@ -574,7 +693,17 @@
 
                             <!-- Column 3: 변경 요청 -->
                             <div class="block-column request-column">
-                                <h4 class="column-header">변경 요청</h4>
+                                <div class="column-header-wrapper">
+                                    <h4 class="column-header">변경 요청</h4>
+                                    <button class="translate-btn" onclick="translateRequests(this)" data-lang="ko">
+                                        <svg class="translate-icon" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                            <path d="M3.5 1.5H8.5L7.5 4.5H9.5L8.5 1.5H11.5V3.5H10.5L9.5 6.5H12.5V8.5H8.5L7.5 11.5H9.5L10.5 8.5H13.5V10.5H11.5L10.5 13.5H7.5L8.5 10.5H6.5L5.5 13.5H2.5L3.5 10.5H1.5V8.5H4.5L5.5 5.5H2.5V3.5H6.5L7.5 0.5H4.5" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
+                                            <path d="M11 10L13 14L15 10" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
+                                            <path d="M11.5 13H14.5" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
+                                        </svg>
+                                        <span class="translate-text">EN</span>
+                                    </button>
+                                </div>
                                 <div class="request-blocks">
                                     <div class="request-row-item" data-block="location">
                                         <select class="request-dropdown">
@@ -711,7 +840,17 @@
 
                             <!-- Column 3: 변경 요청 -->
                             <div class="block-column request-column">
-                                <h4 class="column-header">변경 요청</h4>
+                                <div class="column-header-wrapper">
+                                    <h4 class="column-header">변경 요청</h4>
+                                    <button class="translate-btn" onclick="translateRequests(this)" data-lang="ko">
+                                        <svg class="translate-icon" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                            <path d="M3.5 1.5H8.5L7.5 4.5H9.5L8.5 1.5H11.5V3.5H10.5L9.5 6.5H12.5V8.5H8.5L7.5 11.5H9.5L10.5 8.5H13.5V10.5H11.5L10.5 13.5H7.5L8.5 10.5H6.5L5.5 13.5H2.5L3.5 10.5H1.5V8.5H4.5L5.5 5.5H2.5V3.5H6.5L7.5 0.5H4.5" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
+                                            <path d="M11 10L13 14L15 10" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
+                                            <path d="M11.5 13H14.5" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
+                                        </svg>
+                                        <span class="translate-text">EN</span>
+                                    </button>
+                                </div>
                                 <div class="request-blocks">
                                     <div class="request-row-item" data-block="props">
                                         <select class="request-dropdown">

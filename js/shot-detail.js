@@ -1,9 +1,15 @@
 // Shot Detail Modal JavaScript
 
+// Stage 1 JSON 파서 스크립트 로드
+const script = document.createElement('script');
+script.src = '../js/stage1-parser.js';
+document.head.appendChild(script);
+
 // 샷 상세 데이터 관리
 const shotDetailManager = {
     currentShot: null,
     currentTab: 'basic',
+    stage1Data: null, // Stage 1 JSON 데이터 저장
 
     // 샷 데이터 구조
     shotData: {
@@ -261,10 +267,11 @@ function initializeFormEvents() {
         }
     });
 
-    // 드롭다운 변경 감지 (존재하는 경우만)
-    document.querySelectorAll('.prompt-dropdown, .request-dropdown').forEach(select => {
-        if (select) {
-            select.addEventListener('change', updatePromptPreview);
+    // 드롭다운 및 입력 필드 변경 감지 (존재하는 경우만)
+    document.querySelectorAll('.prompt-dropdown, .request-dropdown, .request-input').forEach(element => {
+        if (element) {
+            const eventType = element.tagName === 'SELECT' ? 'change' : 'input';
+            element.addEventListener(eventType, updatePromptPreview);
         }
     });
 
@@ -474,6 +481,47 @@ function copyFinalPrompt() {
 
 // 전역으로 노출
 window.copyFinalPrompt = copyFinalPrompt;
+
+// Translation function for request dropdowns
+window.translateRequests = function(button) {
+    const currentLang = button.getAttribute('data-lang');
+    const newLang = currentLang === 'ko' ? 'en' : 'ko';
+    const requestColumn = button.closest('.request-column');
+
+    if (!requestColumn) return;
+
+    // Find all select options in this column
+    const selects = requestColumn.querySelectorAll('.request-dropdown');
+
+    selects.forEach(select => {
+        const options = select.querySelectorAll('option');
+        options.forEach(option => {
+            const text = option.textContent;
+            if (text && text.includes(' - ')) {
+                // Toggle between Korean and English
+                if (newLang === 'en') {
+                    // Show only English (before the dash)
+                    const englishText = text.split(' - ')[0];
+                    option.textContent = englishText;
+                } else {
+                    // Show full text with Korean
+                    // Store original text in data attribute if not already stored
+                    if (!option.hasAttribute('data-original')) {
+                        option.setAttribute('data-original', text);
+                    }
+                    const original = option.getAttribute('data-original');
+                    if (original) {
+                        option.textContent = original;
+                    }
+                }
+            }
+        });
+    });
+
+    // Update button state
+    button.setAttribute('data-lang', newLang);
+    button.querySelector('.translate-text').textContent = newLang === 'en' ? 'KO' : 'EN';
+};
 
 // 샷 데이터 저장
 function saveShotData() {
@@ -765,6 +813,204 @@ function showNotification(message, type = 'success') {
     }, 3000);
 }
 
+// Stage 1 JSON 파일 업로드 처리
+function handleStage1Upload(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    // JSON 파일 확인
+    if (!file.name.endsWith('.json')) {
+        showNotification('JSON 파일만 업로드 가능합니다.', 'error');
+        return;
+    }
+
+    // Stage1JSONParser 사용
+    if (window.stage1Parser) {
+        window.stage1Parser.loadJSON(file).then(parsedData => {
+            shotDetailManager.stage1Data = parsedData;
+
+            // 각 블록에 데이터 매칭
+            mapStage1DataToBlocks(parsedData);
+
+            showNotification('Stage 1 JSON 파일이 성공적으로 로드되었습니다.');
+        }).catch(error => {
+            console.error('JSON 파싱 에러:', error);
+            showNotification('JSON 파일 파싱에 실패했습니다.', 'error');
+        });
+    } else {
+        showNotification('파서가 로드되지 않았습니다. 잠시 후 다시 시도해주세요.', 'error');
+    }
+}
+
+// Stage 1 데이터를 각 블록에 매칭
+function mapStage1DataToBlocks(parsedData) {
+    // 1. 기본블록 매칭
+    mapBasicBlock(parsedData.basic);
+
+    // 2. 연출블록 매칭
+    mapDirectionBlock(parsedData.direction);
+
+    // 3. 캐릭터블록 매칭 (첫 번째 캐릭터)
+    if (parsedData.characters && parsedData.characters.length > 0) {
+        mapCharacterBlock(parsedData.characters);
+    }
+
+    // 4. 장소블록 매칭 (첫 번째 장소)
+    if (parsedData.locations && parsedData.locations.length > 0) {
+        mapLocationBlock(parsedData.locations[0]);
+    }
+
+    // 5. 소품블록 매칭
+    if (parsedData.props && parsedData.props.length > 0) {
+        mapPropsBlock(parsedData.props[0], parsedData.locations[0]);
+    }
+}
+
+// 기본블록 데이터 매칭
+function mapBasicBlock(basicData) {
+    if (!basicData) return;
+
+    const mapping = {
+        'style': basicData.style,
+        'artist': basicData.artist,
+        'medium': basicData.medium,
+        'genre': basicData.genre,
+        'era': basicData.era,
+        'quality': 'professional, Masterpiece, Highly detailed',
+        'parameter': basicData.aspectRatio ? `--ar ${basicData.aspectRatio}` : '--ar 9:16'
+    };
+
+    // 기본블록 탭의 입력 필드에 값 설정
+    Object.entries(mapping).forEach(([field, value]) => {
+        const input = document.querySelector(`.tab-pane[data-tab="basic"] .prompt-row-item[data-block="${field}"] .prompt-input`);
+        if (input && value) {
+            input.value = value;
+        }
+    });
+}
+
+// 연출블록 데이터 매칭
+function mapDirectionBlock(directionData) {
+    if (!directionData) return;
+
+    // 첫 번째 씬 데이터 사용
+    const firstScene = directionData.scenes && directionData.scenes[0];
+    if (!firstScene) return;
+
+    const mapping = {
+        'scene': firstScene.scenario_text ? firstScene.scenario_text.split('\n')[0] : '',
+        'camera': 'Medium Shot, front view, eye level',
+        'camera-tech': 'Canon EOS R5, 50mm f/1.2',
+        'lighting': 'flat, high-key lighting, minimal shadows',
+        'mood': directionData.sequences && directionData.sequences[0] ?
+                directionData.sequences[0].narrative_function : ''
+    };
+
+    // 연출블록 탭의 입력 필드에 값 설정
+    Object.entries(mapping).forEach(([field, value]) => {
+        const input = document.querySelector(`.tab-pane[data-tab="scene"] .prompt-row-item[data-block="${field}"] .prompt-input`);
+        if (input && value) {
+            input.value = value;
+        }
+    });
+}
+
+// 캐릭터블록 데이터 매칭
+function mapCharacterBlock(charactersData) {
+    if (!charactersData || charactersData.length === 0) return;
+
+    // 최대 2명의 캐릭터 처리
+    const char1 = charactersData[0];
+    const char2 = charactersData[1];
+
+    if (char1) {
+        const mapping1 = {
+            'character1': char1.blocks.character || '',
+            'character1-detail': char1.detail || '',
+            'character1-action': char1.blocks.pose || ''
+        };
+
+        Object.entries(mapping1).forEach(([field, value]) => {
+            const input = document.querySelector(`.tab-pane[data-tab="character"] .prompt-row-item[data-block="${field}"] .prompt-input`);
+            if (input && value) {
+                input.value = value;
+            }
+        });
+    }
+
+    if (char2) {
+        const mapping2 = {
+            'character2': char2.blocks.character || '',
+            'character2-detail': char2.detail || '',
+            'character2-action': char2.blocks.pose || ''
+        };
+
+        Object.entries(mapping2).forEach(([field, value]) => {
+            const input = document.querySelector(`.tab-pane[data-tab="character"] .prompt-row-item[data-block="${field}"] .prompt-input`);
+            if (input && value) {
+                input.value = value;
+            }
+        });
+    }
+}
+
+// 장소블록 데이터 매칭
+function mapLocationBlock(locationData) {
+    if (!locationData) return;
+
+    const mapping = {
+        'location': locationData.blocks.location || '',
+        'atmosphere': locationData.blocks.atmosphere || '',
+        'color-tone': locationData.blocks.colorTone || '',
+        'scale': locationData.blocks.scale || '',
+        'architecture': locationData.blocks.architecture || '',
+        'material': locationData.blocks.material || '',
+        'weather': locationData.blocks.weather || '',
+        'natural-light': locationData.blocks.naturalLight || ''
+    };
+
+    // 장소블록 탭의 입력 필드에 값 설정
+    Object.entries(mapping).forEach(([field, value]) => {
+        const input = document.querySelector(`.tab-pane[data-tab="location"] .prompt-row-item[data-block="${field}"] .prompt-input`);
+        if (input && value) {
+            input.value = value;
+        }
+    });
+}
+
+// 소품블록 데이터 매칭
+function mapPropsBlock(propsData, locationData) {
+    if (!propsData && !locationData) return;
+
+    const mapping = {
+        'props': propsData?.blocks?.itemName || '',
+        'lighting-tech': locationData?.blocks?.lighting || '',
+        'foreground': locationData?.blocks?.foreground || '',
+        'midground': locationData?.blocks?.midground || '',
+        'background': locationData?.blocks?.background || '',
+        'left-side': locationData?.blocks?.leftSide || '',
+        'right-side': locationData?.blocks?.rightSide || '',
+        'ceiling': locationData?.blocks?.ceilingSky || ''
+    };
+
+    // 소품블록 탭의 입력 필드에 값 설정
+    Object.entries(mapping).forEach(([field, value]) => {
+        const input = document.querySelector(`.tab-pane[data-tab="props"] .prompt-row-item[data-block="${field}"] .prompt-input`);
+        if (input && value) {
+            input.value = value;
+        }
+    });
+}
+
+// Stage 1 JSON 업로드 버튼 추가를 위한 전역 함수
+window.uploadStage1JSON = function() {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json';
+    input.onchange = handleStage1Upload;
+    input.click();
+};
+
 // 외부에서 호출 가능한 함수들
 window.shotDetail = {
     open: function(shotId) {
@@ -788,5 +1034,13 @@ window.shotDetail = {
 
     getData: function() {
         return shotDetailManager.shotData;
+    },
+
+    // Stage 1 JSON 로드
+    loadStage1JSON: function(jsonData) {
+        if (window.stage1Parser) {
+            shotDetailManager.stage1Data = jsonData;
+            mapStage1DataToBlocks(jsonData);
+        }
     }
 };

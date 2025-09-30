@@ -287,19 +287,19 @@ body {
 }
 
 .tab-btn.active {
-    background: linear-gradient(135deg, #00bcd4, #00acc1);
-    border: 1px solid #00bcd4;
-    color: #0f0f0f;
+    background: linear-gradient(135deg, #f98b58, #ff9966);
+    border: 1px solid #f98b58;
+    color: #ffffff;
     font-weight: 600;
-    box-shadow: 0 4px 12px rgba(0, 188, 212, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    box-shadow: 0 4px 12px rgba(249, 139, 88, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.2);
     transform: translateY(0);
 }
 
 .tab-btn.active:hover {
-    background: linear-gradient(135deg, #00acc1, #0097a7);
-    border-color: #00acc1;
+    background: linear-gradient(135deg, #ff9966, #ffaa77);
+    border-color: #ff9966;
     transform: translateY(0);
-    box-shadow: 0 4px 12px rgba(0, 188, 212, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    box-shadow: 0 4px 12px rgba(249, 139, 88, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 
 .tab-btn:active {
@@ -314,7 +314,7 @@ body {
     left: 20%;
     right: 20%;
     height: 2px;
-    background: #00bcd4;
+    background: #de5e5e;
     border-radius: 2px;
     animation: slideIn 0.3s ease;
 }
@@ -888,7 +888,7 @@ body {
 }
 
 /* 컬럼 헤더 - 고정 */
-.block-column .column-header {
+.block-column .column-header-wrapper {
     position: sticky;
     top: 0;
     z-index: 10;
@@ -949,18 +949,58 @@ body {
     overflow-x: hidden;
 }
 
+.column-header-wrapper {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 15px;
+    height: 40px;
+    margin: 0;
+}
+
 .column-header {
     font-size: 12px;
     font-weight: 500;
     color: #999;
-    padding: 12px 20px;
-    background: #242424;
     margin: 0;
-    text-align: center;
-    height: 40px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.translate-btn {
     display: flex;
     align-items: center;
-    justify-content: center;
+    gap: 3px;
+    padding: 3px 6px;
+    background: rgba(0, 188, 212, 0.1);
+    border: 1px solid rgba(0, 188, 212, 0.2);
+    border-radius: 3px;
+    color: #00bcd4;
+    font-size: 10px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.translate-btn:hover {
+    background: rgba(0, 188, 212, 0.15);
+    border-color: rgba(0, 188, 212, 0.3);
+    transform: translateY(-1px);
+}
+
+.translate-btn:active {
+    transform: translateY(0);
+}
+
+.translate-icon {
+    width: 12px;
+    height: 12px;
+}
+
+.translate-text {
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
 }
 
 /* Labels Column */
@@ -1017,8 +1057,8 @@ body {
 }
 
 .label-tag {
-    background: #00bcd4;
-    color: #0f0f0f;
+    background: #f98b58;
+    color: #ffffff;
     border: none;
     padding: 6px 14px;
     border-radius: 4px;
@@ -1094,6 +1134,57 @@ body {
     outline: none;
     border-color: #3a3a3a;
     background-color: #252525;
+}
+
+/* Request Dropdown Style */
+.request-row-item .request-dropdown {
+    width: calc(100% - 20px);
+    height: 35px;
+    margin: 0 10px;
+    padding: 0 12px;
+    background: #333;
+    border: 1px solid #444;
+    border-radius: 4px;
+    color: #999;
+    font-size: 13px;
+    cursor: pointer;
+    appearance: none;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12"><path fill="%23999" d="M6 8L2 4h8z"/></svg>');
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 32px;
+}
+
+.request-row-item .request-dropdown:focus {
+    outline: none;
+    border-color: #3a3a3a;
+    background-color: #252525;
+}
+
+/* Request Input Style (Artist block only) */
+.request-row-item .request-input {
+    width: calc(100% - 20px);
+    height: 35px;
+    margin: 0 10px;
+    padding: 0 12px;
+    background: #333;
+    border: 1px solid #444;
+    border-radius: 4px;
+    color: #999;
+    font-size: 13px;
+    cursor: text;
+    transition: all 0.2s ease;
+}
+
+.request-row-item .request-input::placeholder {
+    color: #666;
+}
+
+.request-row-item .request-input:focus {
+    outline: none;
+    border-color: #3a3a3a;
+    background-color: #252525;
+    color: #ccc;
 }
 
 /* Final Prompt Section - Full Width at Bottom for All Tabs */
@@ -1292,29 +1383,7 @@ body {
     border-bottom: 1px solid #2a2a2a;
 }
 
-.request-dropdown {
-    width: calc(100% - 20px);
-    height: 35px;
-    margin: 0 10px;
-    padding: 0 12px;
-    background: #1e1e1e;
-    border: 1px solid #2a2a2a;
-    border-radius: 4px;
-    color: #999;
-    font-size: 13px;
-    cursor: pointer;
-    appearance: none;
-    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12"><path fill="%23999" d="M6 8L2 4h8z"/></svg>');
-    background-repeat: no-repeat;
-    background-position: right 12px center;
-    padding-right: 32px;
-}
-
-.request-dropdown:focus {
-    outline: none;
-    border-color: #3a3a3a;
-    background-color: #252525;
-}
+/* request-dropdown styles moved above and consolidated */
 
 /* Remove old change-request and translation sections as they are replaced by request-blocks */
 

@@ -120,10 +120,14 @@ class StoryboardManager {
     detectFileType(data) {
         // stage1 타입 감지 (visual_blocks가 있으면 stage1)
         if (data.visual_blocks) {
+            // Stage 1 파일이 업로드되면 파싱하여 저장
+            this.parseStage1Data(data);
             return 'stage1';
         }
         // stage1 타입 감지 (current_work.treatment.sequences 구조)
         else if (data.current_work && data.current_work.treatment && data.current_work.scenario) {
+            // Stage 1 파일이 업로드되면 파싱하여 저장
+            this.parseStage1Data(data);
             return 'stage1';
         }
         // concept_art 타입 감지
@@ -139,6 +143,23 @@ class StoryboardManager {
             return 'storyboard';
         }
         return 'unknown';
+    }
+
+    // Stage 1 데이터 파싱
+    parseStage1Data(data) {
+        if (window.stage1Parser) {
+            // Stage1JSONParser를 사용하여 데이터 파싱
+            window.stage1Parser.data = data;
+            window.stage1Parser.parseAllBlocks();
+
+            // 파싱된 데이터를 세션 스토리지에 저장
+            const parsedData = window.stage1Parser.parsedData;
+            sessionStorage.setItem('stage1ParsedData', JSON.stringify(parsedData));
+
+            console.log('✅ Stage 1 데이터가 파싱되어 저장되었습니다:', parsedData);
+        } else {
+            console.warn('⚠️ Stage 1 파서가 로드되지 않았습니다.');
+        }
     }
 
     async autoMergeData() {
@@ -698,9 +719,25 @@ class StoryboardManager {
         sceneHeader.className = 'scene-header';
 
         const sequenceInfo = scene.sequence_id ? ` [${scene.sequence_id}]` : '';
+        const fullDescription = scene.scene_scenario || '';
+        const shortDescription = fullDescription.substring(0, 20);
+        const needsToggle = fullDescription.length > 20;
+
         sceneHeader.innerHTML = `
             <h2 class="scene-title">${scene.scene_id}: ${scene.scene_title}${sequenceInfo}</h2>
-            <p class="scene-description">${scene.scene_scenario ? scene.scene_scenario.substring(0, 150) + '...' : ''}</p>
+            <div class="scene-description-wrapper">
+                <p class="scene-description ${needsToggle ? 'collapsed' : ''}" data-full="${fullDescription.replace(/"/g, '&quot;')}">
+                    ${needsToggle ? shortDescription + '...' : fullDescription}
+                </p>
+                ${needsToggle ? `
+                    <button class="description-toggle-btn" onclick="window.toggleSceneDescription(this)">
+                        <span class="toggle-text">더 보기</span>
+                        <svg class="toggle-icon" width="12" height="12" viewBox="0 0 12 12">
+                            <path d="M6 8L2 4h8z" fill="currentColor"/>
+                        </svg>
+                    </button>
+                ` : ''}
+            </div>
         `;
         sceneSection.appendChild(sceneHeader);
 
@@ -1145,4 +1182,30 @@ document.head.appendChild(style);
 const storyboardManager = new StoryboardManager();
 
 // Export for global access
+// Toggle scene description function
+window.toggleSceneDescription = function(button) {
+    const wrapper = button.parentElement;
+    const description = wrapper.querySelector('.scene-description');
+    const toggleText = button.querySelector('.toggle-text');
+    const toggleIcon = button.querySelector('.toggle-icon');
+
+    if (description.classList.contains('collapsed')) {
+        // Expand
+        const fullText = description.getAttribute('data-full');
+        description.textContent = fullText;
+        description.classList.remove('collapsed');
+        description.classList.add('expanded');
+        toggleText.textContent = '접기';
+        toggleIcon.style.transform = 'rotate(180deg)';
+    } else {
+        // Collapse
+        const fullText = description.getAttribute('data-full');
+        description.textContent = fullText.substring(0, 20) + '...';
+        description.classList.remove('expanded');
+        description.classList.add('collapsed');
+        toggleText.textContent = '더 보기';
+        toggleIcon.style.transform = 'rotate(0deg)';
+    }
+};
+
 window.storyboardManager = storyboardManager;
