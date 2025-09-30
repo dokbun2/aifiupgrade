@@ -24,6 +24,10 @@ body {
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1000;
 }
 
 /* Modal Header */
@@ -80,49 +84,50 @@ body {
 /* Image Section Container */
 .image-section-container {
     display: flex;
-    gap: 20px;
-    padding: 20px;
+    gap: 10px;
+    padding: 15px 20px;
     background: #0f0f0f;
     border-bottom: 1px solid #2a2a2a;
+    min-height: auto;
 }
 
 /* Image Upload Section */
 .image-upload-section {
-    flex: 1;
+    flex: 2;
     background: #1a1a1a;
-    border-radius: 8px;
-    padding: 15px;
+    border-radius: 6px;
+    padding: 12px;
 }
 
 .image-upload-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 15px;
+    margin-bottom: 6px;
 }
 
 .image-upload-header h3 {
     color: #fff;
-    font-size: 14px;
+    font-size: 11px;
     font-weight: 600;
 }
 
 .upload-controls {
     display: flex;
-    gap: 12px;
+    gap: 6px;
 }
 
 .upload-btn {
     display: flex;
     align-items: center;
-    gap: 8px;
-    padding: 8px 16px;
+    gap: 4px;
+    padding: 4px 8px;
     background: #ff6b6b;
     color: white;
     border: none;
-    border-radius: 6px;
+    border-radius: 4px;
     cursor: pointer;
-    font-size: 14px;
+    font-size: 10px;
     transition: all 0.3s ease;
 }
 
@@ -134,14 +139,14 @@ body {
 .clear-all-btn {
     display: flex;
     align-items: center;
-    gap: 8px;
-    padding: 8px 16px;
+    gap: 4px;
+    padding: 4px 8px;
     background: transparent;
     color: #999;
     border: 1px solid #333;
-    border-radius: 6px;
+    border-radius: 4px;
     cursor: pointer;
-    font-size: 14px;
+    font-size: 10px;
     transition: all 0.3s ease;
 }
 
@@ -153,16 +158,18 @@ body {
 
 .image-preview-container {
     min-height: 120px;
-    max-height: 150px;
+    max-height: none;
     position: relative;
-    overflow-y: auto;
+    overflow: visible;
+    padding: 10px;
 }
 
 .image-preview-grid {
     display: grid;
     grid-template-columns: repeat(5, 1fr);
-    gap: 10px;
-    min-height: 120px;
+    gap: 12px;
+    min-height: 100px;
+    padding: 5px;
 }
 
 .upload-placeholder {
@@ -170,21 +177,23 @@ body {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 30px;
+    padding: 10px;
     border: 2px dashed #333;
-    border-radius: 8px;
+    border-radius: 6px;
     background: rgba(255, 255, 255, 0.02);
-    min-height: 120px;
+    min-height: 80px;
 }
 
 .upload-placeholder svg {
     color: #666;
-    margin-bottom: 12px;
+    margin-bottom: 4px;
+    width: 24px;
+    height: 24px;
 }
 
 .upload-placeholder p {
     color: #666;
-    font-size: 14px;
+    font-size: 10px;
 }
 
 .image-preview-grid:not(:empty) + .upload-placeholder {
@@ -193,12 +202,16 @@ body {
 
 .image-preview-item {
     position: relative;
-    aspect-ratio: 1;
+    width: 100%;
+    aspect-ratio: 1/1;
     border-radius: 8px;
     overflow: hidden;
     background: #2a2a2a;
     border: 2px solid transparent;
     transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .image-preview-item:hover {
@@ -209,7 +222,8 @@ body {
 .image-preview-item img {
     width: 100%;
     height: 100%;
-    object-fit: cover;
+    object-fit: contain;
+    padding: 4px;
 }
 
 .image-remove-btn {
@@ -263,10 +277,10 @@ body {
 
 /* Image Generation Section */
 .image-generation-section {
-    width: 250px;
+    width: 220px;
     background: #1a1a1a;
-    border-radius: 8px;
-    padding: 15px;
+    border-radius: 6px;
+    padding: 12px;
     display: flex;
     flex-direction: column;
 }
@@ -275,26 +289,26 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 15px;
+    margin-bottom: 6px;
 }
 
 .generation-header h3 {
     color: #fff;
-    font-size: 14px;
+    font-size: 11px;
     font-weight: 600;
 }
 
 .regenerate-btn {
     display: flex;
     align-items: center;
-    gap: 6px;
-    padding: 6px 12px;
+    gap: 3px;
+    padding: 3px 6px;
     background: transparent;
     color: #00bcd4;
     border: 1px solid #00bcd4;
-    border-radius: 4px;
+    border-radius: 3px;
     cursor: pointer;
-    font-size: 12px;
+    font-size: 9px;
     transition: all 0.3s ease;
 }
 
@@ -304,22 +318,23 @@ body {
 }
 
 .regenerate-btn svg {
-    width: 14px;
-    height: 14px;
+    width: 10px;
+    height: 10px;
 }
 
 .generation-result-container {
-    width: 220px;
-    height: 220px;
+    width: 100%;
+    aspect-ratio: 1/1;
     position: relative;
+    margin-top: 10px;
 }
 
 .generation-result {
     width: 100%;
     height: 100%;
     background: #2a2a2a;
-    border: 2px dashed #444;
-    border-radius: 8px;
+    border: 2px solid #333;
+    border-radius: 12px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -336,19 +351,21 @@ body {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    border-radius: 6px;
+    border-radius: 10px;
 }
 
 .generation-result svg {
     color: #666;
-    margin-bottom: 12px;
+    margin-bottom: 4px;
+    width: 24px;
+    height: 24px;
 }
 
 .generation-result p {
     color: #666;
-    font-size: 12px;
+    font-size: 9px;
     text-align: center;
-    padding: 0 20px;
+    padding: 0 8px;
 }
 
 /* Spin animation for loading */
@@ -395,6 +412,15 @@ body {
         width: 180px;
         height: 180px;
     }
+
+    .right-section {
+        width: 100%;
+        padding: 15px;
+    }
+
+    .basic-block-three-columns {
+        grid-template-columns: 180px 1fr 1fr;
+    }
 }
 
 @media (max-width: 480px) {
@@ -425,15 +451,42 @@ body {
     }
 }
 
-/* Modal Body */
+/* Modal Body - 전체 스크롤 가능 영역 */
 .modal-body {
     display: flex;
     flex-direction: column;
     flex: 1;
     overflow-y: auto;
     overflow-x: hidden;
-    max-height: calc(100vh - 80px);
+    height: calc(100vh - 50px); /* 헤더 높이만큼 뺌 */
+    max-height: calc(100vh - 50px);
     position: relative;
+    box-sizing: border-box;
+}
+
+/* Modal Body 스크롤바 스타일링 */
+.modal-body::-webkit-scrollbar {
+    width: 10px;
+}
+
+.modal-body::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 5px;
+}
+
+.modal-body::-webkit-scrollbar-thumb {
+    background: rgba(255, 107, 107, 0.3);
+    border-radius: 5px;
+}
+
+.modal-body::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 107, 107, 0.5);
+}
+
+/* Firefox 스크롤바 */
+.modal-body {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 107, 107, 0.3) rgba(255, 255, 255, 0.05);
 }
 
 /* Top Image Section */
@@ -581,27 +634,42 @@ body {
     background-color: #ff5252;
 }
 
-/* Bottom Content Container */
+/* Bottom Content Container - 통합된 좌우 레이아웃 */
 .bottom-content {
     display: flex;
+    flex-direction: row;
     flex: 1;
-    min-height: 400px;
-    max-height: calc(100vh - 200px);
-    padding-bottom: 20px;
+    min-height: 800px; /* 600px에서 800px로 증가 */
     height: auto;
-    overflow: hidden;
+    overflow: visible;
+    width: 100%;
+    gap: 0;
+    margin-bottom: 80px; /* 하단 여백 증가 */
 }
 
-/* Left Section */
+/* Left Section - 왼쪽 메인 영역 */
 .left-section {
     flex: 1;
     display: flex;
     flex-direction: column;
     background-color: #0f0f0f;
+    min-width: 700px;
+    overflow: visible !important;
+    height: auto;
+    padding-bottom: 20px;
     border-right: 1px solid #2a2a2a;
-    min-width: 800px;
-    overflow-y: auto;
-    max-height: calc(100vh - 150px);
+}
+
+/* left-section 스크롤바 완전 제거 */
+.left-section::-webkit-scrollbar {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+}
+
+.left-section {
+    -ms-overflow-style: none !important;
+    scrollbar-width: none !important;
 }
 
 /* Tab Navigation */
@@ -750,20 +818,18 @@ body {
 /* Tab Content */
 .tab-content {
     flex: 1;
-    overflow-y: auto;
-    overflow-x: hidden;
+    overflow: visible !important;
     padding: 0;
-    min-height: 400px;
     height: auto;
+    min-height: 600px; /* 400px에서 600px로 증가 */
     display: flex;
     flex-direction: column;
-    max-height: calc(100vh - 250px);
 }
 
 .tab-pane {
     display: none;
     height: auto;
-    min-height: 400px;
+    min-height: 750px; /* 프롬프트 창을 위한 충분한 공간 확보 */
     flex: 1;
     flex-direction: column;
 }
@@ -1026,6 +1092,9 @@ body {
     border-top: 1px solid #2a2a2a;
     justify-content: flex-end;
     flex-shrink: 0;
+    margin-top: 20px;
+    position: relative;
+    z-index: 10;
 }
 
 .action-btn {
@@ -1071,20 +1140,21 @@ body {
     box-shadow: 0 2px 8px rgba(255, 107, 107, 0.3);
 }
 
-/* Right Section */
+/* Right Section - 오른쪽 사이드바 영역 */
 .right-section {
-    width: 350px;
+    width: 420px; /* 350px에서 420px로 증가 */
     display: flex;
     flex-direction: column;
+    gap: 20px;
     background-color: #0f0f0f;
     padding: 20px;
-    border-left: 1px solid #2a2a2a;
-    overflow-y: auto;
+    overflow: visible;
+    flex-shrink: 0;
 }
 
 /* Image Upload Section */
 .image-upload-section {
-    margin-bottom: 20px;
+    margin-bottom: 0px;
 }
 
 .upload-placeholder {
@@ -1116,7 +1186,7 @@ body {
 
 .image-preview {
     width: 100%;
-    height: 250px;
+    height: 240px;
     background-color: #2a2a2a;
     border: 1px solid #444;
     border-radius: 8px;
@@ -1198,6 +1268,10 @@ body {
 
 /* File Selection Section */
 .file-selection-section {
+    background-color: #1a1a1a;
+    padding: 15px;
+    border-radius: 8px;
+    border: 1px solid #2a2a2a;
     margin-bottom: 20px;
 }
 
@@ -1211,27 +1285,31 @@ body {
 .file-selector label {
     font-size: 13px;
     color: #999;
+    min-width: 80px;
 }
 
 .file-dropdown {
     flex: 1;
-    padding: 8px;
+    padding: 10px 12px;
     background-color: #2a2a2a;
     border: 1px solid #444;
     color: #fff;
     border-radius: 4px;
     font-size: 13px;
+    cursor: pointer;
 }
 
 .file-btn {
-    padding: 8px 20px;
+    padding: 10px 24px;
     background-color: transparent;
     border: 1px solid #00bcd4;
     color: #00bcd4;
     border-radius: 4px;
     font-size: 13px;
+    font-weight: 500;
     cursor: pointer;
     transition: all 0.2s;
+    white-space: nowrap;
 }
 
 .file-btn:hover {
@@ -1240,8 +1318,9 @@ body {
 }
 
 .file-list {
-    max-height: 200px;
+    max-height: 180px;
     overflow-y: auto;
+    margin-top: 10px;
 }
 
 .file-item {
@@ -1270,15 +1349,21 @@ body {
     font-size: 11px;
 }
 
-/* Bottom Right Section */
+/* Bottom Right Section - 프롬프트 표시 영역 */
 .bottom-right-section {
+    background-color: #1a1a1a;
+    padding: 15px;
+    border-radius: 8px;
+    border: 1px solid #2a2a2a;
     margin-top: auto;
 }
 
 .prompt-display {
-    padding: 15px;
-    background-color: #2a2a2a;
+    padding: 20px;
+    background-color: rgba(42, 42, 42, 0.5);
     border-radius: 8px;
+    border: 1px solid #333;
+    min-height: 120px;
 }
 
 .prompt-display p {
@@ -1293,19 +1378,8 @@ body {
     justify-content: center;
 }
 
-/* Three Column Layout for Basic Block */
-.basic-block-three-columns {
-    display: grid;
-    grid-template-columns: 250px 1fr 1fr;
-    gap: 1px;
-    background: #2a2a2a;
-    flex: 1;
-    overflow: hidden;
-    position: relative;
-    height: auto;
-    min-height: 400px;
-    max-height: calc(100vh - 350px);
-}
+/* Three Column Layout for Basic Block - 이미 위에서 정의됨 (주석 처리) */
+/* .basic-block-three-columns는 위의 통합 스크롤 섹션에서 정의 */
 
 /* 각 컬럼 컨테이너 */
 .block-column {
@@ -1314,12 +1388,12 @@ body {
     position: relative;
     display: flex;
     flex-direction: column;
-    overflow: hidden;
+    overflow: visible; /* 스크롤 제거 */
     height: auto;
-    min-height: 100%;
+    min-height: auto;
 }
 
-/* 컬럼 헤더 - 고정 */
+/* 컬럼 헤더 - 상단 고정 */
 .block-column .column-header-wrapper {
     position: sticky;
     top: 0;
@@ -1329,70 +1403,89 @@ body {
     flex-shrink: 0;
 }
 
-/* 라벨 리스트 - 동기화된 스크롤 */
+/* 통합 스크롤 - 컬럼 헤더는 고정, 내용만 스크롤 */
+/* Tab content with individual column scrolls */
+.tab-content {
+    flex: 1;
+    overflow: auto !important;
+    padding: 0;
+    height: auto;
+    min-height: 700px;
+    display: flex;
+    flex-direction: column;
+    max-height: calc(100vh - 150px);
+}
+
+/* 탭 패널 스크롤 설정 */
+.tab-pane {
+    display: none; /* 기본적으로 숨김 */
+    flex-direction: column;
+    height: 100%;
+    overflow: auto;
+    padding-bottom: 60px;
+}
+
+.tab-pane.active {
+    display: flex; /* 활성화된 탭만 표시 */
+}
+
+/* 3열 컨테이너를 플렉스 컨테이너로 */
+.basic-block-three-columns {
+    display: grid;
+    grid-template-columns: 250px 1fr 1fr;
+    gap: 1px;
+    background: #2a2a2a;
+    flex: 1;
+    min-height: 350px; /* 최소 높이 설정 */
+    overflow: visible;
+}
+
+/* 개별 컬럼 스크롤 제거 */
 .label-list,
 .prompt-blocks,
 .request-blocks {
     flex: 1;
-    overflow-y: auto;
+    overflow-y: visible; /* 스크롤 제거 */
     overflow-x: hidden;
-    /* scroll-behavior: smooth 제거 - JavaScript와 충돌 방지 */
-    will-change: scroll-position;
-    -webkit-overflow-scrolling: touch; /* iOS 부드러운 스크롤 */
     height: auto;
-    min-height: 300px;
-    max-height: calc(100vh - 350px); /* 헤더와 다른 요소들을 뺀 높이 */
+    min-height: auto;
+    max-height: none; /* 높이 제한 제거 */
 }
 
-/* 왼쪽과 중간 컬럼은 스크롤바 숨김 */
-.label-list,
-.prompt-blocks {
-    scrollbar-width: none; /* Firefox */
-    -ms-overflow-style: none; /* Internet Explorer 10+ */
-}
-
-.label-list::-webkit-scrollbar,
-.prompt-blocks::-webkit-scrollbar {
-    display: none; /* Chrome, Safari, Opera */
-}
-
-/* 오른쪽 컬럼만 스크롤바 표시 */
-.request-blocks {
-    scrollbar-width: thin; /* Firefox */
-}
-
-.request-blocks::-webkit-scrollbar {
+/* 스크롤바 스타일 - 3열 컨테이너용 */
+.basic-block-three-columns::-webkit-scrollbar {
     width: 8px;
     background-color: transparent;
 }
 
-.request-blocks::-webkit-scrollbar-track {
+.basic-block-three-columns::-webkit-scrollbar-track {
     background: #1a1a1a;
+    border-radius: 4px;
 }
 
-.request-blocks::-webkit-scrollbar-thumb {
+.basic-block-three-columns::-webkit-scrollbar-thumb {
     background: #444;
     border-radius: 4px;
 }
 
-.request-blocks::-webkit-scrollbar-thumb:hover {
+.basic-block-three-columns::-webkit-scrollbar-thumb:hover {
     background: #555;
 }
 
-/* 스크롤 동기화를 위한 클래스 */
-.sync-scroll {
-    overflow-y: auto;
-    overflow-x: hidden;
+/* Firefox 스크롤바 */
+.basic-block-three-columns {
+    scrollbar-width: thin;
+    scrollbar-color: #444 #1a1a1a;
 }
 
 .column-header-wrapper {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 8px 15px;
-    height: 40px;
+    padding: 6px 12px;
+    height: 32px;
     margin: 0;
-    min-height: 40px;
+    min-height: 32px;
     box-sizing: border-box;
 }
 
@@ -1402,24 +1495,24 @@ body {
 }
 
 .column-header {
-    font-size: 12px;
+    font-size: 10px;
     font-weight: 500;
     color: #999;
     margin: 0;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: 0.3px;
 }
 
 .translate-btn {
     display: flex;
     align-items: center;
-    gap: 3px;
-    padding: 3px 6px;
+    gap: 2px;
+    padding: 2px 5px;
     background: rgba(0, 188, 212, 0.1);
     border: 1px solid rgba(0, 188, 212, 0.2);
     border-radius: 3px;
     color: #00bcd4;
-    font-size: 10px;
+    font-size: 9px;
     font-weight: 500;
     cursor: pointer;
     transition: all 0.2s ease;
@@ -1436,19 +1529,21 @@ body {
 }
 
 .translate-icon {
-    width: 12px;
-    height: 12px;
+    width: 10px;
+    height: 10px;
 }
 
 .translate-text {
-    font-size: 9px;
+    font-size: 8px;
     font-weight: 600;
-    letter-spacing: 0.3px;
+    letter-spacing: 0.2px;
 }
 
 /* Labels Column */
 .labels-column {
     padding: 0;
+    overflow: visible !important;
+    height: auto !important;
 }
 
 .label-list {
@@ -1457,9 +1552,9 @@ body {
 }
 
 .label-item {
-    padding: 0 20px;
-    height: 50px;
-    min-height: 50px;
+    padding: 0 15px;
+    height: 38px;
+    min-height: 38px;
     background: transparent;
     border: none;
     border-bottom: 1px solid #2a2a2a;
@@ -1469,7 +1564,7 @@ body {
     justify-content: space-between;
     align-items: center;
     position: relative;
-    gap: 10px;
+    gap: 8px;
 }
 
 .label-item:hover {
@@ -1491,7 +1586,7 @@ body {
 }
 
 .label-text {
-    font-size: 13px;
+    font-size: 11px;
     color: #aaa;
     font-weight: 400;
     white-space: nowrap;
@@ -1503,13 +1598,13 @@ body {
     background: #f98b58;
     color: #ffffff;
     border: none;
-    padding: 6px 14px;
-    border-radius: 4px;
-    font-size: 11px;
+    padding: 4px 10px;
+    border-radius: 3px;
+    font-size: 9px;
     font-weight: 600;
     text-transform: uppercase;
     cursor: pointer;
-    letter-spacing: 0.5px;
+    letter-spacing: 0.3px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -1532,8 +1627,8 @@ body {
 .prompt-row-item {
     display: flex;
     align-items: center;
-    height: 50px;
-    min-height: 50px;
+    height: 38px;
+    min-height: 38px;
     width: 100%;
     padding: 0;
     border-bottom: 1px solid #2a2a2a;
@@ -1544,15 +1639,15 @@ body {
 }
 
 .prompt-input {
-    width: calc(100% - 20px);
-    height: 35px;
-    margin: 0 10px;
-    padding: 0 12px;
+    width: calc(100% - 16px);
+    height: 26px;
+    margin: 0 8px;
+    padding: 0 8px;
     background: #1e1e1e;
     border: 1px solid #2a2a2a;
-    border-radius: 4px;
+    border-radius: 3px;
     color: #ccc;
-    font-size: 13px;
+    font-size: 11px;
 }
 
 .prompt-dropdown {
@@ -1581,21 +1676,21 @@ body {
 
 /* Request Dropdown Style */
 .request-row-item .request-dropdown {
-    width: calc(100% - 20px);
-    height: 35px;
-    margin: 0 10px;
-    padding: 0 12px;
+    width: calc(100% - 16px);
+    height: 26px;
+    margin: 0 8px;
+    padding: 0 8px;
     background: #333;
     border: 1px solid #444;
-    border-radius: 4px;
+    border-radius: 3px;
     color: #999;
-    font-size: 13px;
+    font-size: 11px;
     cursor: pointer;
     appearance: none;
-    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12"><path fill="%23999" d="M6 8L2 4h8z"/></svg>');
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 12 12"><path fill="%23999" d="M6 8L2 4h8z"/></svg>');
     background-repeat: no-repeat;
-    background-position: right 12px center;
-    padding-right: 32px;
+    background-position: right 8px center;
+    padding-right: 24px;
 }
 
 .request-row-item .request-dropdown:focus {
@@ -1606,15 +1701,15 @@ body {
 
 /* Request Input Style (Artist block only) */
 .request-row-item .request-input {
-    width: calc(100% - 20px);
-    height: 35px;
-    margin: 0 10px;
-    padding: 0 12px;
+    width: calc(100% - 16px);
+    height: 26px;
+    margin: 0 8px;
+    padding: 0 8px;
     background: #333;
     border: 1px solid #444;
-    border-radius: 4px;
+    border-radius: 3px;
     color: #999;
-    font-size: 13px;
+    font-size: 11px;
     cursor: text;
     transition: all 0.2s ease;
 }
@@ -1630,14 +1725,21 @@ body {
     color: #ccc;
 }
 
-/* Final Prompt Section - Full Width at Bottom for All Tabs */
+/* Final Prompt Section - 새로운 디자인 */
 .tab-pane .final-prompt-section {
-    background: linear-gradient(180deg, #1a1a1a 0%, #0f0f0f 100%);
-    border-top: 2px solid rgba(0, 188, 212, 0.2);
-    margin: 0;
+    background: linear-gradient(135deg,
+        rgba(0, 188, 212, 0.03) 0%,
+        rgba(255, 107, 107, 0.02) 50%,
+        rgba(0, 188, 212, 0.03) 100%);
+    border: 1px solid rgba(0, 188, 212, 0.15);
+    border-radius: 12px;
+    margin: 30px 20px 80px 20px;
     flex-shrink: 0;
     position: relative;
-    padding-bottom: 12px;
+    padding: 0;
+    min-height: 280px;
+    box-shadow: 0 4px 20px rgba(0, 188, 212, 0.08);
+    overflow: hidden;
 }
 
 .tab-pane .final-prompt-section::before {
@@ -1661,37 +1763,41 @@ body {
     justify-content: space-between;
     align-items: center;
     padding: 12px 20px;
-    background: linear-gradient(90deg, rgba(0, 188, 212, 0.1) 0%, transparent 100%);
-    border-bottom: 1px solid rgba(0, 188, 212, 0.2);
+    background: linear-gradient(135deg,
+        rgba(0, 188, 212, 0.08) 0%,
+        rgba(255, 107, 107, 0.05) 100%);
+    border-bottom: 1px solid rgba(0, 188, 212, 0.12);
+    backdrop-filter: blur(10px);
+    position: relative;
 }
 
 .final-prompt-section h4 {
-    font-size: 13px;
+    font-size: 11px;
     font-weight: 600;
     color: rgba(0, 188, 212, 0.9);
     margin: 0;
     text-transform: uppercase;
-    letter-spacing: 1px;
+    letter-spacing: 0.5px;
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
 }
 
 .final-prompt-section h4::before {
     content: '✨';
-    font-size: 16px;
+    font-size: 12px;
 }
 
 .copy-prompt-btn {
     display: flex;
     align-items: center;
-    gap: 6px;
-    padding: 6px 12px;
+    gap: 4px;
+    padding: 4px 8px;
     background: rgba(0, 188, 212, 0.1);
     border: 1px solid rgba(0, 188, 212, 0.3);
-    border-radius: 6px;
+    border-radius: 4px;
     color: rgba(0, 188, 212, 0.9);
-    font-size: 12px;
+    font-size: 10px;
     font-weight: 500;
     cursor: pointer;
     transition: all 0.2s ease;
@@ -1722,8 +1828,8 @@ body {
 }
 
 .copy-prompt-btn svg {
-    width: 16px;
-    height: 16px;
+    width: 12px;
+    height: 12px;
     transition: transform 0.2s ease;
 }
 
@@ -1750,21 +1856,21 @@ body {
 
 .final-prompt-textarea {
     width: 100%;
-    height: 120px;
-    padding: 16px 20px;
+    height: 200px; /* 180px에서 200px로 증가 */
+    padding: 10px 15px;
     background: linear-gradient(135deg, rgba(0, 188, 212, 0.02) 0%, rgba(255, 255, 255, 0.01) 100%);
     border: 1px solid rgba(0, 188, 212, 0.15);
-    border-radius: 8px;
+    border-radius: 6px;
     color: #e0e0e0;
-    font-size: 14px;
+    font-size: 11px;
     font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
-    line-height: 1.6;
+    line-height: 1.5;
     resize: vertical;
     transition: all 0.3s ease;
-    margin: 12px 20px;
-    width: calc(100% - 40px);
-    min-height: 100px;
-    max-height: 300px;
+    margin: 10px 15px;
+    width: calc(100% - 30px);
+    min-height: 180px; /* 최소 높이 증가 */
+    max-height: 500px; /* 최대 높이 증가 */
 }
 
 .final-prompt-textarea:hover {
@@ -1819,8 +1925,8 @@ body {
 .request-row-item {
     display: flex;
     align-items: center;
-    height: 50px;
-    min-height: 50px;
+    height: 38px;
+    min-height: 38px;
     width: 100%;
     padding: 0;
     border-bottom: 1px solid #2a2a2a;
@@ -1831,13 +1937,13 @@ body {
 /* Remove old change-request and translation sections as they are replaced by request-blocks */
 
 .prompt-action-btn {
-    width: 40px;
-    height: 40px;
+    width: 30px;
+    height: 30px;
     background-color: #333;
     border: 1px solid #444;
     color: #999;
-    border-radius: 4px;
-    font-size: 18px;
+    border-radius: 3px;
+    font-size: 14px;
     cursor: pointer;
     transition: all 0.2s;
 }
@@ -1854,20 +1960,20 @@ body {
 }
 
 .alternative-props-section h4 {
-    font-size: 14px;
+    font-size: 12px;
     color: #fff;
-    margin-bottom: 15px;
+    margin-bottom: 10px;
     font-weight: 400;
 }
 
 .copy-props-btn {
-    margin-top: 20px;
-    padding: 10px 30px;
+    margin-top: 15px;
+    padding: 6px 20px;
     background-color: #ff6b6b;
     color: #fff;
     border: none;
-    border-radius: 4px;
-    font-size: 14px;
+    border-radius: 3px;
+    font-size: 11px;
     font-weight: 500;
     cursor: pointer;
     transition: background-color 0.2s;
@@ -1916,7 +2022,7 @@ body {
     }
 
     .right-section {
-        width: 350px;
+        width: 380px;
     }
 
     .basic-block-three-columns {
@@ -1925,14 +2031,14 @@ body {
 }
 
 @media (max-width: 1200px) {
-    .modal-body {
+    .bottom-content {
         flex-direction: column;
     }
 
     .left-section {
         min-width: 100%;
         border-right: none;
-        border-bottom: 1px solid #333;
+        border-bottom: 1px solid #2a2a2a;
     }
 
     .right-section {
@@ -1940,6 +2046,7 @@ body {
         flex-direction: row;
         gap: 20px;
         padding: 20px;
+        border-top: 1px solid #2a2a2a;
     }
 
     .right-section > div {
@@ -1956,11 +2063,11 @@ body {
 .character-compact-container {
     display: flex;
     align-items: center;
-    gap: 20px;
-    padding: 12px 20px;
+    gap: 15px;
+    padding: 8px 15px;
     background: rgba(0, 0, 0, 0.3);
     border-bottom: 1px solid #2a2a2a;
-    min-height: 56px;
+    min-height: 42px;
 }
 
 .character-select-section {
@@ -1979,7 +2086,7 @@ body {
 
 .selected-label {
     color: rgba(255, 255, 255, 0.5);
-    font-size: 13px;
+    font-size: 11px;
     font-weight: 500;
     white-space: nowrap;
 }
@@ -1993,12 +2100,12 @@ body {
 .selected-character-chip {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-    padding: 4px 10px;
+    gap: 4px;
+    padding: 3px 8px;
     background: linear-gradient(135deg, rgba(255, 107, 107, 0.15), rgba(255, 107, 107, 0.08));
     border: 1px solid rgba(255, 107, 107, 0.25);
-    border-radius: 16px;
-    font-size: 12px;
+    border-radius: 12px;
+    font-size: 10px;
     color: rgba(255, 255, 255, 0.9);
     animation: fadeInChip 0.3s ease;
 }
@@ -2012,7 +2119,7 @@ body {
     background: none;
     border: none;
     color: rgba(255, 107, 107, 0.7);
-    font-size: 16px;
+    font-size: 14px;
     line-height: 1;
     cursor: pointer;
     padding: 0;
@@ -2049,18 +2156,18 @@ body {
 
 .character-selector-label {
     color: rgba(255, 255, 255, 0.8);
-    font-size: 14px;
+    font-size: 11px;
     font-weight: 500;
 }
 
 .character-selector {
-    padding: 8px 12px;
+    padding: 5px 10px;
     background: rgba(0, 0, 0, 0.3);
     border: 1px solid rgba(255, 107, 107, 0.3);
-    border-radius: 8px;
+    border-radius: 6px;
     color: #fff;
-    font-size: 14px;
-    min-width: 150px;
+    font-size: 11px;
+    min-width: 120px;
     cursor: pointer;
     transition: all 0.2s ease;
 }
@@ -2102,13 +2209,13 @@ body {
 .add-character-btn {
     display: flex;
     align-items: center;
-    gap: 6px;
-    padding: 8px 16px;
+    gap: 4px;
+    padding: 5px 10px;
     background: rgba(255, 107, 107, 0.1);
     border: 1px solid rgba(255, 107, 107, 0.3);
-    border-radius: 8px;
+    border-radius: 6px;
     color: #ff6b6b;
-    font-size: 14px;
+    font-size: 11px;
     font-weight: 500;
     cursor: pointer;
     transition: all 0.2s ease;
@@ -2145,17 +2252,17 @@ body {
 .added-characters-header h4 {
     margin: 0;
     color: rgba(255, 255, 255, 0.9);
-    font-size: 14px;
+    font-size: 12px;
     font-weight: 600;
 }
 
 .clear-all-btn {
-    padding: 5px 12px;
+    padding: 3px 8px;
     background: rgba(255, 107, 107, 0.1);
     border: 1px solid rgba(255, 107, 107, 0.2);
-    border-radius: 6px;
+    border-radius: 4px;
     color: #ff6b6b;
-    font-size: 12px;
+    font-size: 10px;
     cursor: pointer;
     transition: all 0.2s ease;
 }
@@ -2197,7 +2304,7 @@ body {
 
 .character-name {
     color: rgba(255, 255, 255, 0.9);
-    font-size: 13px;
+    font-size: 11px;
     font-weight: 500;
 }
 
@@ -2205,8 +2312,8 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 20px;
-    height: 20px;
+    width: 16px;
+    height: 16px;
     padding: 0;
     background: rgba(255, 107, 107, 0.1);
     border: 1px solid rgba(255, 107, 107, 0.2);
@@ -2225,7 +2332,7 @@ body {
 .added-characters-list:empty::after {
     content: '선택된 캐릭터가 없습니다';
     color: rgba(255, 255, 255, 0.3);
-    font-size: 13px;
+    font-size: 11px;
     font-style: italic;
 }
 
@@ -2233,11 +2340,11 @@ body {
 .location-compact-container {
     display: flex;
     align-items: center;
-    gap: 20px;
-    padding: 12px 20px;
+    gap: 15px;
+    padding: 8px 15px;
     background: rgba(0, 0, 0, 0.3);
     border-bottom: 1px solid #2a2a2a;
-    min-height: 56px;
+    min-height: 42px;
 }
 
 .location-select-section {
@@ -2248,18 +2355,18 @@ body {
 
 .location-selector-label {
     color: rgba(255, 255, 255, 0.8);
-    font-size: 14px;
+    font-size: 11px;
     font-weight: 500;
 }
 
 .location-selector {
-    padding: 8px 12px;
+    padding: 5px 10px;
     background: rgba(0, 0, 0, 0.3);
     border: 1px solid rgba(107, 255, 107, 0.3);
-    border-radius: 8px;
+    border-radius: 6px;
     color: #fff;
-    font-size: 14px;
-    min-width: 150px;
+    font-size: 11px;
+    min-width: 120px;
     cursor: pointer;
     transition: all 0.2s ease;
 }
@@ -2278,13 +2385,13 @@ body {
 .add-location-btn {
     display: flex;
     align-items: center;
-    gap: 6px;
-    padding: 8px 16px;
+    gap: 4px;
+    padding: 5px 10px;
     background: rgba(107, 255, 107, 0.1);
     border: 1px solid rgba(107, 255, 107, 0.3);
-    border-radius: 8px;
+    border-radius: 6px;
     color: #6bff6b;
-    font-size: 14px;
+    font-size: 11px;
     font-weight: 500;
     cursor: pointer;
     transition: all 0.2s ease;
@@ -2313,12 +2420,12 @@ body {
 .selected-location-chip {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-    padding: 4px 10px;
+    gap: 4px;
+    padding: 3px 8px;
     background: linear-gradient(135deg, rgba(107, 255, 107, 0.15), rgba(107, 255, 107, 0.08));
     border: 1px solid rgba(107, 255, 107, 0.25);
-    border-radius: 16px;
-    font-size: 12px;
+    border-radius: 12px;
+    font-size: 10px;
     color: rgba(255, 255, 255, 0.9);
     animation: fadeInChip 0.3s ease;
 }
@@ -2331,7 +2438,7 @@ body {
 .added-locations-header h4 {
     margin: 0;
     color: rgba(255, 255, 255, 0.9);
-    font-size: 14px;
+    font-size: 12px;
     font-weight: 600;
 }
 
@@ -2355,7 +2462,7 @@ body {
 
 .location-name {
     color: rgba(255, 255, 255, 0.9);
-    font-size: 13px;
+    font-size: 11px;
     font-weight: 500;
 }
 
@@ -2363,8 +2470,8 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 20px;
-    height: 20px;
+    width: 16px;
+    height: 16px;
     padding: 0;
     background: rgba(107, 255, 107, 0.1);
     border: 1px solid rgba(107, 255, 107, 0.2);
@@ -2383,7 +2490,7 @@ body {
 .added-locations-list:empty::after {
     content: '선택된 장소가 없습니다';
     color: rgba(255, 255, 255, 0.3);
-    font-size: 13px;
+    font-size: 11px;
     font-style: italic;
 }
 
@@ -2391,11 +2498,11 @@ body {
 .props-compact-container {
     display: flex;
     align-items: center;
-    gap: 20px;
-    padding: 12px 20px;
+    gap: 15px;
+    padding: 8px 15px;
     background: rgba(0, 0, 0, 0.3);
     border-bottom: 1px solid #2a2a2a;
-    min-height: 56px;
+    min-height: 42px;
 }
 
 .props-select-section {
@@ -2536,4 +2643,58 @@ body {
     color: rgba(255, 255, 255, 0.3);
     font-size: 13px;
     font-style: italic;
+}
+
+/* ===== 통합 스크롤 시스템 ===== */
+/* 개별 컬럼 스크롤 완전 제거 */
+/* All columns without scroll - content fully visible */
+.block-column.labels-column,
+.block-column.prompt-column,
+.block-column.request-column {
+    overflow: visible !important;
+    position: relative;
+    height: auto !important;
+    max-height: none !important;
+    min-height: auto !important;
+}
+
+/* Labels list without scroll */
+.labels-column .label-list {
+    overflow: visible !important;
+    position: relative;
+    padding-right: 0;
+}
+
+/* Prompt and Request blocks with scroll capability */
+.prompt-column .prompt-blocks,
+.request-column .request-blocks {
+    overflow-y: visible;
+    position: relative;
+    padding-right: 8px;
+}
+
+/* 레이블 아이템에 포인터 이벤트 활성화 */
+.labels-column .label-list,
+.labels-column .label-item {
+    pointer-events: auto;
+}
+
+/* labels-column \uc2a4\ud06c\ub864\ubc14 \uc644\uc804 \uc228\uae40 */
+.labels-column::-webkit-scrollbar,
+.labels-column .label-list::-webkit-scrollbar {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+}
+
+.labels-column,
+.labels-column .label-list,
+.block-column {
+    -ms-overflow-style: none !important;  /* IE and Edge */
+    scrollbar-width: none !important;  /* Firefox */
+}
+
+/* \ubaa8\ub4e0 block-column \uc2a4\ud06c\ub864\ubc14 \uc228\uae40 */
+.block-column::-webkit-scrollbar {
+    display: none !important;
 }

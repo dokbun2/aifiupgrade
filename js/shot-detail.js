@@ -417,6 +417,21 @@ function initializeTabs() {
     const actionButtons = document.querySelectorAll('.tab-action-btn');
     const tabPanes = document.querySelectorAll('.tab-pane');
 
+    // 초기 상태 설정: 첫 번째 탭만 활성화
+    if (tabButtons.length > 0 && tabPanes.length > 0) {
+        // 모든 탭 비활성화
+        tabButtons.forEach(btn => btn.classList.remove('active'));
+        tabPanes.forEach(pane => pane.classList.remove('active'));
+
+        // 첫 번째 탭 활성화
+        tabButtons[0].classList.add('active');
+        const firstTabName = tabButtons[0].getAttribute('data-tab');
+        const firstPane = document.querySelector(`.tab-pane[data-tab="${firstTabName}"]`);
+        if (firstPane) {
+            firstPane.classList.add('active');
+        }
+    }
+
     // 일반 탭 버튼 이벤트
     tabButtons.forEach(button => {
         button.addEventListener('click', function() {

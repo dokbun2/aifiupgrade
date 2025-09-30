@@ -1,0 +1,339 @@
+/* Modern Final Prompt Section Design */
+
+/* 메인 컨테이너 - 네오모픽 디자인 */
+.final-prompt-section {
+    background: linear-gradient(145deg, #1e1e1e, #0a0a0a);
+    border-radius: 20px;
+    margin: 40px 25px;
+    padding: 0;
+    min-height: 320px;
+    position: relative;
+    box-shadow:
+        20px 20px 60px #000000,
+        -20px -20px 60px #262626,
+        inset 1px 1px 2px rgba(0, 188, 212, 0.1);
+    overflow: hidden;
+}
+
+/* 애니메이션 오버레이 */
+.final-prompt-section::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(
+        45deg,
+        transparent 30%,
+        rgba(0, 188, 212, 0.05) 50%,
+        transparent 70%
+    );
+    animation: shimmer 6s infinite;
+}
+
+@keyframes shimmer {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* 헤더 영역 - 글래스모피즘 */
+.final-prompt-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 24px;
+    background: rgba(0, 188, 212, 0.05);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(0, 188, 212, 0.1);
+    position: relative;
+    z-index: 10;
+}
+
+/* 제목 스타일 - 네온 효과 */
+.final-prompt-section h4 {
+    font-size: 15px;
+    font-weight: 700;
+    color: #00e5ff;
+    margin: 0;
+    letter-spacing: 1px;
+    text-transform: none;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-shadow:
+        0 0 10px rgba(0, 229, 255, 0.8),
+        0 0 20px rgba(0, 229, 255, 0.6),
+        0 0 30px rgba(0, 229, 255, 0.4);
+    animation: neon-pulse 2s ease-in-out infinite alternate;
+}
+
+@keyframes neon-pulse {
+    0% { text-shadow: 0 0 10px rgba(0, 229, 255, 0.8); }
+    100% { text-shadow: 0 0 20px rgba(0, 229, 255, 1), 0 0 30px rgba(0, 229, 255, 0.8); }
+}
+
+/* 아이콘 애니메이션 */
+.final-prompt-section h4::before {
+    content: '⚡';
+    font-size: 18px;
+    animation: electric 1.5s ease-in-out infinite;
+}
+
+@keyframes electric {
+    0%, 100% { transform: scale(1) rotate(0deg); opacity: 0.8; }
+    25% { transform: scale(1.1) rotate(5deg); opacity: 1; }
+    50% { transform: scale(1.2) rotate(-5deg); opacity: 0.9; }
+    75% { transform: scale(1.1) rotate(3deg); opacity: 1; }
+}
+
+/* 복사 버튼 - 모던 스타일 */
+.copy-prompt-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 24px;
+    background: linear-gradient(135deg, #00bcd4, #0097a7);
+    border: none;
+    border-radius: 25px;
+    color: #ffffff;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow:
+        0 4px 15px rgba(0, 188, 212, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+/* 리플 효과 */
+.copy-prompt-btn::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.5);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+}
+
+.copy-prompt-btn:active::after {
+    width: 300px;
+    height: 300px;
+}
+
+.copy-prompt-btn:hover {
+    background: linear-gradient(135deg, #00e5ff, #00acc1);
+    transform: translateY(-3px) scale(1.05);
+    box-shadow:
+        0 8px 25px rgba(0, 188, 212, 0.5),
+        inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.copy-prompt-btn svg {
+    width: 16px;
+    height: 16px;
+    transition: all 0.4s ease;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+}
+
+.copy-prompt-btn:hover svg {
+    transform: rotate(15deg) scale(1.1);
+    filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.3));
+}
+
+/* 복사 완료 상태 */
+.copy-prompt-btn.copied {
+    background: linear-gradient(135deg, #4caf50, #2e7d32);
+    animation: success-bounce 0.6s ease;
+}
+
+@keyframes success-bounce {
+    0%, 100% { transform: scale(1); }
+    30% { transform: scale(1.1); }
+    60% { transform: scale(0.95); }
+}
+
+.copy-prompt-btn.copied span::before {
+    content: '✓ ';
+    animation: check-in 0.5s ease;
+}
+
+@keyframes check-in {
+    0% { transform: translateX(-10px); opacity: 0; }
+    100% { transform: translateX(0); opacity: 1; }
+}
+
+/* 텍스트 영역 - 사이버펑크 스타일 */
+.final-prompt-textarea {
+    width: calc(100% - 48px);
+    height: 240px;
+    margin: 24px;
+    padding: 20px;
+    background: linear-gradient(180deg,
+        rgba(0, 15, 30, 0.9) 0%,
+        rgba(0, 25, 40, 0.7) 50%,
+        rgba(0, 15, 30, 0.9) 100%);
+    border: 2px solid transparent;
+    border-image: linear-gradient(
+        135deg,
+        #00bcd4 0%,
+        #ff6b6b 25%,
+        #00e5ff 50%,
+        #ff6b6b 75%,
+        #00bcd4 100%
+    ) 1;
+    border-radius: 12px;
+    color: #00ffff;
+    font-size: 14px;
+    font-family: 'Fira Code', 'JetBrains Mono', 'Consolas', monospace;
+    font-weight: 400;
+    line-height: 1.8;
+    resize: vertical;
+    min-height: 200px;
+    max-height: 600px;
+    position: relative;
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    text-shadow: 0 0 5px rgba(0, 255, 255, 0.5);
+    animation: border-animation 4s linear infinite;
+}
+
+@keyframes border-animation {
+    0%, 100% { border-image-source: linear-gradient(135deg, #00bcd4, #ff6b6b, #00e5ff, #ff6b6b, #00bcd4); }
+    50% { border-image-source: linear-gradient(135deg, #ff6b6b, #00e5ff, #00bcd4, #00e5ff, #ff6b6b); }
+}
+
+/* 스캔라인 효과 */
+.final-prompt-textarea::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg,
+        transparent,
+        rgba(0, 229, 255, 0.8),
+        transparent
+    );
+    animation: scan-line 3s linear infinite;
+    pointer-events: none;
+}
+
+@keyframes scan-line {
+    0% { transform: translateY(0); }
+    100% { transform: translateY(240px); }
+}
+
+/* 포커스 상태 */
+.final-prompt-textarea:focus {
+    outline: none;
+    background: linear-gradient(180deg,
+        rgba(0, 25, 45, 0.95) 0%,
+        rgba(0, 35, 55, 0.8) 50%,
+        rgba(0, 25, 45, 0.95) 100%);
+    box-shadow:
+        0 0 40px rgba(0, 188, 212, 0.4),
+        inset 0 0 30px rgba(0, 188, 212, 0.1),
+        0 0 0 3px rgba(0, 188, 212, 0.3);
+    color: #00ffff;
+    text-shadow:
+        0 0 10px rgba(0, 255, 255, 0.8),
+        0 0 20px rgba(0, 255, 255, 0.4);
+    transform: scale(1.02);
+}
+
+/* 호버 상태 */
+.final-prompt-textarea:hover {
+    background: linear-gradient(180deg,
+        rgba(0, 20, 40, 0.95) 0%,
+        rgba(0, 30, 50, 0.8) 50%,
+        rgba(0, 20, 40, 0.95) 100%);
+    box-shadow:
+        0 0 30px rgba(0, 188, 212, 0.3),
+        inset 0 0 20px rgba(0, 188, 212, 0.05);
+}
+
+/* 플레이스홀더 */
+.final-prompt-textarea::placeholder {
+    color: rgba(0, 188, 212, 0.5);
+    font-style: normal;
+    text-shadow: none;
+    animation: placeholder-pulse 2s ease infinite;
+}
+
+@keyframes placeholder-pulse {
+    0%, 100% { opacity: 0.5; }
+    50% { opacity: 0.8; }
+}
+
+/* 스크롤바 커스터마이징 */
+.final-prompt-textarea::-webkit-scrollbar {
+    width: 10px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 5px;
+}
+
+.final-prompt-textarea::-webkit-scrollbar-track {
+    background: rgba(0, 188, 212, 0.05);
+    border-radius: 5px;
+}
+
+.final-prompt-textarea::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, #00bcd4, #0097a7);
+    border-radius: 5px;
+    box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+}
+
+.final-prompt-textarea::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, #00e5ff, #00acc1);
+}
+
+/* 타이핑 효과 */
+@keyframes typing {
+    from { width: 0; }
+    to { width: 100%; }
+}
+
+/* 글로우 효과 */
+.final-prompt-section:hover {
+    box-shadow:
+        20px 20px 60px #000000,
+        -20px -20px 60px #262626,
+        inset 1px 1px 2px rgba(0, 188, 212, 0.2),
+        0 0 50px rgba(0, 188, 212, 0.1);
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+    .final-prompt-section {
+        margin: 20px 15px;
+        min-height: 280px;
+    }
+
+    .final-prompt-header {
+        padding: 12px 16px;
+    }
+
+    .final-prompt-section h4 {
+        font-size: 13px;
+    }
+
+    .copy-prompt-btn {
+        padding: 8px 16px;
+        font-size: 12px;
+    }
+
+    .final-prompt-textarea {
+        margin: 16px;
+        width: calc(100% - 32px);
+        height: 200px;
+        font-size: 12px;
+    }
+}
