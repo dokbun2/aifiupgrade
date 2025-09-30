@@ -873,14 +873,80 @@ body {
     gap: 1px;
     background: #2a2a2a;
     flex: 1;
-    overflow-y: auto;
+    overflow: hidden;
+    position: relative;
 }
 
+/* 각 컬럼 컨테이너 */
 .block-column {
     background: #1a1a1a;
     padding: 0;
-    overflow-y: auto;
     position: relative;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* 컬럼 헤더 - 고정 */
+.block-column .column-header {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: #242424;
+    border-bottom: 1px solid #333;
+}
+
+/* 라벨 리스트 - 동기화된 스크롤 */
+.label-list,
+.prompt-blocks,
+.request-blocks {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    /* scroll-behavior: smooth 제거 - JavaScript와 충돌 방지 */
+    will-change: scroll-position;
+    -webkit-overflow-scrolling: touch; /* iOS 부드러운 스크롤 */
+}
+
+/* 왼쪽과 중간 컬럼은 스크롤바 숨김 */
+.label-list,
+.prompt-blocks {
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* Internet Explorer 10+ */
+}
+
+.label-list::-webkit-scrollbar,
+.prompt-blocks::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Opera */
+}
+
+/* 오른쪽 컬럼만 스크롤바 표시 */
+.request-blocks {
+    scrollbar-width: thin; /* Firefox */
+}
+
+.request-blocks::-webkit-scrollbar {
+    width: 8px;
+    background-color: transparent;
+}
+
+.request-blocks::-webkit-scrollbar-track {
+    background: #1a1a1a;
+}
+
+.request-blocks::-webkit-scrollbar-thumb {
+    background: #444;
+    border-radius: 4px;
+}
+
+.request-blocks::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+/* 스크롤 동기화를 위한 클래스 */
+.sync-scroll {
+    overflow-y: auto;
+    overflow-x: hidden;
 }
 
 .column-header {
@@ -888,10 +954,9 @@ body {
     font-weight: 500;
     color: #999;
     padding: 12px 20px;
-    background: #0f0f0f;
+    background: #242424;
     margin: 0;
     text-align: center;
-    border-bottom: 1px solid #2a2a2a;
     height: 40px;
     display: flex;
     align-items: center;
@@ -910,7 +975,8 @@ body {
 
 .label-item {
     padding: 0 20px;
-    height: 45px;
+    height: 50px;
+    min-height: 50px;
     background: transparent;
     border: none;
     border-bottom: 1px solid #2a2a2a;
@@ -982,11 +1048,12 @@ body {
 
 .prompt-row-item {
     display: flex;
-    gap: 0;
     align-items: center;
-    height: 45px;
+    height: 50px;
+    min-height: 50px;
+    width: 100%;
+    padding: 0;
     border-bottom: 1px solid #2a2a2a;
-    padding: 0 20px;
 }
 
 .prompt-row-item:hover {
@@ -994,8 +1061,9 @@ body {
 }
 
 .prompt-input {
-    width: 100%;
+    width: calc(100% - 20px);
     height: 35px;
+    margin: 0 10px;
     padding: 0 12px;
     background: #1e1e1e;
     border: 1px solid #2a2a2a;
@@ -1030,40 +1098,175 @@ body {
 
 /* Final Prompt Section - Full Width at Bottom for All Tabs */
 .tab-pane .final-prompt-section {
-    background: #1a1a1a;
-    border-top: 1px solid #2a2a2a;
+    background: linear-gradient(180deg, #1a1a1a 0%, #0f0f0f 100%);
+    border-top: 2px solid rgba(0, 188, 212, 0.2);
     margin: 0;
     flex-shrink: 0;
+    position: relative;
+    padding-bottom: 12px;
+}
+
+.tab-pane .final-prompt-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(0, 188, 212, 0.5), transparent);
+    animation: glow 3s ease-in-out infinite;
+}
+
+@keyframes glow {
+    0%, 100% { opacity: 0.3; }
+    50% { opacity: 1; }
+}
+
+.final-prompt-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 20px;
+    background: linear-gradient(90deg, rgba(0, 188, 212, 0.1) 0%, transparent 100%);
+    border-bottom: 1px solid rgba(0, 188, 212, 0.2);
 }
 
 .final-prompt-section h4 {
+    font-size: 13px;
+    font-weight: 600;
+    color: rgba(0, 188, 212, 0.9);
+    margin: 0;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.final-prompt-section h4::before {
+    content: '✨';
+    font-size: 16px;
+}
+
+.copy-prompt-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    background: rgba(0, 188, 212, 0.1);
+    border: 1px solid rgba(0, 188, 212, 0.3);
+    border-radius: 6px;
+    color: rgba(0, 188, 212, 0.9);
     font-size: 12px;
     font-weight: 500;
-    color: #999;
-    margin: 0;
-    padding: 12px 20px;
-    background: #0f0f0f;
-    border-bottom: 1px solid #2a2a2a;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.copy-prompt-btn:hover {
+    background: rgba(0, 188, 212, 0.2);
+    border-color: rgba(0, 188, 212, 0.5);
+    transform: translateY(-1px);
+}
+
+.copy-prompt-btn:active {
+    transform: translateY(0);
+}
+
+.copy-prompt-btn.copied {
+    background: rgba(76, 175, 80, 0.2);
+    border-color: rgba(76, 175, 80, 0.5);
+    color: rgba(76, 175, 80, 0.9);
+}
+
+.copy-prompt-btn.copied {
+    animation: successPulse 0.4s ease;
+}
+
+.copy-prompt-btn.copied svg {
+    animation: checkmark 0.3s ease;
+}
+
+.copy-prompt-btn svg {
+    width: 16px;
+    height: 16px;
+    transition: transform 0.2s ease;
+}
+
+@keyframes checkmark {
+    0% {
+        transform: scale(0) rotate(45deg);
+        opacity: 0;
+    }
+    50% {
+        transform: scale(1.2) rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        transform: scale(1) rotate(0deg);
+        opacity: 1;
+    }
+}
+
+@keyframes successPulse {
+    0% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0); }
+    50% { box-shadow: 0 0 0 8px rgba(76, 175, 80, 0.1); }
+    100% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0); }
 }
 
 .final-prompt-textarea {
     width: 100%;
-    height: 100px;
-    padding: 15px 20px;
-    background: transparent;
-    border: none;
-    color: #ccc;
-    font-size: 13px;
-    resize: none;
-    font-family: inherit;
+    height: 120px;
+    padding: 16px 20px;
+    background: linear-gradient(135deg, rgba(0, 188, 212, 0.02) 0%, rgba(255, 255, 255, 0.01) 100%);
+    border: 1px solid rgba(0, 188, 212, 0.15);
+    border-radius: 8px;
+    color: #e0e0e0;
+    font-size: 14px;
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+    line-height: 1.6;
+    resize: vertical;
+    transition: all 0.3s ease;
+    margin: 12px 20px;
+    width: calc(100% - 40px);
+    min-height: 100px;
+    max-height: 300px;
+}
+
+.final-prompt-textarea:hover {
+    border-color: rgba(0, 188, 212, 0.3);
+    background: linear-gradient(135deg, rgba(0, 188, 212, 0.04) 0%, rgba(255, 255, 255, 0.02) 100%);
 }
 
 .final-prompt-textarea:focus {
     outline: none;
+    border-color: rgba(0, 188, 212, 0.5);
+    background: linear-gradient(135deg, rgba(0, 188, 212, 0.06) 0%, rgba(255, 255, 255, 0.03) 100%);
+    box-shadow: 0 0 0 3px rgba(0, 188, 212, 0.1);
 }
 
 .final-prompt-textarea::placeholder {
-    color: #666;
+    color: rgba(255, 255, 255, 0.3);
+    font-style: italic;
+}
+
+/* 스크롤바 스타일링 */
+.final-prompt-textarea::-webkit-scrollbar {
+    width: 8px;
+}
+
+.final-prompt-textarea::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 4px;
+}
+
+.final-prompt-textarea::-webkit-scrollbar-thumb {
+    background: rgba(0, 188, 212, 0.3);
+    border-radius: 4px;
+}
+
+.final-prompt-textarea::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 188, 212, 0.5);
 }
 
 /* Request Column */
@@ -1082,14 +1285,17 @@ body {
 .request-row-item {
     display: flex;
     align-items: center;
-    height: 45px;
+    height: 50px;
+    min-height: 50px;
+    width: 100%;
+    padding: 0;
     border-bottom: 1px solid #2a2a2a;
-    padding: 0 20px;
 }
 
 .request-dropdown {
-    width: 100%;
+    width: calc(100% - 20px);
     height: 35px;
+    margin: 0 10px;
     padding: 0 12px;
     background: #1e1e1e;
     border: 1px solid #2a2a2a;

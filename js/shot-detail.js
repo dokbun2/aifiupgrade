@@ -83,6 +83,7 @@ document.addEventListener('DOMContentLoaded', function() {
         initializeFormEvents();
         initializeImageUpload();
         initializeBasicBlockLabels();
+        initializeScrollSync();
         loadShotData();
 
         // URL 파라미터에서 샷 ID 가져오기
@@ -141,6 +142,55 @@ function initializeBasicBlockLabels() {
             if (promptRow) {
                 promptRow.querySelector('.prompt-input')?.focus();
             }
+        });
+    });
+}
+
+// 스크롤 동기화 초기화
+function initializeScrollSync() {
+    // 모든 탭 패널에 대해 스크롤 동기화 설정
+    document.querySelectorAll('.tab-pane').forEach(tabPane => {
+        const labelList = tabPane.querySelector('.label-list');
+        const promptBlocks = tabPane.querySelector('.prompt-blocks');
+        const requestBlocks = tabPane.querySelector('.request-blocks');
+
+        if (!labelList || !promptBlocks || !requestBlocks) return;
+
+        let syncRAF = null;
+
+        // 부드러운 스크롤 동기화 함수
+        const syncScroll = (scrollTop) => {
+            // 이전 애니메이션 프레임 취소
+            if (syncRAF) {
+                cancelAnimationFrame(syncRAF);
+            }
+
+            // requestAnimationFrame을 사용하여 부드럽게 동기화
+            syncRAF = requestAnimationFrame(() => {
+                labelList.scrollTop = scrollTop;
+                promptBlocks.scrollTop = scrollTop;
+                requestBlocks.scrollTop = scrollTop;
+            });
+        };
+
+        // 오른쪽 컬럼(스크롤바 있는 컬럼)의 스크롤 이벤트만 감지
+        requestBlocks.addEventListener('scroll', function() {
+            syncScroll(this.scrollTop);
+        });
+
+        // 왼쪽과 중간 컬럼에서 휠 이벤트 발생시 오른쪽 컬럼으로 전달
+        [labelList, promptBlocks].forEach(element => {
+            element.addEventListener('wheel', function(e) {
+                // Ctrl/Cmd 키가 눌려있으면 줌 동작이므로 무시
+                if (e.ctrlKey || e.metaKey) return;
+
+                // 기본 동작 방지
+                e.preventDefault();
+
+                // 스크롤을 오른쪽 컬럼으로 전달
+                const delta = e.deltaY || e.detail || e.wheelDelta;
+                requestBlocks.scrollTop += delta;
+            }, { passive: false });
         });
     });
 }
@@ -386,6 +436,44 @@ function copyPrompt() {
         });
     }
 }
+
+// 최종 프롬프트 복사 (헤더의 복사 버튼용)
+function copyFinalPrompt() {
+    const activeTextarea = document.querySelector('.tab-pane.active .final-prompt-textarea');
+    if (activeTextarea && activeTextarea.value) {
+        navigator.clipboard.writeText(activeTextarea.value).then(() => {
+            // 복사 버튼 애니메이션
+            const copyBtn = document.querySelector('.tab-pane.active .copy-prompt-btn');
+            if (copyBtn) {
+                copyBtn.classList.add('copied');
+                copyBtn.setAttribute('title', '복사됨!');
+
+                // 체크 아이콘으로 변경
+                const icon = copyBtn.querySelector('svg');
+                if (icon) {
+                    const originalPath = icon.innerHTML;
+                    icon.innerHTML = '<path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z" fill="currentColor"/>';
+
+                    setTimeout(() => {
+                        icon.innerHTML = originalPath;
+                        copyBtn.classList.remove('copied');
+                        copyBtn.setAttribute('title', '복사');
+                    }, 2000);
+                }
+            }
+
+            showNotification('프롬프트가 클립보드에 복사되었습니다.');
+        }).catch(err => {
+            console.error('복사 실패:', err);
+            showNotification('복사에 실패했습니다. 텍스트를 선택하여 수동으로 복사해주세요.', 'error');
+        });
+    } else {
+        showNotification('복사할 프롬프트가 없습니다.', 'warning');
+    }
+}
+
+// 전역으로 노출
+window.copyFinalPrompt = copyFinalPrompt;
 
 // 샷 데이터 저장
 function saveShotData() {
