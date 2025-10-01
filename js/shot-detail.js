@@ -215,209 +215,15 @@ let selectedImageIndex = 0;
 // 초기화 플래그
 let isInitialized = false;
 
-// START 버튼 클릭 시 디폴트 값 설정
-function setStartDefaults() {
-    // Stage2 데이터가 있으면 starting_frame의 camera_composition 적용
-    if (currentShotData && currentShotData.starting_frame) {
-        const cameraComposition = currentShotData.starting_frame.camera_composition || '';
-        const cameraInput = document.querySelector('.tab-pane[data-tab="scene"] .prompt-row-item[data-block="camera"] .prompt-input');
 
-        if (cameraInput && cameraComposition) {
-            cameraInput.value = cameraComposition;
-            console.log('✅ START 프레임 카메라 구도 적용:', cameraComposition);
-            showNotification('START 프레임이 적용되었습니다.', 'success');
-            return;
-        }
-    }
-
-    // Stage2 데이터가 없으면 기본값 적용
-    const basicDefaults = {
-        genre: 'drama',
-        mood: 'warm',
-        shot_size: 'medium',
-        shot_angle: 'eye-level',
-        shot_movement: 'static',
-        depth_of_field: 'normal',
-        focus: 'center',
-        lighting: 'natural',
-        time_of_day: 'morning',
-        weather: 'clear',
-        season: 'spring'
-    };
-
-    // 연출 블록 디폴트 값
-    const sceneDefaults = {
-        color_palette: 'warm-tones',
-        contrast: 'normal',
-        saturation: 'normal',
-        tone: 'bright',
-        texture: 'smooth',
-        pattern: 'none',
-        visual_effects: 'none',
-        special_effects: 'none',
-        transition_in: 'fade-in',
-        transition_out: 'fade-out',
-        timeline_duration: '3'
-    };
-
-    // 캐릭터 블록 디폴트
-    const characterDefaults = {
-        age: 'young-adult',
-        gender: 'neutral',
-        ethnicity: 'asian',
-        body_type: 'average',
-        hair_style: 'short',
-        hair_color: 'black',
-        clothing_style: 'casual',
-        clothing_color: 'neutral'
-    };
-
-    // 장소 블록 디폴트
-    const locationDefaults = {
-        type: 'interior',
-        specific: 'home',
-        architecture: 'modern',
-        size: 'medium',
-        condition: 'clean',
-        decoration: 'minimal'
-    };
-
-    // 소품 블록 디폴트
-    const propsDefaults = ['furniture', 'electronics'];
-
-    // 값 적용
-    applyDefaultValues('basic', basicDefaults);
-    applyDefaultValues('scene', sceneDefaults);
-    applyDefaultValues('character', characterDefaults);
-    applyDefaultValues('location', locationDefaults);
-    applyPropsDefaults(propsDefaults);
-
-    showNotification('START 기본값이 적용되었습니다.', 'success');
-}
-
-// END 버튼 클릭 시 변경된 값 설정
-function setEndDefaults() {
-    // Stage2 데이터가 있으면 ending_frame의 camera_composition 적용
-    if (currentShotData && currentShotData.ending_frame) {
-        const cameraComposition = currentShotData.ending_frame.camera_composition || '';
-        const cameraInput = document.querySelector('.tab-pane[data-tab="scene"] .prompt-row-item[data-block="camera"] .prompt-input');
-
-        if (cameraInput && cameraComposition) {
-            cameraInput.value = cameraComposition;
-            console.log('✅ END 프레임 카메라 구도 적용:', cameraComposition);
-            showNotification('END 프레임이 적용되었습니다.', 'success');
-            return;
-        }
-    }
-
-    // Stage2 데이터가 없으면 START와 동일한 기본값 적용
-    const basicDefaults = {
-        'style': 'cinematic style',
-        'artist': 'Roger Deakins',
-        'medium': 'digital film',
-        'genre': 'drama',
-        'era': 'contemporary',
-        'quality': 'high quality, 8k',
-        'parameter': 'natural lighting'
-    };
-
-    // 연출 블록
-    const sceneDefaults = {
-        'scene': 'peaceful morning scene',
-        'camera': 'medium shot, eye level',
-        'camera-tech': 'ARRI ALEXA, 50mm lens'
-    };
-
-    // 캐릭터 블록
-    const characterDefaults = {
-        'character1': 'young professional',
-        'character1-detail': 'friendly smile, casual attire, relaxed posture',
-        'character1-action': 'walking through park, enjoying coffee'
-    };
-
-    // 장소 블록
-    const locationDefaults = {
-        'location': 'modern urban park',
-        'atmosphere': 'calm, refreshing',
-        'color-tone': 'warm, natural colors',
-        'scale': 'medium, open space',
-        'architecture': 'contemporary landscape',
-        'material': 'natural stone and wood',
-        'object': 'park benches, trees',
-        'weather': 'clear sunny day',
-        'natural-light': 'soft morning sunlight',
-        'artificial-light': 'none',
-        'lighting': 'natural, soft shadows',
-        'foreground': 'walking path',
-        'midground': 'character walking',
-        'background': 'trees and sky',
-        'left-side': 'green foliage',
-        'right-side': 'modern buildings',
-        'ceiling': 'clear blue sky',
-        'floor': 'paved walkway'
-    };
-
-    // 소품 블록
-    const propsDefaults = {
-        'props': 'coffee cup, smartphone, backpack'
-    };
-
-    // 값 적용
-    applyDefaultValues('basic', basicDefaults);
-    applyDefaultValues('scene', sceneDefaults);
-    applyDefaultValues('character', characterDefaults);
-    applyDefaultValues('location', locationDefaults);
-    applyDefaultValues('props', propsDefaults);
-
-    showNotification('END 변경값이 적용되었습니다.', 'success');
-}
-
-// 디폴트 값 적용 헬퍼 함수
-function applyDefaultValues(blockType, values) {
-    Object.keys(values).forEach(key => {
-        // 현재 탭의 프롬프트 입력 필드 찾기 (data-block 속성 사용)
-        const inputElement = document.querySelector(`.tab-pane[data-tab="${blockType}"] .prompt-row-item[data-block="${key}"] .prompt-input`);
-
-        if (inputElement) {
-            inputElement.value = values[key];
-            inputElement.dispatchEvent(new Event('input'));
-            console.log(`✅ END 값 적용 [${blockType}] ${key}: ${values[key]}`);
-        } else {
-            console.warn(`⚠️ 입력 필드를 찾을 수 없음 [${blockType}] ${key}`);
-        }
-
-        // 변경 요청 드롭다운도 업데이트 (있는 경우)
-        const selectElement = document.querySelector(`.tab-pane[data-tab="${blockType}"] .request-row-item[data-block="${key}"] .request-dropdown`);
-        if (selectElement) {
-            // 드롭다운에 해당 값이 있으면 선택
-            const option = Array.from(selectElement.options).find(opt =>
-                opt.value === values[key] || opt.textContent.toLowerCase().includes(values[key].toLowerCase())
-            );
-            if (option) {
-                selectElement.value = option.value;
-                selectElement.dispatchEvent(new Event('change'));
-            }
-        }
-    });
-}
-
-// 소품 디폴트 적용 함수
-function applyPropsDefaults(props) {
-    // 모든 체크박스 해제
-    const allCheckboxes = document.querySelectorAll('.props-options input[type="checkbox"]');
-    allCheckboxes.forEach(cb => {
-        cb.checked = false;
-    });
-
-    // 선택된 소품 체크 (이벤트 트리거 없이)
-    props.forEach(prop => {
-        const checkbox = document.querySelector(`.props-options input[value="${prop}"]`);
-        if (checkbox) {
-            checkbox.checked = true;
-            // dispatchEvent 제거 - 무한 루프 방지
-        }
-    });
-}
+// ===== 레거시 함수 제거됨 (Line 218-420) =====
+// setStartDefaults() - 제거: 하드코딩된 기본값 불필요
+// setEndDefaults() - 제거: 하드코딩된 기본값 불필요
+// applyDefaultValues() - 제거: 헬퍼 함수 불필요
+// applyPropsDefaults() - 제거: 헬퍼 함수 불필요
+//
+// 기본 블록은 initBasicBlock()으로 Stage1 film_metadata에서 자동 파싱됨
+// START/END는 updateCameraCompositionFromFrame()으로 연출 블록의 구도만 변경됨
 
 // 초기화
 document.addEventListener('DOMContentLoaded', function() {
@@ -445,6 +251,27 @@ document.addEventListener('DOMContentLoaded', function() {
         // localStorage에서 캐시된 film_metadata 로드
         loadCachedFilmMetadata();
 
+        // URL에서 shotId 추출하여 즉시 헤더 업데이트
+        const urlParams = new URLSearchParams(window.location.search);
+        const shotId = urlParams.get('shotId');
+        if (shotId) {
+            console.log('🎯 URL에서 추출한 Shot ID:', shotId);
+
+            // 모든 shot-id 요소 즉시 업데이트
+            const shotIdElements = document.querySelectorAll('.shot-id');
+            shotIdElements.forEach(el => {
+                el.textContent = shotId;
+            });
+
+            // 파일 선택 영역의 label도 업데이트
+            const fileSelectionLabel = document.querySelector('.file-selection-section .file-selector label');
+            if (fileSelectionLabel) {
+                fileSelectionLabel.textContent = shotId;
+            }
+
+            console.log('✅ Shot ID 헤더 업데이트 완료:', shotId);
+        }
+
         // Stage1 자동 로드 (sessionStorage에서)
         setTimeout(() => {
             const stage1Data = sessionStorage.getItem('stage1ParsedData');
@@ -459,8 +286,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
             // 현재 샷의 Stage2 데이터 로드
-            const urlParams = new URLSearchParams(window.location.search);
-            const shotId = urlParams.get('shotId');
             if (shotId) {
                 loadShotById(shotId);
 
@@ -542,6 +367,26 @@ function initializeTabs() {
             // 현재 탭 저장
             shotDetailManager.currentTab = targetTab;
 
+            // 연출 블록 탭으로 전환 시 데이터 자동 채우기
+            if (targetTab === 'scene') {
+                console.log('📥 연출 블록 탭 전환 - 데이터 자동 적용');
+
+                // starting_frame 구도 적용 (START 버튼이 활성화되어 있지 않은 경우)
+                const startBtn = document.querySelector('.start-btn');
+                const endBtn = document.querySelector('.end-btn');
+
+                if (endBtn && endBtn.classList.contains('active')) {
+                    // END 버튼이 활성화되어 있으면 ending_frame 적용
+                    updateCameraCompositionFromFrame('ending_frame');
+                } else {
+                    // 기본값: starting_frame 적용
+                    updateCameraCompositionFromFrame('starting_frame');
+                }
+
+                // CAMERA_TECH 채우기
+                fillCameraTechField();
+            }
+
             // 타임라인 섹션 표시/숨김 (연출 블록에서만 표시)
             const timelineSection = document.querySelector('.timeline-section');
             if (timelineSection) {
@@ -551,22 +396,23 @@ function initializeTabs() {
     });
 
     // START/END 액션 버튼 이벤트
-    actionButtons.forEach(button => {
-        button.addEventListener('click', function() {
-            const action = this.getAttribute('data-action');
-            if (action === 'start') {
-                setStartDefaults();
-                this.classList.add('active');
-                const endBtn = document.querySelector('.action-btn[data-action="end"]');
-                if (endBtn) endBtn.classList.remove('active');
-            } else if (action === 'end') {
-                setEndDefaults();
-                this.classList.add('active');
-                const startBtn = document.querySelector('.action-btn[data-action="start"]');
-                if (startBtn) startBtn.classList.remove('active');
-            }
-        });
-    });
+    // 주석 처리: 개별 핸들러(handleStartButton, handleEndButton)로 대체됨
+    // actionButtons.forEach(button => {
+    //     button.addEventListener('click', function() {
+    //         const action = this.getAttribute('data-action');
+    //         if (action === 'start') {
+    //             setStartDefaults();
+    //             this.classList.add('active');
+    //             const endBtn = document.querySelector('.action-btn[data-action="end"]');
+    //             if (endBtn) endBtn.classList.remove('active');
+    //         } else if (action === 'end') {
+    //             setEndDefaults();
+    //             this.classList.add('active');
+    //             const startBtn = document.querySelector('.action-btn[data-action="start"]');
+    //             if (startBtn) startBtn.classList.remove('active');
+    //         }
+    //     });
+    // });
 }
 
 // 기본 블록 라벨 초기화 (모든 블록이 표시되므로 선택 로직 불필요)
@@ -832,6 +678,18 @@ function extractAndMapShotSpecificData(shotData) {
     }
 
     // ========================================
+    // 2-1단계: starting_frame의 camera_composition 자동 적용
+    // ========================================
+    console.log('📥 [통합파싱] starting_frame 구도 자동 적용');
+    updateCameraCompositionFromFrame('starting_frame');
+
+    // ========================================
+    // 2-2단계: CAMERA_TECH 자동 적용
+    // ========================================
+    console.log('📥 [통합파싱] CAMERA_TECH 자동 적용');
+    fillCameraTechField();
+
+    // ========================================
     // 3단계: 기타 블록 매핑 (캐릭터, 장소 등 - 기존 로직 유지)
     // ========================================
     if (window.stage1Parser && stage1Data) {
@@ -895,40 +753,27 @@ function createRequestItem(request) {
     return div;
 }
 
-// START 버튼 핸들러 - 파싱된 데이터를 모든 필드에 자동으로 채움
+// START 버튼 핸들러 - starting_frame 데이터 적용
 function handleStartButton() {
     const startBtn = document.querySelector('.start-btn');
+    const endBtn = document.querySelector('.end-btn');
 
     // 버튼 활성화 상태 토글
     startBtn.classList.toggle('active');
 
     if (startBtn.classList.contains('active')) {
-        console.log('🟢 START 버튼 활성화 - 파싱 데이터 자동 채우기 시작');
+        // END 버튼 비활성화
+        if (endBtn) endBtn.classList.remove('active');
 
-        // sessionStorage에서 Stage1 데이터 가져오기
-        const stage1Data = sessionStorage.getItem('stage1ParsedData');
-        if (stage1Data) {
-            try {
-                const parsedData = JSON.parse(stage1Data);
-                console.log('📂 Stage1 데이터 로드:', parsedData);
+        console.log('🟢 START 버튼 활성화 - starting_frame 데이터 적용');
 
-                // Stage1 데이터를 각 블록에 매핑 (강제 업데이트)
-                mapStage1DataToBlocks(parsedData, true);
+        // Stage2 데이터에서 starting_frame의 camera_composition 가져와서 구도 필드 업데이트
+        updateCameraCompositionFromFrame('starting_frame');
 
-                // Stage2 데이터에서 starting_frame의 camera_composition 가져와서 구도 필드 업데이트
-                updateCameraCompositionFromFrame('starting_frame');
+        // 모든 탭에 대해 프롬프트 생성
+        generateAllTabPrompts();
 
-                // 모든 탭에 대해 프롬프트 생성
-                generateAllTabPrompts();
-
-                showNotification('✅ START: 파싱 데이터가 자동으로 적용되었습니다.', 'success');
-            } catch (error) {
-                console.error('Stage1 데이터 파싱 에러:', error);
-                showNotification('❌ 데이터 로드 실패', 'error');
-            }
-        } else {
-            showNotification('⚠️ 파싱된 데이터가 없습니다. JSON 파일을 먼저 업로드해주세요.', 'warning');
-        }
+        showNotification('✅ START: starting_frame 데이터가 적용되었습니다.', 'success');
     } else {
         console.log('⚪ START 버튼 비활성화');
         showNotification('START 비활성화', 'info');
@@ -938,11 +783,15 @@ function handleStartButton() {
 // END 버튼 핸들러
 function handleEndButton() {
     const endBtn = document.querySelector('.end-btn');
+    const startBtn = document.querySelector('.start-btn');
 
     // 버튼 활성화 상태 토글
     endBtn.classList.toggle('active');
 
     if (endBtn.classList.contains('active')) {
+        // START 버튼 비활성화
+        if (startBtn) startBtn.classList.remove('active');
+
         console.log('🔴 END 버튼 활성화');
 
         // Stage2 데이터에서 ending_frame의 camera_composition 가져와서 구도 필드 업데이트
@@ -955,6 +804,48 @@ function handleEndButton() {
     } else {
         console.log('⚪ END 버튼 비활성화');
         showNotification('END 비활성화', 'info');
+    }
+}
+
+// CAMERA_TECH 필드 채우기 (Stage1 데이터에서)
+function fillCameraTechField() {
+    try {
+        // sessionStorage에서 Stage1 데이터 가져오기
+        const stage1DataStr = sessionStorage.getItem('stage1ParsedData');
+        if (!stage1DataStr) {
+            console.log('💡 Stage1 데이터가 없어서 CAMERA_TECH를 채울 수 없음');
+            return;
+        }
+
+        const stage1Data = JSON.parse(stage1DataStr);
+
+        // visual_blocks.locations에서 CAMERA_TECH 찾기
+        let cameraTech = '';
+
+        if (stage1Data.locations && stage1Data.locations.length > 0) {
+            const location = stage1Data.locations[0];
+            // blocks 객체에서 CAMERA_TECH 찾기
+            if (location.blocks) {
+                // 23_CAMERA_TECH 또는 CAMERA_TECH 키 찾기
+                cameraTech = location.blocks['23_CAMERA_TECH'] ||
+                            location.blocks['CAMERA_TECH'] ||
+                            location.blocks.camera_tech || '';
+            }
+        }
+
+        if (cameraTech) {
+            const cameraTechInput = document.querySelector('.tab-pane[data-tab="scene"] .prompt-row-item[data-block="camera-tech"] .prompt-input');
+            if (cameraTechInput) {
+                cameraTechInput.value = cameraTech;
+                console.log(`✅ CAMERA_TECH 필드 업데이트: ${cameraTech}`);
+            } else {
+                console.warn('⚠️ CAMERA_TECH 입력 필드를 찾을 수 없음');
+            }
+        } else {
+            console.log('💡 Stage1 데이터에 CAMERA_TECH가 없음');
+        }
+    } catch (error) {
+        console.error('❌ CAMERA_TECH 채우기 에러:', error);
     }
 }
 
@@ -2438,7 +2329,7 @@ const stage2Integration = {
     extractCurrentShotId() {
         // URL 파라미터에서 추출
         const urlParams = new URLSearchParams(window.location.search);
-        let shotId = urlParams.get('shot_id');
+        let shotId = urlParams.get('shotId');
 
         if (shotId) return shotId;
 
