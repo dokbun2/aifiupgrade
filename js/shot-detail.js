@@ -1896,7 +1896,8 @@ window.shotDetail = {
 
     loadData: function(data) {
         shotDetailManager.shotData = data;
-        populateForm(data);
+        // populateForm 호출하지 않음 - 기본 블록 보호
+        console.log('✅ [loadData] 데이터 로드됨, populateForm 스킵');
     },
 
     getData: function() {
