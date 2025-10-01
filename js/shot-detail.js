@@ -1115,19 +1115,6 @@ function generatePrompt() {
     if (globalFinalPrompt) {
         globalFinalPrompt.value = generatedPrompt;
 
-        // 높이 자동 조정 (여러 번 호출하여 정확도 향상)
-        requestAnimationFrame(() => {
-            autoResizeTextarea(globalFinalPrompt);
-
-            setTimeout(() => {
-                autoResizeTextarea(globalFinalPrompt);
-            }, 50);
-
-            setTimeout(() => {
-                autoResizeTextarea(globalFinalPrompt);
-            }, 150);
-        });
-
         // 프롬프트 영역으로 스크롤
         setTimeout(() => {
             const promptSection = document.querySelector('.global-final-prompt-section');
@@ -1137,7 +1124,7 @@ function generatePrompt() {
                     block: 'start'
                 });
             }
-        }, 250);
+        }, 100);
     }
 
     // 프롬프트 저장

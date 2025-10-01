@@ -2041,8 +2041,8 @@ body {
     transition: all 0.2s ease;
     width: 100%;
     min-height: 250px;
-    height: auto; /* 자동 높이 */
-    overflow-y: hidden; /* 내부 스크롤 제거 */
+    max-height: 500px; /* 최대 높이 제한 */
+    overflow-y: auto; /* 스크롤바 활성화 */
     box-sizing: border-box;
 }
 
