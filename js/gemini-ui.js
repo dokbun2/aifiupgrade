@@ -307,6 +307,6 @@ window.addEventListener('geminiAPIReady', function(event) {
 window.openAPIModal = openAPIModal;
 window.closeAPIModal = closeAPIModal;
 window.testAPIConnection = testAPIConnection;
-window.saveAPIKey = saveAPIKey;
+// saveAPIKey 함수는 제거됨 - 폼 submit 이벤트로 대체됨
 window.clearAPIKey = clearAPIKey;
 window.toggleAPIKeyVisibility = toggleAPIKeyVisibility;

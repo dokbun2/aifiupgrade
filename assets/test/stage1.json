@@ -1,0 +1,218 @@
+{
+  "film_id": "FILM_831101",
+  "current_step": "concept_art_blocks_completed",
+  "timestamp": "2025-09-30T01:58:32Z",
+  "film_metadata": {
+    "title_working": "The Misdirected Emoji",
+    "genre": "Office Comedy",
+    "duration_minutes": 1,
+    "style": "Cinematic",
+    "artist": "Wes Anderson",
+    "medium": "Digital Cinematography",
+    "era": "Modern Office, 2025",
+    "aspect_ratio": "9:16"
+  },
+  "current_work": {
+    "logline": "소심한 신입사원이 무뚝뚝한 대표에게 실수로 '😂' 이모티콘을 보낸 뒤, 해고될 것이라는 공포 속에서 하루를 버텨내다 예상치 못한 결과를 맞이하는 이야기.",
+    "synopsis": {
+      "act1": "긴장 가득한 첫 출근 날, 신입사원 진수는 친구에게 메시지를 보내려다 실수로 딱딱하기로 소문난 대표에게 '😂' 이모티콘을 보낸다. 그는 즉시 해고될 것이라는 극심한 공포에 휩싸인다.",
+      "act2": "진수는 하루 종일 대표의 눈치를 보며 필사적으로 숨어 다닌다. 대표의 모든 행동이 자신을 해고하려는 징조로 보이고, 그의 망상은 극에 달한다. 마침내 대표가 전 직원 긴급 회의를 소집하자 진수는 모든 것을 체념한다.",
+      "act3": "회의실에서 대표는 회사의 딱딱한 소통 문화를 지적하며 자신의 휴대폰 화면을 스크린에 띄운다. 화면에는 진수가 보낸 '😂' 이모티콘이 떠 있고, 대표는 이것이야말로 우리가 지향해야 할 '솔직한 소통'이라며 처음으로 환하게 웃는다. 진수는 어리둥절하지만, 덕분에 회사 분위기는 부드러워진다."
+    },
+    "treatment": {
+      "treatment_title": "The Misdirected Emoji - Treatment",
+      "story_structure_type": "3막 구조",
+      "sequences": [
+        {
+          "sequence_id": "SEQ1",
+          "sequence_title": "운명의 이모티콘",
+          "narrative_function": "exposition",
+          "treatment_text": "진수가 바싹 얼어붙은 채로 자기 자리에 앉는다. 대표가 지나가자 90도로 인사한다. 친구에게 '나 너무 긴장돼 죽을 것 같아😂'라고 보내려던 메시지를 대표에게 잘못 전송한다. 전송 취소 시간을 놓친 진수의 얼굴은 새하얗게 질린다. (감정온도: 10도 - 냉각)"
+        },
+        {
+          "sequence_id": "SEQ2",
+          "sequence_title": "공포의 하루",
+          "narrative_function": "rising_action",
+          "treatment_text": "진수는 대표와 마주치지 않기 위해 화분 뒤에 숨고, 탕비실에서 나오지 않는다. 대표가 자신을 쳐다보는 것만 같고, 다른 팀장과 이야기하는 모습은 자신의 해고를 논의하는 것처럼 보인다. 그의 상상 속에서 대표는 거대한 괴물처럼 그려진다."
+        },
+        {
+          "sequence_id": "SEQ3",
+          "sequence_title": "심판의 시간",
+          "narrative_function": "climax",
+          "treatment_text": "전 직원에게 긴급 회의 공지가 뜬다. 진수는 자신의 운명이 결정될 것이라 확신하며 무거운 발걸음으로 회의실에 들어선다. 대표는 무표정하게 스크린을 가리킨다."
+        },
+        {
+          "sequence_id": "SEQ4",
+          "sequence_title": "의외의 소통",
+          "narrative_function": "resolution",
+          "treatment_text": "스크린에는 대표와 진수의 대화창이 떠 있고 '😂' 이모티콘이 확대되어 있다. 대표는 '이 이모티콘이 우리 회사에 부족했던 것입니다. 솔직함 말이죠'라며 웃는다. 직원들이 모두 웃음을 터뜨리고, 진수는 안도와 기쁨의 눈물을 흘린다. (감정온도: 80도 - 온기)"
+        }
+      ]
+    },
+    "scenario": {
+      "scenario_title": "The Misdirected Emoji - Scenario",
+      "scenes": [
+        {
+          "scene_number": 1,
+          "scene_id": "S01",
+          "sequence_id": "SEQ1",
+          "scenario_text": "INT. 사무실 - 아침\n\n정적이 흐르는 사무실. 신입사원 진수(20대 후반), 컴퓨터 앞에 각 잡고 앉아있다.\n\n무표정한 대표(50대)가 지나간다. 진수, 벌떡 일어나 90도로 인사한다.\n\n진수, 스마트폰을 들어 친구에게 메시지를 보낸다.\n'나 지금 얼어 죽을 것 같아😂'\n\n전송 버튼을 누른 순간, 수신인이 '대표님'인 것을 발견한다.\n진수의 눈이 커진다. 손가락이 '전송 취소'를 누르려 하지만, 이미 시간은 지났다.\n\n          진수\n     (속삭임)\n  ...망했다."
+        },
+        {
+          "scene_number": 2,
+          "scene_id": "S02",
+          "sequence_id": "SEQ2",
+          "scenario_text": "INT. 사무실 - 낮\n\n진수는 거대한 화분 뒤에 숨어 대표의 동태를 살핀다.\n대표가 진수 쪽을 보자, 화분 속으로 더 깊이 파고든다.\n\n대표가 팀장과 심각하게 이야기한다. 진수의 눈에는 두 사람이 자기 책상을 손가락질하는 것처럼 보인다.\n\n(상상 시퀀스 - 흑백 느와르 톤)\n대표가 서류에 '해고' 도장을 찍는다. 천둥이 친다."
+        },
+        {
+          "scene_number": 3,
+          "scene_id": "S03",
+          "sequence_id": "SEQ3",
+          "scenario_text": "INT. 회의실 - 오후\n\n모든 직원이 침묵 속에 앉아있다. 진수는 사형수처럼 고개를 숙이고 있다.\n\n대표, 말없이 스크린을 켠다. 화면에 빔 프로젝터가 켜진다."
+        },
+        {
+          "scene_number": 4,
+          "scene_id": "S04",
+          "sequence_id": "SEQ4",
+          "scenario_text": "INT. 회의실 - 계속\n\n스크린에 대표와 진수의 메시지 창이 나타난다. '😂' 이모티콘이 화면을 가득 채운다.\n직원들이 웅성거린다. 진수는 눈을 감는다.\n\n          대표\n     우리 회사, 너무 딱딱합니다. 어제 신입사원이 제게 이걸 보냈더군요. 처음엔 당황했지만, 생각해보니 이게 바로 우리에게 필요한 '솔직함' 아닐까요?\n\n대표, 처음으로 환하게 웃는다. 직원들도 따라 웃는다.\n\n          대표\n     앞으로 저한테도 이모티콘 많이들 보내주세요. 하하.\n\n진수, 눈을 뜨고 어리둥절한 표정으로 대표를 본다. 그의 얼굴에 안도의 미소가 번진다."
+        }
+      ]
+    }
+  },
+  "visual_blocks": {
+    "characters": [
+      {
+        "id": "CHAR_001",
+        "name": "Jinsu",
+        "blocks": {
+          "1_STYLE": "Cinematic portrait",
+          "2_ARTIST": "Wes Anderson style",
+          "3_MEDIUM": "Digital Cinematography",
+          "4_GENRE": "Office Comedy",
+          "5_CHARACTER": "Jinsu, Korean male late 20s new employee",
+          "6_MOOD_PERSONALITY": "timid anxious clumsy imaginative",
+          "7_ERA": "Modern Office, 2025",
+          "8_CAMERA": "Medium Shot, front view, eye level, symmetrical composition",
+          "9_GAZE": "looking down nervously",
+          "10_CHARACTER_SHEET": "",
+          "11_BODY_TYPE": "average height 178cm, slightly skinny",
+          "12_HAIR": "black, neat, slightly long bangs",
+          "13_FACE_SHAPE": "oval, sharp chin",
+          "14_FACIAL_FEATURES": "large glasses, expressive eyes, looks younger than his age",
+          "15_SKIN": "pale, fair tone",
+          "16_EXPRESSION": "anxious, terrified, deer in headlights",
+          "17_CLOTHING": "ill-fitting navy blue suit, slightly-too-long sleeves, white shirt, crooked tie",
+          "18_ACCESSORIES": "black-rimmed glasses, simple watch",
+          "19_PROPS": "holding a smartphone tightly",
+          "20_POSE": "standing stiffly, slightly hunched",
+          "21_BACKGROUND": "simple white background",
+          "22_LIGHTING": "flat, even lighting, reminiscent of office fluorescents",
+          "23_CAMERA_TECH": "Canon EOS R5, 50mm f/1.2",
+          "24_QUALITY": "professional, Masterpiece, Highly detailed",
+          "25_PARAMETER": "--ar 9:16 --style raw"
+        },
+        "character_detail": "timid anxious clumsy, average height 178cm skinny, black neat hair, oval face, large glasses, pale skin, ill-fitting navy suit, black-rimmed glasses",
+        "voice_style": "20s male Korean Seoul nervous stuttering speaking style mid-high pitch"
+      },
+      {
+        "id": "CHAR_002",
+        "name": "CEO",
+        "blocks": {
+          "1_STYLE": "Cinematic portrait",
+          "2_ARTIST": "Wes Anderson style",
+          "3_MEDIUM": "Digital Cinematography",
+          "4_GENRE": "Office Comedy",
+          "5_CHARACTER": "CEO, Korean male 50s company CEO",
+          "6_MOOD_PERSONALITY": "stern expressionless intimidating but surprisingly warm-hearted",
+          "7_ERA": "Modern Office, 2025",
+          "8_CAMERA": "Medium Shot, front view, eye level, symmetrical composition",
+          "9_GAZE": "looking forward, intense, unreadable",
+          "10_CHARACTER_SHEET": "",
+          "11_BODY_TYPE": "average height 175cm, slightly imposing build",
+          "12_HAIR": "salt-and-pepper hair, neatly combed back",
+          "13_FACE_SHAPE": "square, strong jawline",
+          "14_FACIAL_FEATURES": "wrinkles around the eyes, stern mouth, sharp eyes",
+          "15_SKIN": "tanned, healthy skin tone",
+          "16_EXPRESSION": "poker face, expressionless",
+          "17_CLOTHING": "perfectly fitted dark gray suit, crisp white shirt, classic tie",
+          "18_ACCESSORIES": "luxury watch, simple glasses",
+          "19_PROPS": "",
+          "20_POSE": "standing straight, hands clasped behind back",
+          "21_BACKGROUND": "simple white background",
+          "22_LIGHTING": "dramatic, slightly top-down lighting to create an imposing aura",
+          "23_CAMERA_TECH": "Canon EOS R5, 85mm f/1.4",
+          "24_QUALITY": "professional, Masterpiece, Highly detailed",
+          "25_PARAMETER": "--ar 9:16 --style raw"
+        },
+        "character_detail": "stern intimidating warm-hearted, average height 175cm imposing, salt-and-pepper hair, square face, sharp eyes, perfectly fitted dark gray suit, luxury watch",
+        "voice_style": "50s male Korean Seoul deep resonant authoritative speaking style low pitch"
+      }
+    ],
+    "locations": [
+      {
+        "id": "LOC_001",
+        "name": "Office",
+        "blocks": {
+          "1_STYLE": "Cinematic",
+          "2_ARTIST": "Wes Anderson style",
+          "3_MEDIUM": "Digital Cinematography",
+          "4_GENRE": "Office Comedy",
+          "5_LOCATION": "Office, a meticulously organized modern office",
+          "6_ERA": "Modern Office, 2025",
+          "7_CAMERA": "Wide Shot, front view, eye level, symmetrical composition",
+          "8_LOCATION_SHEET": "",
+          "9_ATMOSPHERE": "sterile, quiet, tense, orderly, symmetrical",
+          "10_COLOR_TONE": "muted pastels, beige, light gray, with a single accent color",
+          "11_SCALE": "medium-sized, open-plan office",
+          "12_ARCHITECTURE": "minimalist, clean lines, symmetrical layout",
+          "13_MATERIAL": "wood, glass, metal, beige partitions",
+          "14_OBJECT": "perfectly aligned desks, computers, identical office chairs, a single large potted plant",
+          "15_WEATHER": "Sunny",
+          "16_NATURAL_LIGHT": "soft, diffused light from large, clean windows",
+          "17_ARTIFICIAL_LIGHT": "warm, even overhead lighting",
+          "18_LIGHTING": "flat, high-key lighting, minimal shadows",
+          "19_FOREGROUND": "a perfectly centered desk",
+          "20_MIDGROUND": "rows of identical cubicles",
+          "21_BACKGROUND": "the CEO's glass-walled office at the far end",
+          "22_LEFT_SIDE": "a row of filing cabinets, perfectly aligned",
+          "23_RIGHT_SIDE": "a matching row of filing cabinets",
+          "24_CEILING/SKY": "white ceiling tiles, symmetrically placed lights",
+          "25_FLOOR/GROUND": "gray carpet, clean",
+          "26_CAMERA_TECH": "Canon EOS R5, 35mm f/1.4",
+          "27_QUALITY": "professional, Masterpiece, Highly detailed",
+          "28_PARAMETER": "--ar 9:16 --style raw"
+        }
+      }
+    ],
+    "props": [
+      {
+        "id": "PROP_001",
+        "name": "Smartphone",
+        "blocks": {
+          "1_STYLE": "Cinematic",
+          "2_ARTIST": "Wes Anderson style",
+          "3_MEDIUM": "Digital Cinematography",
+          "4_GENRE": "Office Comedy",
+          "5_ITEM_NAME": "Smartphone, a standard modern smartphone",
+          "6_ERA": "Modern, 2025",
+          "7_CAMERA": "Extreme Close-up Shot, top-down view",
+          "8_ITEM_SHEET": "",
+          "9_CATEGORY": "electronic device",
+          "10_MATERIAL": "glass, matte metal",
+          "11_COLOR": "Pastel blue",
+          "12_SIZE": "standard 6-inch screen",
+          "13_CONDITION": "new, clean, no scratches",
+          "14_DETAILS": "messaging app interface visible, Korean characters",
+          "15_FUNCTIONALITY": "showing the catastrophic '😂' emoji sent to the CEO",
+          "16_SPECIAL_FEATURES": "The screen is the only bright, vibrant element in a muted scene",
+          "17_LIGHTING": "screen glow illuminating the user's face",
+          "18_BACKGROUND": "a neat, uncluttered desk surface",
+          "19_CAMERA_TECH": "Canon EOS R5, macro lens",
+          "20_QUALITY": "professional, Masterpiece, Highly detailed",
+          "21_PARAMETER": "--ar 9:16 --style raw"
+        },
+        "prop_detail": "glass matte metal, Pastel blue, standard 6-inch screen"
+      }
+    ]
+  }
+}

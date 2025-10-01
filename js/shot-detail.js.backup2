@@ -1,25 +1,15 @@
 // Shot Detail Modal JavaScript - Refactored
 // Import modules
 import { imageUploadManager, clearAllImages, toggleUrlInput, addImageFromUrl } from './modules/image-upload.js';
-import {
-    showNotification,
-    autoResizeTextarea,
-    copyToClipboard,
+import { 
+    showNotification, 
+    autoResizeTextarea, 
+    copyToClipboard, 
     getFromStorage,
     saveToStorage,
     getFromSessionStorage,
     saveToSessionStorage
 } from './modules/utils.js';
-import { tabManager, switchToTab } from './modules/tab-manager.js';
-import { promptManager, savePrompt, copyPrompt, deletePrompt } from './modules/prompt-manager.js';
-
-// 🎯 개발 모드 설정 (프로덕션에서는 false로 변경)
-const DEBUG_MODE = false;
-
-// 조건부 로그 함수 (개발 모드에서만 출력)
-const debugLog = DEBUG_MODE ? console.log.bind(console) : () => {};
-const debugWarn = DEBUG_MODE ? console.warn.bind(console) : () => {};
-const debugError = DEBUG_MODE ? console.error.bind(console) : () => {};
 
 // Stage 1 JSON 파서 스크립트 로드
 const script1 = document.createElement('script');
@@ -36,12 +26,7 @@ window.clearAllImages = clearAllImages;
 window.toggleUrlInput = toggleUrlInput;
 window.addImageFromUrl = addImageFromUrl;
 window.imageUploadManager = imageUploadManager;
-window.tabManager = tabManager;
-window.switchToTab = switchToTab;
-window.promptManager = promptManager;
-window.savePrompt = savePrompt;
-window.copyPrompt = copyPrompt;
-window.deletePrompt = deletePrompt;
+
 
 // 샷 상세 데이터 관리
 const shotDetailManager = {
@@ -133,42 +118,15 @@ document.addEventListener('DOMContentLoaded', function() {
     isInitialized = true;
 
     try {
-        // 🚀 우선순위 높음: 바로 실행
-        // 탭 관리자 초기화 (탭 전환 시 콜백 설정)
-        tabManager.init((targetTab) => {
-            shotDetailManager.currentTab = targetTab;
-
-            // 연출 블록 탭으로 전환 시 데이터 자동 채우기
-            if (targetTab === 'scene') {
-                const startBtn = document.querySelector('.start-btn');
-                const endBtn = document.querySelector('.end-btn');
-
-                if (endBtn && endBtn.classList.contains('active')) {
-                    updateCameraCompositionFromFrame('ending_frame');
-                } else {
-                    updateCameraCompositionFromFrame('starting_frame');
-                }
-            }
-        });
+        initializeTabs();
         initializeFormEvents();
+        initializeImageUpload();
+        initializeBasicBlockLabels();
+        initializeScrollSync();
         loadShotData();
+
+        // 이미지 업로드 관리자 초기화
         imageUploadManager.init();
-
-        // ⏰ 우선순위 낮음: 브라우저 한가할 때 실행
-        const idleInit = () => {
-            initializeImageUpload();
-            initializeBasicBlockLabels();
-            initializeScrollSync();
-            promptManager.init();
-        };
-
-        // requestIdleCallback 지원 여부 확인
-        if ('requestIdleCallback' in window) {
-            requestIdleCallback(idleInit, { timeout: 1000 });
-        } else {
-            // 구형 브라우저는 setTimeout으로 대체
-            setTimeout(idleInit, 100);
-        }
 
         // 소품 셀렉터 이벤트 리스너
         const propsSelector = document.getElementById('propsSelector');
@@ -307,6 +265,111 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
+// 탭 네비게이션 초기화
+function initializeTabs() {
+    const tabButtons = document.querySelectorAll('.tab-btn');
+    const actionButtons = document.querySelectorAll('.action-btn');
+    const tabPanes = document.querySelectorAll('.tab-pane');
+
+    // 초기 상태 설정: 첫 번째 탭만 활성화
+    if (tabButtons.length > 0 && tabPanes.length > 0) {
+        // 모든 탭 비활성화
+        tabButtons.forEach(btn => btn.classList.remove('active'));
+        tabPanes.forEach(pane => pane.classList.remove('active'));
+
+        // 첫 번째 탭 활성화
+        tabButtons[0].classList.add('active');
+        const firstTabName = tabButtons[0].getAttribute('data-tab');
+        const firstPane = document.querySelector(`.tab-pane[data-tab="${firstTabName}"]`);
+        if (firstPane) {
+            firstPane.classList.add('active');
+        }
+    }
+
+    // 일반 탭 버튼 이벤트
+    tabButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const targetTab = this.getAttribute('data-tab');
+
+            // 모든 탭 비활성화
+            tabButtons.forEach(btn => btn.classList.remove('active'));
+            tabPanes.forEach(pane => pane.classList.remove('active'));
+
+            // 선택한 탭 활성화
+            this.classList.add('active');
+            document.querySelector(`.tab-pane[data-tab="${targetTab}"]`).classList.add('active');
+
+            // 현재 탭 저장
+            shotDetailManager.currentTab = targetTab;
+
+            // 연출 블록 탭으로 전환 시 데이터 자동 채우기
+            if (targetTab === 'scene') {
+                console.log('📥 연출 블록 탭 전환 - 데이터 자동 적용');
+
+                // starting_frame 구도 적용 (START 버튼이 활성화되어 있지 않은 경우)
+                const startBtn = document.querySelector('.start-btn');
+                const endBtn = document.querySelector('.end-btn');
+
+                if (endBtn && endBtn.classList.contains('active')) {
+                    // END 버튼이 활성화되어 있으면 ending_frame 적용
+                    updateCameraCompositionFromFrame('ending_frame');
+                } else {
+                    // 기본값: starting_frame 적용
+                    updateCameraCompositionFromFrame('starting_frame');
+                }
+
+                // CAMERA_TECH 채우기
+                fillCameraTechField();
+            }
+
+            // 캐릭터 블록 탭으로 전환 시 액션 자동 채우기
+            if (targetTab === 'character') {
+                console.log('📥 캐릭터 블록 탭 전환 - 액션 자동 적용');
+
+                const startBtn = document.querySelector('.start-btn');
+                const endBtn = document.querySelector('.end-btn');
+
+                if (endBtn && endBtn.classList.contains('active')) {
+                    // END 버튼이 활성화되어 있으면 ending_frame 적용
+                    updateCharacterActions('ending_frame');
+                } else {
+                    // 기본값: starting_frame 적용
+                    updateCharacterActions('starting_frame');
+                }
+
+                // UI 업데이트 (캐릭터 리스트 및 컨테이너)
+                updateCharactersList();
+                updateCharacterContainers();
+            }
+
+            // 타임라인 섹션 표시/숨김 (연출 블록에서만 표시)
+            const timelineSection = document.querySelector('.timeline-section');
+            if (timelineSection) {
+                timelineSection.style.display = targetTab === 'scene' ? 'block' : 'none';
+            }
+        });
+    });
+
+    // START/END 액션 버튼 이벤트
+    // 주석 처리: 개별 핸들러(handleStartButton, handleEndButton)로 대체됨
+    // actionButtons.forEach(button => {
+    //     button.addEventListener('click', function() {
+    //         const action = this.getAttribute('data-action');
+    //         if (action === 'start') {
+    //             setStartDefaults();
+    //             this.classList.add('active');
+    //             const endBtn = document.querySelector('.action-btn[data-action="end"]');
+    //             if (endBtn) endBtn.classList.remove('active');
+    //         } else if (action === 'end') {
+    //             setEndDefaults();
+    //             this.classList.add('active');
+    //             const startBtn = document.querySelector('.action-btn[data-action="start"]');
+    //             if (startBtn) startBtn.classList.remove('active');
+    //         }
+    //     });
+    // });
+}
+
 // 기본 블록 라벨 초기화 (모든 블록이 표시되므로 선택 로직 불필요)
 function initializeBasicBlockLabels() {
     // 라벨 클릭시 해당 행 하이라이트 효과만 추가
@@ -387,29 +450,25 @@ function initializeFormEvents() {
     }
     isFormEventsInitialized = true;
 
-    // 프롬프트 태그 클릭 이벤트 (Event Delegation 최적화)
-    document.addEventListener('click', function(e) {
-        if (e.target.classList.contains('prompt-tag')) {
+    // 프롬프트 태그 클릭 이벤트
+    document.querySelectorAll('.prompt-tag').forEach(tag => {
+        tag.addEventListener('click', function(e) {
             e.preventDefault();
             e.stopPropagation();
-            e.target.classList.toggle('active');
-        }
+            this.classList.toggle('active');
+        });
     });
 
     // 생성 버튼 클릭 이벤트
     const generateBtn = document.querySelector('.generate-btn');
     if (generateBtn) {
-        generateBtn.addEventListener('click', () => {
-            promptManager.generatePrompt(shotDetailManager.currentTab);
-        });
+        generateBtn.addEventListener('click', generatePrompt);
     }
 
     // 복사 버튼 클릭 이벤트
     const copyBtn = document.querySelector('.copy-btn');
     if (copyBtn) {
-        copyBtn.addEventListener('click', () => {
-            promptManager.copyActivePrompt();
-        });
+        copyBtn.addEventListener('click', copyPrompt);
     }
 
     // 저장 버튼 클릭 이벤트
@@ -436,12 +495,12 @@ function initializeFormEvents() {
         generateImageBtn.addEventListener('click', generateImage);
     }
 
-    // 타임라인 버튼 (Event Delegation 최적화)
-    document.addEventListener('click', function(e) {
-        if (e.target.classList.contains('timeline-btn')) {
+    // 타임라인 버튼
+    document.querySelectorAll('.timeline-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
             document.querySelectorAll('.timeline-btn').forEach(b => b.classList.remove('active'));
-            e.target.classList.add('active');
-        }
+            this.classList.add('active');
+        });
     });
 
     // 소품 복사 버튼
@@ -453,21 +512,25 @@ function initializeFormEvents() {
     // 전역 디바운스 타이머
     let globalDebounceTimer = null;
 
-    // 입력 필드 변경 감지 (Event Delegation 최적화)
-    document.addEventListener('input', function(e) {
-        if (e.target.classList.contains('prompt-input') || e.target.classList.contains('request-input')) {
-            clearTimeout(globalDebounceTimer);
-            globalDebounceTimer = setTimeout(() => {
-                updatePromptPreview();
-            }, 300);
+    // 입력 필드 변경 감지 (안전하게 처리)
+    document.querySelectorAll('.prompt-input').forEach(input => {
+        if (input) {
+            input.addEventListener('input', function(e) {
+                clearTimeout(globalDebounceTimer);
+                globalDebounceTimer = setTimeout(() => {
+                    updatePromptPreview();
+                }, 300); // 300ms 지연
+            });
+
+            input.addEventListener('change', updatePromptPreview);
         }
     });
 
-    document.addEventListener('change', function(e) {
-        if (e.target.classList.contains('prompt-input') ||
-            e.target.classList.contains('prompt-dropdown') ||
-            e.target.classList.contains('request-dropdown')) {
-            updatePromptPreview();
+    // 드롭다운 및 입력 필드 변경 감지 (존재하는 경우만)
+    document.querySelectorAll('.prompt-dropdown, .request-dropdown, .request-input').forEach(element => {
+        if (element) {
+            const eventType = element.tagName === 'SELECT' ? 'change' : 'input';
+            element.addEventListener(eventType, updatePromptPreview);
         }
     });
 
@@ -834,8 +897,8 @@ function generateAllTabPrompts() {
 
     tabs.forEach(tabName => {
         try {
-            const promptData = promptManager.collectFormData(tabName);
-            const generatedPrompt = promptManager.buildPrompt(promptData);
+            const promptData = collectFormData(tabName);
+            const generatedPrompt = buildPrompt(promptData);
 
             // 해당 탭의 프롬프트 텍스트영역에 표시
             const tabPane = document.querySelector(`.tab-pane[data-tab="${tabName}"]`);
@@ -856,12 +919,112 @@ function generateAllTabPrompts() {
 }
 
 // 프롬프트 생성
+function generatePrompt() {
+    const currentTab = shotDetailManager.currentTab;
+    const promptData = collectFormData(currentTab);
+    const generatedPrompt = buildPrompt(promptData);
+
+    // 최종 프롬프트 텍스트영역에 표시
+    const textareaElems = document.querySelectorAll('.final-prompt-textarea');
+    textareaElems.forEach(elem => {
+        if (elem.closest('.tab-pane.active')) {
+            elem.value = generatedPrompt;
+        }
+    });
+
+    // 글로벌 최종 프롬프트에도 표시
+    const globalFinalPrompt = document.getElementById('globalFinalPrompt');
+    if (globalFinalPrompt) {
+        globalFinalPrompt.value = generatedPrompt;
+
+        // 프롬프트 영역으로 스크롤
+        setTimeout(() => {
+            const promptSection = document.querySelector('.global-final-prompt-section');
+            if (promptSection) {
+                promptSection.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
+        }, 100);
+    }
+
+    // 프롬프트 저장
+    shotDetailManager.shotData.prompts[currentTab] = generatedPrompt;
+
+    // 알림 표시
+    showNotification('프롬프트가 생성되었습니다.');
+}
 
 // 폼 데이터 수집
+function collectFormData(tabName) {
+    try {
+        const activePane = document.querySelector(`.tab-pane[data-tab="${tabName}"]`);
+        if (!activePane) return {};
+
+        const data = {};
+
+        // 기본 블록 탭의 경우
+        if (tabName === 'basic') {
+            activePane.querySelectorAll('.prompt-row-item').forEach(item => {
+                const blockType = item.getAttribute('data-block');
+                const input = item.querySelector('.prompt-input');
+                if (blockType && input && input.value && input.value.trim() !== '') {
+                    data[blockType] = input.value;
+                }
+            });
+        } else {
+            // 다른 탭들의 경우 (안전한 선택자 사용)
+            const inputs = activePane.querySelectorAll('.prompt-input');
+            const selects = activePane.querySelectorAll('.prompt-select');
+
+            [...inputs, ...selects].forEach(input => {
+                const row = input.closest('.prompt-row');
+                if (row) {
+                    const label = row.querySelector('.prompt-label')?.textContent;
+                    const tag = row.querySelector('.prompt-tag')?.textContent;
+                    const value = input.value;
+
+                    if (value && value.trim() !== '' && value !== '▼') {
+                        data[tag || label] = value;
+                    }
+                }
+            });
+        }
+
+        return data;
+    } catch (error) {
+        console.warn('폼 데이터 수집 중 오류:', error);
+        return {};
+    }
+}
 
 // 프롬프트 빌드
+function buildPrompt(data) {
+    let prompt = '';
+
+    Object.entries(data).forEach(([key, value]) => {
+        if (value) {
+            prompt += `${key}: ${value}, `;
+        }
+    });
+
+    // 마지막 쉼표 제거
+    return prompt.slice(0, -2);
+}
 
 // 프롬프트 복사
+function copyPrompt() {
+    const activeTextarea = document.querySelector('.tab-pane.active .final-prompt-textarea');
+    if (activeTextarea && activeTextarea.value) {
+        navigator.clipboard.writeText(activeTextarea.value).then(() => {
+            showNotification('프롬프트가 클립보드에 복사되었습니다.');
+        });
+    }
+}
+
+// textarea 높이 자동 조정 함수
+// 최종 프롬프트 복사 (globalFinalPrompt textarea용)
 function copyFinalPrompt() {
     const finalPromptTextarea = document.getElementById('globalFinalPrompt');
     if (finalPromptTextarea && finalPromptTextarea.value) {
@@ -902,21 +1065,6 @@ function parseAllBlocksToFinalPrompt() {
     const promptLines = [];
     const parameters = []; // 매개변수 (--ar, --style 등) 따로 저장
 
-    // 디버깅: 입력 필드 수 확인
-    const allInputs = document.querySelectorAll('.tab-pane .prompt-input');
-    console.log(`  🔍 찾은 입력 필드 총 개수: ${allInputs.length}개`);
-
-    // 기본 블록의 입력 필드만 확인
-    const basicInputs = document.querySelectorAll('.tab-pane[data-tab="basic"] .prompt-input');
-    console.log(`  🔍 기본 블록 입력 필드: ${basicInputs.length}개`);
-
-    // 값이 있는 입력 필드 수
-    let filledCount = 0;
-    allInputs.forEach(input => {
-        if (input.value.trim()) filledCount++;
-    });
-    console.log(`  📝 값이 입력된 필드: ${filledCount}개`);
-
     // 블록 라벨명 매핑 (data-block → 대문자 라벨)
     const labelMap = {
         // 기본 블록
@@ -933,17 +1081,17 @@ function parseAllBlocksToFinalPrompt() {
         'camera-tech': 'CAMERA_TECH',
         // 캐릭터 블록
         'character1': 'CHARACTER_1',
-        'character1-detail': 'CHARACTER_1_DETAIL',
-        'character1-action': 'CHARACTER_1_ACTION',
+        'character1-detail': 'CHAR1_DETAIL',
+        'character1-action': 'CHAR1_ACTION',
         'character2': 'CHARACTER_2',
-        'character2-detail': 'CHARACTER_2_DETAIL',
-        'character2-action': 'CHARACTER_2_ACTION',
+        'character2-detail': 'CHAR2_DETAIL',
+        'character2-action': 'CHAR2_ACTION',
         'character3': 'CHARACTER_3',
-        'character3-detail': 'CHARACTER_3_DETAIL',
-        'character3-action': 'CHARACTER_3_ACTION',
+        'character3-detail': 'CHAR3_DETAIL',
+        'character3-action': 'CHAR3_ACTION',
         'character4': 'CHARACTER_4',
-        'character4-detail': 'CHARACTER_4_DETAIL',
-        'character4-action': 'CHARACTER_4_ACTION',
+        'character4-detail': 'CHAR4_DETAIL',
+        'character4-action': 'CHAR4_ACTION',
         // 장소 블록
         'location': 'LOCATION',
         'atmosphere': 'ATMOSPHERE',
@@ -967,7 +1115,9 @@ function parseAllBlocksToFinalPrompt() {
         'props': 'PROPS'
     };
 
-    // 모든 탭의 프롬프트 입력 필드로 파싱 시작
+    // 모든 탭의 프롬프트 입력 필드 수집
+    const allInputs = document.querySelectorAll('.tab-pane .prompt-input');
+
     allInputs.forEach(input => {
         const value = input.value.trim();
         if (!value) return;
@@ -979,47 +1129,13 @@ function parseAllBlocksToFinalPrompt() {
         }
 
         // data-block 속성에서 라벨명 가져오기
-        // .prompt-row-item 또는 .prompt-row에서 찾기
-        const promptRow = input.closest('.prompt-row-item') || input.closest('.prompt-row');
+        const promptRow = input.closest('.prompt-row-item');
         if (promptRow) {
             const blockName = promptRow.getAttribute('data-block');
-            if (blockName) {
-                // 캐릭터 블록인지 확인 (character1, character2, character3, character4)
-                if (blockName.startsWith('character')) {
-                    // 캐릭터 번호 추출 (예: character1 → 1, character1-detail → 1)
-                    const charMatch = blockName.match(/character(\d+)/);
-                    if (charMatch) {
-                        const charNum = parseInt(charMatch[1]);
-                        // addedCharacters에 없는 캐릭터는 제외
-                        if (!addedCharacters.has(charNum)) {
-                            console.log(`  ⊘ ${blockName.toUpperCase()}: ${value} (삭제된 캐릭터 제외)`);
-                            return;
-                        }
-                    }
-                }
+            const label = labelMap[blockName] || blockName.toUpperCase();
 
-                // 소품 블록(props로 시작하는 data-block)은 제외
-                if (blockName.toLowerCase().startsWith('props')) {
-                    console.log(`  ⊘ ${blockName.toUpperCase()}: ${value} (소품 블록 제외)`);
-                    return;
-                }
-
-                const label = labelMap[blockName] || blockName.toUpperCase();
-
-                // PROPS로 시작하는 라벨도 제외 (이중 체크)
-                if (label.startsWith('PROPS')) {
-                    console.log(`  ⊘ ${label}: ${value} (소품 블록 제외)`);
-                    return;
-                }
-
-                // "LABEL: value;" 형식으로 추가
-                promptLines.push(`${label}: ${value};`);
-                console.log(`  ✓ ${label}: ${value}`);
-            } else {
-                console.warn('  ⚠️ data-block 속성이 없습니다:', promptRow);
-            }
-        } else {
-            console.warn('  ⚠️ prompt-row를 찾을 수 없습니다:', input);
+            // "LABEL: value;" 형식으로 추가
+            promptLines.push(`${label}: ${value};`);
         }
     });
 
@@ -1098,7 +1214,7 @@ function saveShotData() {
     // 모든 탭의 데이터 수집
     const tabs = ['basic', 'scene', 'character', 'location', 'props'];
     tabs.forEach(tab => {
-        shotDetailManager.shotData.blocks[tab] = promptManager.collectFormData(tab);
+        shotDetailManager.shotData.blocks[tab] = collectFormData(tab);
     });
 
     // 로컬 스토리지에 저장
@@ -1156,8 +1272,8 @@ async function generateImage() {
 function updatePromptPreview() {
     try {
         const currentTab = shotDetailManager.currentTab;
-        const promptData = promptManager.collectFormData(currentTab);
-        const previewText = promptManager.buildPrompt(promptData);
+        const promptData = collectFormData(currentTab);
+        const previewText = buildPrompt(promptData);
 
         // 미리보기 영역이 있으면 업데이트
         const previewArea = document.querySelector('.prompt-display p');
@@ -1171,7 +1287,7 @@ function updatePromptPreview() {
 
 // 소품 데이터 복사
 function copyPropsData() {
-    const propsData = promptManager.collectFormData('props');
+    const propsData = collectFormData('props');
     const propsText = JSON.stringify(propsData, null, 2);
 
     navigator.clipboard.writeText(propsText).then(() => {
@@ -2166,22 +2282,22 @@ function mapFilmMetadataToBasicBlock(filmMetadata) {
     return initBasicBlock(filmMetadata);
 }
 
-// 사용되지 않는 함수 (필요시 주석 해제)
-// function cacheFilmMetadata(filmMetadata) {
-//     try {
-//         const cacheKey = 'aifi_film_metadata_cache';
-//         const cacheData = {
-//             filmMetadata: filmMetadata,
-//             timestamp: Date.now(),
-//             filmId: filmMetadata.film_id || 'unknown'
-//         };
-//
-//         localStorage.setItem(cacheKey, JSON.stringify(cacheData));
-//         console.log('Film metadata cached to localStorage');
-//     } catch (error) {
-//         console.error('Error caching film metadata:', error);
-//     }
-// }
+// film_metadata를 localStorage에 캐시하는 함수
+function cacheFilmMetadata(filmMetadata) {
+    try {
+        const cacheKey = 'aifi_film_metadata_cache';
+        const cacheData = {
+            filmMetadata: filmMetadata,
+            timestamp: Date.now(),
+            filmId: filmMetadata.film_id || 'unknown'
+        };
+
+        localStorage.setItem(cacheKey, JSON.stringify(cacheData));
+        console.log('Film metadata cached to localStorage');
+    } catch (error) {
+        console.error('Error caching film metadata:', error);
+    }
+}
 
 // localStorage에서 캐시된 film_metadata 로드하는 함수
 function loadCachedFilmMetadata() {
@@ -2217,9 +2333,6 @@ window.clearFilmMetadataCache = function() {
 
 // 추가된 캐릭터 목록 관리
 const addedCharacters = new Set(); // JSON 파일에서 자동으로 채워짐
-
-// 추가된 장소 목록 관리
-const addedLocations = new Set([1]); // 기본으로 장소 1이 추가되어 있음
 
 // 캐릭터를 리스트에 추가하는 함수
 window.addCharacterToList = function() {
@@ -2997,7 +3110,122 @@ window.downloadGeneratedImage = async function() {
 // 프롬프트 저장 관리
 // ========================================
 
-// 저장된 프롬프트 목록 관리는 promptManager 모듈로 이동됨
+// 저장된 프롬프트 목록 (localStorage에 저장)
+let savedPrompts = [];
+
+// localStorage에서 저장된 프롬프트 불러오기
+function loadSavedPrompts() {
+    const saved = localStorage.getItem('savedPrompts');
+    if (saved) {
+        savedPrompts = JSON.parse(saved);
+    }
+    renderPromptList();
+}
+
+// localStorage에 프롬프트 저장
+function saveTo저장() {
+    localStorage.setItem('savedPrompts', JSON.stringify(savedPrompts));
+}
+
+// 프롬프트 목록 렌더링
+function renderPromptList() {
+    const fileList = document.querySelector('.file-list');
+    if (!fileList) return;
+
+    fileList.innerHTML = '';
+
+    savedPrompts.forEach((item, index) => {
+        const fileItem = document.createElement('div');
+        fileItem.className = 'file-item';
+        fileItem.innerHTML = `
+            <input type="checkbox" id="file${index}">
+            <label for="file${index}">${item.label}</label>
+            <span class="file-actions">
+                <button class="action-btn" onclick="copyPrompt(${index})">복사</button>
+                <button class="action-btn" onclick="deletePrompt(${index})">삭제</button>
+            </span>
+        `;
+        fileList.appendChild(fileItem);
+    });
+}
+
+// 저장 버튼 클릭 시 실행
+window.savePrompt = function() {
+    const finalPromptTextarea = document.getElementById('globalFinalPrompt');
+    const shotIdElement = document.querySelector('.shot-id');
+
+    if (!finalPromptTextarea || !shotIdElement) {
+        alert('프롬프트를 찾을 수 없습니다.');
+        return;
+    }
+
+    const promptText = finalPromptTextarea.value.trim();
+    if (!promptText || promptText === '생성된 프롬프트가 여기에 표시됩니다...') {
+        alert('저장할 프롬프트가 없습니다.');
+        return;
+    }
+
+    const shotId = shotIdElement.textContent.trim();
+    const now = new Date();
+    const timeString = now.toLocaleString('ko-KR', {
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false
+    }).replace(/\. /g, '.').replace(/, /g, ' ');
+
+    // 넘버링 생성 (기존 항목 개수 + 1)
+    const number = savedPrompts.length + 1;
+    const label = `${number}. ${shotId} ${timeString}`;
+
+    savedPrompts.push({
+        label: label,
+        prompt: promptText,
+        timestamp: now.getTime()
+    });
+
+    saveTo저장();
+    renderPromptList();
+    alert('프롬프트가 저장되었습니다!');
+};
+
+// 프롬프트 복사
+window.copyPrompt = function(index) {
+    if (index < 0 || index >= savedPrompts.length) return;
+
+    const prompt = savedPrompts[index].prompt;
+    navigator.clipboard.writeText(prompt).then(() => {
+        alert('프롬프트가 복사되었습니다!');
+    }).catch(err => {
+        console.error('복사 실패:', err);
+        alert('복사에 실패했습니다.');
+    });
+};
+
+// 프롬프트 삭제
+window.deletePrompt = function(index) {
+    if (index < 0 || index >= savedPrompts.length) return;
+
+    if (confirm('이 프롬프트를 삭제하시겠습니까?')) {
+        savedPrompts.splice(index, 1);
+
+        // 넘버링 재정렬
+        savedPrompts.forEach((item, idx) => {
+            const parts = item.label.split('. ');
+            if (parts.length > 1) {
+                parts[0] = (idx + 1).toString();
+                item.label = parts.join('. ');
+            }
+        });
+
+        saveTo저장();
+        renderPromptList();
+        alert('프롬프트가 삭제되었습니다.');
+    }
+};
+
+// 텍스트 영역 자동 높이 조정
 
 // 최종 프롬프트 textarea 자동 높이 설정
 function setupFinalPromptAutoResize() {
@@ -3013,7 +3241,7 @@ function setupFinalPromptAutoResize() {
 
 // 페이지 로드 시 저장된 프롬프트 불러오기 및 자동 높이 설정
 document.addEventListener('DOMContentLoaded', () => {
-    promptManager.loadSavedPrompts();
+    loadSavedPrompts();
     setupFinalPromptAutoResize();
 });
 
@@ -3030,7 +3258,7 @@ window.parsePromptWithoutProps = function() {
     let combinedData = {};
 
     tabs.forEach(tabName => {
-        const promptData = promptManager.collectFormData(tabName);
+        const promptData = collectFormData(tabName);
         console.log(`📦 ${tabName} 탭 데이터:`, promptData);
         Object.assign(combinedData, promptData);
     });
@@ -3051,7 +3279,7 @@ window.parsePromptWithoutProps = function() {
     console.log('✅ 필터링된 데이터:', filteredData);
 
     // 필터링된 데이터로 프롬프트 생성
-    const combinedPrompt = promptManager.buildPrompt(filteredData);
+    const combinedPrompt = buildPrompt(filteredData);
 
     // 최종 프롬프트에 표시
     const globalFinalPrompt = document.getElementById('globalFinalPrompt');

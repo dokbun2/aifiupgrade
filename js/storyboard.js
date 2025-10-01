@@ -1267,7 +1267,6 @@ class StoryboardManager {
         // 모달 외부 클릭시 닫기
         newModalContainer.addEventListener('click', (e) => {
             if (e.target === newModalContainer) {
-                console.log('🔍 모달 외부 클릭 감지됨');
                 this.closeShotDetailModal();
             }
         });
@@ -1275,7 +1274,6 @@ class StoryboardManager {
 
     handleEscKey = (e) => {
         if (e.key === 'Escape') {
-            console.log('🔍 ESC 키 감지됨');
             this.closeShotDetailModal();
         }
     }
@@ -1300,6 +1298,21 @@ class StoryboardManager {
             // 강제 가비지 컬렉션 힌트
             if (iframe) {
                 iframe.src = 'about:blank';
+            }
+
+            // 초기화 플래그 리셋 (다음 모달 열기를 위해)
+            window.shotDetailIframeInitialized = false;
+            window.shotDetailScriptLoaded = false;
+
+            // 블록별 매핑 플래그도 리셋
+            if (iframe && iframe.contentWindow) {
+                try {
+                    iframe.contentWindow.isCharacterBlockMapped = false;
+                    iframe.contentWindow.isLocationBlockMapped = false;
+                    iframe.contentWindow.isPropsBlockMapped = false;
+                } catch (e) {
+                    // 크로스 오리진 오류 무시
+                }
             }
         }
         document.removeEventListener('keydown', this.handleEscKey);

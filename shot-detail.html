@@ -1185,7 +1185,7 @@
                 <div class="file-selection-section">
                     <div class="file-selector">
                         <label>S01.01.01</label>
-                        <button class="file-btn">파싱</button>
+                        <button class="file-btn" onclick="parsePromptWithoutProps()">파싱</button>
                     </div>
 
                     <div class="file-list">
@@ -1231,8 +1231,39 @@
         </div>
     </div>
 
+    <!-- API Scripts -->
     <script src="./js/gemini-api.js"></script>
     <script src="./js/nano-banana-api.js"></script>
-    <script src="./js/shot-detail.js"></script>
+
+    <!-- Refactored Modules (ES6) -->
+    <script type="module">
+        // Import modules
+        import { imageUploadManager, clearAllImages, toggleUrlInput, addImageFromUrl } from './js/modules/image-upload.js';
+        import { showNotification, autoResizeTextarea, copyPrompt, copyFinalPrompt } from './js/modules/utils.js';
+
+        // Expose to window for inline onclick handlers
+        window.imageUploadManager = imageUploadManager;
+        window.clearAllImages = clearAllImages;
+        window.toggleUrlInput = toggleUrlInput;
+        window.addImageFromUrl = addImageFromUrl;
+        window.showNotification = showNotification;
+        window.autoResizeTextarea = autoResizeTextarea;
+        window.copyPrompt = copyPrompt;
+        window.copyFinalPrompt = copyFinalPrompt;
+
+        // Initialize on DOM ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => {
+                imageUploadManager.init();
+                console.log('✅ Modular shot-detail initialized');
+            });
+        } else {
+            imageUploadManager.init();
+            console.log('✅ Modular shot-detail initialized');
+        }
+    </script>
+
+    <!-- Refactored shot-detail.js (ES6 Module) -->
+    <script type="module" src="./js/shot-detail.js"></script>
 </body>
 </html>

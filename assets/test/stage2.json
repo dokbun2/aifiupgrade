@@ -1,0 +1,642 @@
+{
+  "film_id": "FILM_831101",
+  "current_step": "visual_direction_2B",
+  "timestamp": "2025-09-30T02:05:00Z",
+  "scenes": [
+    {
+      "scene_id": "S01",
+      "scene_title": "운명의 이모티콘",
+      "scene_scenario": "INT. 사무실 - 아침\n\n정적이 흐르는 사무실. 신입사원 진수(20대 후반), 컴퓨터 앞에 각 잡고 앉아있다.\n\n무표정한 대표(50대)가 지나간다. 진수, 벌떡 일어나 90도로 인사한다.\n\n진수, 스마트폰을 들어 친구에게 메시지를 보낸다.\n'나 지금 얼어 죽을 것 같아😂'\n\n전송 버튼을 누른 순간, 수신인이 '대표님'인 것을 발견한다.\n진수의 눈이 커진다. 손가락이 '전송 취소'를 누르려 하지만, 이미 시간은 지났다.\n\n          진수\n     (속삭임)\n  ...망했다.",
+      "concept_art_references": {
+        "characters": [
+          "Jinsu",
+          "CEO"
+        ],
+        "location": "Office",
+        "props": [
+          "Smartphone"
+        ]
+      },
+      "shots": [
+        {
+          "shot_id": "S01.01.01",
+          "shot_type": "regular",
+          "shot_text": "정적이 흐르는 사무실. 신입사원 진수(20대 후반), 컴퓨터 앞에 각 잡고 앉아있다.",
+          "scene": "A scene capturing the tense silence of the office and Jinsu's rigid posture.",
+          "movement_description": {
+            "action": {
+              "Jinsu": "Sits perfectly still, hands on his keyboard, staring at the monitor."
+            },
+            "expression": {
+              "Jinsu": "Anxious and nervous expression, biting his lower lip slightly."
+            },
+            "environment_move": "The only movement is the slight hum of computers and the slow ticking of a wall clock.",
+            "mood_emotion": "Tense, sterile, and quiet atmosphere."
+          },
+          "camera_movement": {
+            "type": "static",
+            "duration": "5s"
+          },
+          "starting_frame": {
+            "Jinsu": "Jinsu sitting at his desk, perfectly centered.",
+            "environment": "A meticulously organized, symmetrical office.",
+            "camera_composition": "wide shot, front view, eye level, symmetrical"
+          },
+          "ending_frame": {
+            "Jinsu": "A slightly closer shot of Jinsu, capturing his nervous expression.",
+            "environment": "The background remains perfectly still and symmetrical.",
+            "camera_composition": "medium wide shot, front view, eye level, symmetrical"
+          }
+        },
+        {
+          "shot_id": "S01.02.01",
+          "shot_type": "regular",
+          "shot_text": "무표정한 대표(50대)가 지나간다. 진수, 벌떡 일어나 90도로 인사한다.",
+          "scene": "The intimidating entrance of the CEO and Jinsu's panicked reaction.",
+          "movement_description": {
+            "action": {
+              "CEO": "Walks past Jinsu's desk at a steady pace without looking at him.",
+              "Jinsu": "Shoots up from his chair and bows deeply at a 90-degree angle."
+            },
+            "expression": {
+              "CEO": "Completely expressionless, poker face.",
+              "Jinsu": "Terrified, wide-eyed expression."
+            },
+            "environment_move": "A slight rustle of the CEO's suit is the only sound.",
+            "mood_emotion": "Intimidation and fear."
+          },
+          "camera_movement": {
+            "type": "track",
+            "speed": "match_subject",
+            "duration": "4s"
+          },
+          "starting_frame": {
+            "CEO": "The CEO enters the frame from the left.",
+            "Jinsu": "Jinsu is visible at his desk in the background.",
+            "environment": "The office environment.",
+            "camera_composition": "medium shot, side view, eye level, deep focus"
+          },
+          "ending_frame": {
+            "CEO": "The CEO has walked past the desk.",
+            "Jinsu": "Jinsu is in a deep bow.",
+            "environment": "The office environment.",
+            "camera_composition": "medium shot, side view, eye level, deep focus"
+          }
+        },
+        {
+          "shot_id": "S01.03.01",
+          "shot_type": "regular",
+          "shot_text": "진수, 스마트폰을 들어 친구에게 메시지를 보낸다.\n'나 지금 얼어 죽을 것 같아😂'",
+          "scene": "The fateful moment Jinsu sends the misdirected text.",
+          "movement_description": {
+            "action": {
+              "Jinsu": "Quickly types a message on his smartphone."
+            },
+            "expression": {
+              "Jinsu": "A slight, pained grimace of anxiety."
+            },
+            "environment_move": "None.",
+            "mood_emotion": "Nervousness and a sense of impending doom."
+          },
+          "camera_movement": {
+            "type": "slow_push_in",
+            "speed": "slow",
+            "duration": "3s"
+          },
+          "starting_frame": {
+            "Jinsu": "Jinsu looking down at his phone.",
+            "environment": "His desk and computer monitor.",
+            "camera_composition": "medium shot, front view, slightly high angle, center frame"
+          },
+          "ending_frame": {
+            "Jinsu": "His thumbs hovering over the send button.",
+            "environment": "A close up on the smartphone screen showing the message.",
+            "camera_composition": "close-up, top-down view, tight frame, focus on screen"
+          }
+        },
+        {
+          "shot_id": "S01.04.01",
+          "shot_type": "regular",
+          "shot_text": "전송 버튼을 누른 순간, 수신인이 '대표님'인 것을 발견한다.",
+          "scene": "The horrifying realization of his mistake.",
+          "movement_description": {
+            "action": {
+              "Jinsu": "His thumb presses the send button."
+            },
+            "expression": {
+              "Jinsu": "His eyes widen in horror as he sees the recipient's name."
+            },
+            "environment_move": "The message 'sent' confirmation appears on the screen.",
+            "mood_emotion": "Pure terror and panic."
+          },
+          "camera_movement": {
+            "type": "snap_zoom",
+            "speed": "fast",
+            "duration": "1s"
+          },
+          "starting_frame": {
+            "environment": "The smartphone screen showing the message and the send button.",
+            "camera_composition": "extreme close-up, top-down view, static"
+          },
+          "ending_frame": {
+            "environment": "The smartphone screen, now showing the recipient as '대표님' (CEO).",
+            "camera_composition": "extreme close-up, top-down view, tight frame"
+          }
+        },
+        {
+          "shot_id": "S01.05.01",
+          "shot_type": "regular",
+          "shot_text": "진수의 눈이 커진다. 손가락이 '전송 취소'를 누르려 하지만, 이미 시간은 지났다.",
+          "scene": "A desperate, failed attempt to undo the mistake.",
+          "movement_description": {
+            "action": {
+              "Jinsu": "His finger frantically taps the screen where the 'undo send' button should be, but it has vanished."
+            },
+            "expression": {
+              "Jinsu": "A look of utter despair and shock."
+            },
+            "environment_move": "None.",
+            "mood_emotion": "Helplessness and panic."
+          },
+          "camera_movement": {
+            "type": "dolly_zoom",
+            "speed": "fast",
+            "duration": "2s"
+          },
+          "starting_frame": {
+            "Jinsu": "Jinsu's face showing his wide-eyed horror.",
+            "environment": "The office background is slightly blurred.",
+            "camera_composition": "close-up, front view, eye level, center frame"
+          },
+          "ending_frame": {
+            "Jinsu": "His face is distorted with panic, the background warping.",
+            "environment": "The office background appears to stretch and distort.",
+            "camera_composition": "close-up, front view, eye level, dutch angle"
+          }
+        },
+        {
+          "shot_id": "S01.06.01",
+          "shot_type": "regular",
+          "shot_text": "진수: (속삭임) ...망했다.",
+          "scene": "The moment Jinsu accepts his doom.",
+          "movement_description": {
+            "action": {
+              "Jinsu": "Whispers the word, his phone slipping from his trembling hands onto the desk."
+            },
+            "expression": {
+              "Jinsu": "His face is pale, expression of complete defeat."
+            },
+            "environment_move": "None.",
+            "mood_emotion": "Absolute despair."
+          },
+          "camera_movement": {
+            "type": "static",
+            "duration": "3s"
+          },
+          "starting_frame": {
+            "Jinsu": "Looking down at his phone with a defeated expression.",
+            "environment": "His desk.",
+            "camera_composition": "close-up, high angle, front view, tight frame"
+          },
+          "ending_frame": {
+            "Jinsu": "He looks up, staring blankly into space.",
+            "environment": "The phone lies on the desk.",
+            "camera_composition": "close-up, high angle, front view, tight frame"
+          }
+        }
+      ]
+    },
+    {
+      "scene_id": "S02",
+      "scene_title": "공포의 하루",
+      "scene_scenario": "INT. 사무실 - 낮\n\n진수는 거대한 화분 뒤에 숨어 대표의 동태를 살핀다.\n대표가 진수 쪽을 보자, 화분 속으로 더 깊이 파고든다.\n\n대표가 팀장과 심각하게 이야기한다. 진수의 눈에는 두 사람이 자기 책상을 손가락질하는 것처럼 보인다.\n\n(상상 시퀀스 - 흑백 느와르 톤)\n대표가 서류에 '해고' 도장을 찍는다. 천둥이 친다.",
+      "concept_art_references": {
+        "characters": [
+          "Jinsu",
+          "CEO"
+        ],
+        "location": "Office",
+        "props": []
+      },
+      "shots": [
+        {
+          "shot_id": "S02.01.01",
+          "shot_type": "regular",
+          "shot_text": "진수는 거대한 화분 뒤에 숨어 대표의 동태를 살핀다.",
+          "scene": "Jinsu's pathetic attempt to hide from the CEO.",
+          "movement_description": {
+            "action": {
+              "Jinsu": "Peeks out from behind a large potted plant, eyes darting around nervously."
+            },
+            "expression": {
+              "Jinsu": "A paranoid and fearful expression."
+            },
+            "environment_move": "Other employees work normally in the background, oblivious.",
+            "mood_emotion": "Paranoia and comedic tension."
+          },
+          "camera_movement": {
+            "type": "static",
+            "duration": "4s"
+          },
+          "starting_frame": {
+            "Jinsu": "Only Jinsu's eyes are visible behind the plant's leaves.",
+            "environment": "The bustling office.",
+            "camera_composition": "medium shot, front view, eye level, frame within a frame"
+          },
+          "ending_frame": {
+            "Jinsu": "He slowly cranes his neck to get a better view.",
+            "environment": "The CEO is visible in the background, walking.",
+            "camera_composition": "medium shot, front view, eye level, frame within a frame"
+          }
+        },
+        {
+          "shot_id": "S02.02.01",
+          "shot_type": "regular",
+          "shot_text": "대표가 진수 쪽을 보자, 화분 속으로 더 깊이 파고든다.",
+          "scene": "A close call that fuels Jinsu's paranoia.",
+          "movement_description": {
+            "action": {
+              "CEO": "Briefly glances in Jinsu's direction.",
+              "Jinsu": "Instantly retracts his head, trying to become one with the plant."
+            },
+            "expression": {
+              "CEO": "Neutral, unreadable expression.",
+              "Jinsu": "Pure terror."
+            },
+            "environment_move": "The plant's leaves rustle as Jinsu hides.",
+            "mood_emotion": "Heightened paranoia and slapstick comedy."
+          },
+          "camera_movement": {
+            "type": "quick_pull_back",
+            "speed": "fast",
+            "duration": "2s",
+            "secondary": "handheld_shake"
+          },
+          "starting_frame": {
+            "CEO": "The CEO turns his head towards the camera.",
+            "Jinsu": "Jinsu is peeking from behind the plant.",
+            "environment": "The office.",
+            "camera_composition": "long shot, front view, eye level, deep focus"
+          },
+          "ending_frame": {
+            "Jinsu": "Jinsu is completely hidden, the plant is shaking.",
+            "environment": "The office.",
+            "camera_composition": "medium shot, front view, eye level, focus on the plant"
+          }
+        },
+        {
+          "shot_id": "S02.03.01",
+          "shot_type": "regular",
+          "shot_text": "대표가 팀장과 심각하게 이야기한다. 진수의 눈에는 두 사람이 자기 책상을 손가락질하는 것처럼 보인다.",
+          "scene": "Jinsu's imagination runs wild with paranoid delusions.",
+          "movement_description": {
+            "action": {
+              "CEO": "Is talking to a manager with a serious expression, occasionally gesturing.",
+              "Jinsu": "Watches them from his hiding spot, his eyes wide with fear."
+            },
+            "expression": {
+              "CEO": "Serious and focused.",
+              "Jinsu": "Convinced he is the topic of their conversation."
+            },
+            "environment_move": "None.",
+            "mood_emotion": "Subjective reality, paranoia."
+          },
+          "camera_movement": {
+            "type": "zoom",
+            "speed": "slow",
+            "duration": "5s",
+            "focus_shift": "rack_focus_to_Jinsu"
+          },
+          "starting_frame": {
+            "CEO": "The CEO and manager are talking in the background.",
+            "environment": "The office.",
+            "camera_composition": "wide shot, front view, eye level, deep focus"
+          },
+          "ending_frame": {
+            "Jinsu": "A close up on Jinsu's terrified face.",
+            "CEO": "The CEO seems to be pointing towards Jinsu's desk in the blurred background.",
+            "environment": "The office.",
+            "camera_composition": "close-up, front view, eye level, shallow depth"
+          }
+        },
+        {
+          "shot_id": "S02.04.01",
+          "shot_type": "regular",
+          "shot_text": "(상상 시퀀스 - 흑백 느와르 톤)\n대표가 서류에 '해고' 도장을 찍는다. 천둥이 친다.",
+          "scene": "A dramatic, noir-style fantasy sequence of Jinsu being fired.",
+          "movement_description": {
+            "action": {
+              "CEO": "Slams a large, ominous stamp that reads '해고' (Fired) onto a document."
+            },
+            "expression": {
+              "CEO": "A grim, merciless expression."
+            },
+            "environment_move": "A flash of lightning illuminates the room, followed by a loud thunderclap.",
+            "mood_emotion": "Melodramatic despair and film noir parody."
+          },
+          "camera_movement": {
+            "type": "dutch_angle",
+            "duration": "3s",
+            "secondary": "slight_shake_on_impact"
+          },
+          "starting_frame": {
+            "CEO": "The CEO raises the stamp high in the air.",
+            "environment": "A dark, shadowy office, reminiscent of a film noir.",
+            "camera_composition": "medium shot, low angle, front view, dramatic"
+          },
+          "ending_frame": {
+            "environment": "A close-up of the stamped document, the ink seemingly bleeding.",
+            "camera_composition": "extreme close-up, top-down view, high contrast"
+          }
+        }
+      ]
+    },
+    {
+      "scene_id": "S03",
+      "scene_title": "심판의 시간",
+      "scene_scenario": "INT. 회의실 - 오후\n\n모든 직원이 침묵 속에 앉아있다. 진수는 사형수처럼 고개를 숙이고 있다.\n\n대표, 말없이 스크린을 켠다. 화면에 빔 프로젝터가 켜진다.",
+      "concept_art_references": {
+        "characters": [
+          "Jinsu",
+          "CEO"
+        ],
+        "location": "Office",
+        "props": []
+      },
+      "shots": [
+        {
+          "shot_id": "S03.01.01",
+          "shot_type": "regular",
+          "shot_text": "모든 직원이 침묵 속에 앉아있다. 진수는 사형수처럼 고개를 숙이고 있다.",
+          "scene": "The tense, silent atmosphere of the meeting room.",
+          "movement_description": {
+            "action": {
+              "Jinsu": "Sits with his head hung low, avoiding eye contact with anyone."
+            },
+            "expression": {
+              "Jinsu": "An expression of utter resignation, as if awaiting his execution."
+            },
+            "environment_move": "The room is unnaturally still and silent.",
+            "mood_emotion": "Suspense, dread, and solemnity."
+          },
+          "camera_movement": {
+            "type": "slow_push_in",
+            "speed": "very_slow",
+            "duration": "6s"
+          },
+          "starting_frame": {
+            "environment": "A wide view of the silent, tense meeting room.",
+            "camera_composition": "wide shot, front view, eye level, symmetrical"
+          },
+          "ending_frame": {
+            "Jinsu": "A close-up on Jinsu, hunched over in his chair.",
+            "environment": "The other employees are blurred in the background.",
+            "camera_composition": "close-up, side view, eye level, tight frame"
+          }
+        },
+        {
+          "shot_id": "S03.02.01",
+          "shot_type": "regular",
+          "shot_text": "대표, 말없이 스크린을 켠다.",
+          "scene": "The CEO silently begins the meeting, heightening the tension.",
+          "movement_description": {
+            "action": {
+              "CEO": "Stands at the front of the room and turns on the projector with a remote."
+            },
+            "expression": {
+              "CEO": "His face is stern and unreadable."
+            },
+            "environment_move": "The projector hums to life, casting a bright light on the screen.",
+            "mood_emotion": "Anticipation and dread."
+          },
+          "camera_movement": {
+            "type": "static",
+            "duration": "4s"
+          },
+          "starting_frame": {
+            "CEO": "The CEO stands with his back to the employees.",
+            "environment": "The meeting room.",
+            "camera_composition": "medium shot, back view, eye level, center frame"
+          },
+          "ending_frame": {
+            "CEO": "He turns to face the employees, his expression grim.",
+            "environment": "The bright light of the projector screen illuminates the room.",
+            "camera_composition": "medium shot, front view, low angle, imposing"
+          }
+        },
+        {
+          "shot_id": "S03.03.01",
+          "shot_type": "regular",
+          "shot_text": "화면에 빔 프로젝터가 켜진다.",
+          "scene": "The moment of truth arrives as the projector screen lights up.",
+          "movement_description": {
+            "action": {},
+            "expression": {},
+            "environment_move": "The projector screen flickers and then displays the CEO's phone screen.",
+            "mood_emotion": "The climax of tension."
+          },
+          "camera_movement": {
+            "type": "whip_pan",
+            "speed": "fast",
+            "duration": "1s",
+            "secondary": "focus_shift"
+          },
+          "starting_frame": {
+            "Jinsu": "Jinsu's face, bracing for impact.",
+            "camera_composition": "extreme close-up, side view, eye level, tight frame"
+          },
+          "ending_frame": {
+            "environment": "The bright, empty projector screen.",
+            "camera_composition": "wide shot, front view, eye level, full frame"
+          }
+        }
+      ]
+    },
+    {
+      "scene_id": "S04",
+      "scene_title": "의외의 소통",
+      "scene_scenario": "INT. 회의실 - 계속\n\n스크린에 대표와 진수의 메시지 창이 나타난다. '😂' 이모티콘이 화면을 가득 채운다.\n직원들이 웅성거린다. 진수는 눈을 감는다.\n\n          대표\n     우리 회사, 너무 딱딱합니다. 어제 신입사원이 제게 이걸 보냈더군요. 처음엔 당황했지만, 생각해보니 이게 바로 우리에게 필요한 '솔직함' 아닐까요?\n\n대표, 처음으로 환하게 웃는다. 직원들도 따라 웃는다.\n\n          대표\n     앞으로 저한테도 이모티콘 많이들 보내주세요. 하하.\n\n진수, 눈을 뜨고 어리둥절한 표정으로 대표를 본다. 그의 얼굴에 안도의 미소가 번진다.",
+      "concept_art_references": {
+        "characters": [
+          "Jinsu",
+          "CEO"
+        ],
+        "location": "Office",
+        "props": [
+          "Smartphone"
+        ]
+      },
+      "shots": [
+        {
+          "shot_id": "S04.01.01",
+          "shot_type": "regular",
+          "shot_text": "스크린에 대표와 진수의 메시지 창이 나타난다. '😂' 이모티콘이 화면을 가득 채운다.",
+          "scene": "The shocking reveal of the 'crying with laughter' emoji.",
+          "movement_description": {
+            "action": {},
+            "expression": {},
+            "environment_move": "The message thread between the CEO and Jinsu appears on screen, with the '😂' emoji magnified to fill the screen.",
+            "mood_emotion": "Surprise, confusion, and dark humor."
+          },
+          "camera_movement": {
+            "type": "static",
+            "duration": "4s"
+          },
+          "starting_frame": {
+            "environment": "The blank projector screen.",
+            "camera_composition": "wide shot, front view, eye level, symmetrical"
+          },
+          "ending_frame": {
+            "environment": "The screen is filled with the giant emoji.",
+            "camera_composition": "wide shot, front view, eye level, symmetrical"
+          }
+        },
+        {
+          "shot_id": "S04.02.01",
+          "shot_type": "regular",
+          "shot_text": "직원들이 웅성거린다. 진수는 눈을 감는다.",
+          "scene": "The employees' confused reaction and Jinsu's final surrender.",
+          "movement_description": {
+            "action": {
+              "Jinsu": "Squeezes his eyes shut, unable to watch."
+            },
+            "expression": {
+              "Jinsu": "An expression of pure agony."
+            },
+            "environment_move": "The employees start murmuring to each other in confusion.",
+            "mood_emotion": "Anticipation, confusion, and empathy for Jinsu."
+          },
+          "camera_movement": {
+            "type": "pan",
+            "speed": "slow",
+            "duration": "5s"
+          },
+          "starting_frame": {
+            "environment": "A shot of the employees' confused faces.",
+            "camera_composition": "medium shot, side view, eye level, group shot"
+          },
+          "ending_frame": {
+            "Jinsu": "A close up on Jinsu's face, his eyes tightly shut.",
+            "camera_composition": "close-up, front view, eye level, tight frame"
+          }
+        },
+        {
+          "shot_id": "S04.03.01",
+          "shot_type": "regular",
+          "shot_text": "대표: 우리 회사, 너무 딱딱합니다. 어제 신입사원이 제게 이걸 보냈더군요. 처음엔 당황했지만, 생각해보니 이게 바로 우리에게 필요한 '솔직함' 아닐까요?",
+          "scene": "The CEO's unexpected speech about 'frankness'.",
+          "movement_description": {
+            "action": {
+              "CEO": "Delivers his speech with a surprisingly gentle tone."
+            },
+            "expression": {
+              "CEO": "His stern expression softens slightly."
+            },
+            "environment_move": "The employees listen in stunned silence.",
+            "mood_emotion": "A turning point, surprise, and dawning realization."
+          },
+          "camera_movement": {
+            "type": "static",
+            "duration": "8s"
+          },
+          "starting_frame": {
+            "CEO": "The CEO standing in front of the screen with the emoji.",
+            "camera_composition": "medium shot, front view, eye level, center frame"
+          },
+          "ending_frame": {
+            "CEO": "He has a thoughtful expression on his face.",
+            "camera_composition": "medium close-up, front view, eye level, center frame"
+          }
+        },
+        {
+          "shot_id": "S04.04.01",
+          "shot_type": "regular",
+          "shot_text": "대표, 처음으로 환하게 웃는다. 직원들도 따라 웃는다.",
+          "scene": "The ice-breaking moment when the CEO laughs.",
+          "movement_description": {
+            "action": {
+              "CEO": "A wide, genuine smile spreads across his face, and he lets out a hearty laugh."
+            },
+            "expression": {
+              "CEO": "Genuine warmth and amusement."
+            },
+            "environment_move": "The employees, stunned at first, slowly start to chuckle, and then break into full laughter.",
+            "mood_emotion": "Relief, joy, and a sense of community."
+          },
+          "camera_movement": {
+            "type": "arc",
+            "speed": "slow",
+            "duration": "5s"
+          },
+          "starting_frame": {
+            "CEO": "The CEO's face, beginning to smile.",
+            "camera_composition": "close-up, front view, eye level, tight frame"
+          },
+          "ending_frame": {
+            "environment": "A shot of the laughing employees.",
+            "camera_composition": "medium shot, side view, eye level, group shot"
+          }
+        },
+        {
+          "shot_id": "S04.05.01",
+          "shot_type": "regular",
+          "shot_text": "대표: 앞으로 저한테도 이모티콘 많이들 보내주세요. 하하.",
+          "scene": "The CEO encourages a new era of communication.",
+          "movement_description": {
+            "action": {
+              "CEO": "Says this while still laughing."
+            },
+            "expression": {
+              "CEO": "Amused and happy."
+            },
+            "environment_move": "The employees' laughter continues.",
+            "mood_emotion": "A complete shift in atmosphere to one of warmth and openness."
+          },
+          "camera_movement": {
+            "type": "static",
+            "duration": "3s"
+          },
+          "starting_frame": {
+            "CEO": "The laughing CEO.",
+            "camera_composition": "medium shot, front view, eye level, center frame"
+          },
+          "ending_frame": {
+            "CEO": "He looks around at his laughing employees.",
+            "camera_composition": "medium shot, front view, eye level, center frame"
+          }
+        },
+        {
+          "shot_id": "S04.06.01",
+          "shot_type": "regular",
+          "shot_text": "진수, 눈을 뜨고 어리둥절한 표정으로 대표를 본다. 그의 얼굴에 안도의 미소가 번진다.",
+          "scene": "Jinsu's journey from terror to relief.",
+          "movement_description": {
+            "action": {
+              "Jinsu": "Slowly opens his eyes, looks at the laughing CEO, and a slow smile of relief spreads across his face."
+            },
+            "expression": {
+              "Jinsu": "From confusion to dawning comprehension to pure, unadulterated relief."
+            },
+            "environment_move": "The sound of laughter fills the room.",
+            "mood_emotion": "Catharsis and happy resolution."
+          },
+          "camera_movement": {
+            "type": "pull_out",
+            "speed": "slow",
+            "duration": "6s"
+          },
+          "starting_frame": {
+            "Jinsu": "A close-up of Jinsu's face as he opens his eyes.",
+            "camera_composition": "close-up, front view, eye level, tight frame"
+          },
+          "ending_frame": {
+            "Jinsu": "Jinsu is smiling amidst his laughing colleagues.",
+            "CEO": "The CEO is also smiling in the background.",
+            "environment": "The entire meeting room is filled with a warm, happy atmosphere.",
+            "camera_composition": "wide shot, front view, eye level, symmetrical"
+          }
+        }
+      ]
+    }
+  ]
+}
