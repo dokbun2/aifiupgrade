@@ -343,6 +343,40 @@ document.addEventListener('DOMContentLoaded', function() {
             parseBtn.addEventListener('click', parseAllBlocksToFinalPrompt);
         }
 
+        // 최종 프롬프트 textarea 자동 리사이징
+        const finalPromptTextarea = document.getElementById('globalFinalPrompt');
+        if (finalPromptTextarea) {
+            // input 이벤트로 실시간 높이 조정
+            finalPromptTextarea.addEventListener('input', function() {
+                autoResizeTextarea(this);
+            });
+
+            // 초기 높이 설정
+            autoResizeTextarea(finalPromptTextarea);
+        }
+
+        // 🔧 모든 버튼의 기본 submit 동작 방지 (페이지 새로고침 방지)
+        document.querySelectorAll('button:not([type])').forEach(button => {
+            button.setAttribute('type', 'button');
+        });
+
+        // 🔧 모든 form의 submit 이벤트 방지
+        document.querySelectorAll('form').forEach(form => {
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                console.log('⚠️ Form submit 방지됨');
+                return false;
+            });
+        });
+
+        // 🔧 전역 에러 핸들러 (에러로 인한 새로고침 방지)
+        window.addEventListener('error', function(e) {
+            console.error('🚨 에러 발생:', e.error);
+            console.error('파일:', e.filename, '라인:', e.lineno);
+            e.preventDefault();
+            return true;
+        });
+
         // localStorage에서 캐시된 film_metadata 로드
         loadCachedFilmMetadata();
 
@@ -1076,6 +1110,36 @@ function generatePrompt() {
         }
     });
 
+    // 글로벌 최종 프롬프트에도 표시
+    const globalFinalPrompt = document.getElementById('globalFinalPrompt');
+    if (globalFinalPrompt) {
+        globalFinalPrompt.value = generatedPrompt;
+
+        // 높이 자동 조정 (여러 번 호출하여 정확도 향상)
+        requestAnimationFrame(() => {
+            autoResizeTextarea(globalFinalPrompt);
+
+            setTimeout(() => {
+                autoResizeTextarea(globalFinalPrompt);
+            }, 50);
+
+            setTimeout(() => {
+                autoResizeTextarea(globalFinalPrompt);
+            }, 150);
+        });
+
+        // 프롬프트 영역으로 스크롤
+        setTimeout(() => {
+            const promptSection = document.querySelector('.global-final-prompt-section');
+            if (promptSection) {
+                promptSection.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
+        }, 250);
+    }
+
     // 프롬프트 저장
     shotDetailManager.shotData.prompts[currentTab] = generatedPrompt;
 
@@ -1148,6 +1212,18 @@ function copyPrompt() {
             showNotification('프롬프트가 클립보드에 복사되었습니다.');
         });
     }
+}
+
+// textarea 높이 자동 조정 함수
+function autoResizeTextarea(textarea) {
+    if (!textarea) return;
+
+    // 높이를 초기화하여 스크롤 높이를 정확하게 측정
+    textarea.style.height = 'auto';
+
+    // 내용에 맞춰 높이 조정 (최대 높이는 CSS에서 제어)
+    const newHeight = Math.min(textarea.scrollHeight, 650);
+    textarea.style.height = newHeight + 'px';
 }
 
 // 최종 프롬프트 복사 (globalFinalPrompt textarea용)
@@ -1282,6 +1358,7 @@ function parseAllBlocksToFinalPrompt() {
     const finalPromptTextarea = document.getElementById('globalFinalPrompt');
     if (finalPromptTextarea) {
         finalPromptTextarea.value = finalPrompt;
+        autoResizeTextarea(finalPromptTextarea); // 높이 자동 조정
         console.log('  ✅ 최종 프롬프트 텍스트창에 표시 완료');
         showNotification('프롬프트 파싱 완료!', 'success');
     } else {
@@ -3327,3 +3404,182 @@ window.downloadGeneratedImage = async function() {
         alert('이미지 다운로드에 실패했습니다.');
     }
 };
+
+// ========================================
+// 프롬프트 저장 관리
+// ========================================
+
+// 저장된 프롬프트 목록 (localStorage에 저장)
+let savedPrompts = [];
+
+// localStorage에서 저장된 프롬프트 불러오기
+function loadSavedPrompts() {
+    const saved = localStorage.getItem('savedPrompts');
+    if (saved) {
+        savedPrompts = JSON.parse(saved);
+    }
+    renderPromptList();
+}
+
+// localStorage에 프롬프트 저장
+function saveTo저장() {
+    localStorage.setItem('savedPrompts', JSON.stringify(savedPrompts));
+}
+
+// 프롬프트 목록 렌더링
+function renderPromptList() {
+    const fileList = document.querySelector('.file-list');
+    if (!fileList) return;
+
+    fileList.innerHTML = '';
+
+    savedPrompts.forEach((item, index) => {
+        const fileItem = document.createElement('div');
+        fileItem.className = 'file-item';
+        fileItem.innerHTML = `
+            <input type="checkbox" id="file${index}">
+            <label for="file${index}">${item.label}</label>
+            <span class="file-actions">
+                <button class="action-btn" onclick="copyPrompt(${index})">복사</button>
+                <button class="action-btn" onclick="deletePrompt(${index})">삭제</button>
+            </span>
+        `;
+        fileList.appendChild(fileItem);
+    });
+}
+
+// 저장 버튼 클릭 시 실행
+window.savePrompt = function() {
+    const finalPromptTextarea = document.getElementById('globalFinalPrompt');
+    const shotIdElement = document.querySelector('.shot-id');
+
+    if (!finalPromptTextarea || !shotIdElement) {
+        alert('프롬프트를 찾을 수 없습니다.');
+        return;
+    }
+
+    const promptText = finalPromptTextarea.value.trim();
+    if (!promptText || promptText === '생성된 프롬프트가 여기에 표시됩니다...') {
+        alert('저장할 프롬프트가 없습니다.');
+        return;
+    }
+
+    const shotId = shotIdElement.textContent.trim();
+    const now = new Date();
+    const timeString = now.toLocaleString('ko-KR', {
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false
+    }).replace(/\. /g, '.').replace(/, /g, ' ');
+
+    // 넘버링 생성 (기존 항목 개수 + 1)
+    const number = savedPrompts.length + 1;
+    const label = `${number}. ${shotId} ${timeString}`;
+
+    savedPrompts.push({
+        label: label,
+        prompt: promptText,
+        timestamp: now.getTime()
+    });
+
+    saveTo저장();
+    renderPromptList();
+    alert('프롬프트가 저장되었습니다!');
+};
+
+// 프롬프트 복사
+window.copyPrompt = function(index) {
+    if (index < 0 || index >= savedPrompts.length) return;
+
+    const prompt = savedPrompts[index].prompt;
+    navigator.clipboard.writeText(prompt).then(() => {
+        alert('프롬프트가 복사되었습니다!');
+    }).catch(err => {
+        console.error('복사 실패:', err);
+        alert('복사에 실패했습니다.');
+    });
+};
+
+// 프롬프트 삭제
+window.deletePrompt = function(index) {
+    if (index < 0 || index >= savedPrompts.length) return;
+
+    if (confirm('이 프롬프트를 삭제하시겠습니까?')) {
+        savedPrompts.splice(index, 1);
+
+        // 넘버링 재정렬
+        savedPrompts.forEach((item, idx) => {
+            const parts = item.label.split('. ');
+            if (parts.length > 1) {
+                parts[0] = (idx + 1).toString();
+                item.label = parts.join('. ');
+            }
+        });
+
+        saveTo저장();
+        renderPromptList();
+        alert('프롬프트가 삭제되었습니다.');
+    }
+};
+
+// 텍스트 영역 자동 높이 조정
+function autoResizeTextarea(textarea) {
+    if (!textarea) return;
+
+    // 높이를 최소값으로 초기화하여 정확한 scrollHeight 측정
+    textarea.style.height = 'auto';
+    textarea.style.height = '0px';
+
+    // scrollHeight 측정 (실제 컨텐츠 높이)
+    const scrollHeight = textarea.scrollHeight;
+
+    // 최소 높이 250px, 컨텐츠가 많으면 그에 맞춰 늘어남
+    const newHeight = Math.max(250, scrollHeight + 5);
+
+    textarea.style.height = newHeight + 'px';
+
+    console.log('📏 Textarea 높이 조정:', {
+        scrollHeight: scrollHeight,
+        newHeight: newHeight,
+        textLength: textarea.value.length
+    });
+}
+
+// 최종 프롬프트 textarea 자동 높이 설정
+function setupFinalPromptAutoResize() {
+    const finalPromptTextarea = document.getElementById('globalFinalPrompt');
+    if (!finalPromptTextarea) return;
+
+    // input 이벤트로 실시간 높이 조정
+    finalPromptTextarea.addEventListener('input', function() {
+        autoResizeTextarea(this);
+    });
+
+    // 초기 높이 설정
+    autoResizeTextarea(finalPromptTextarea);
+
+    // MutationObserver로 값이 프로그램적으로 변경될 때도 감지
+    const observer = new MutationObserver(() => {
+        autoResizeTextarea(finalPromptTextarea);
+    });
+
+    observer.observe(finalPromptTextarea, {
+        attributes: true,
+        attributeFilter: ['value']
+    });
+
+    // 주기적으로 체크 (프로그램적으로 값이 변경되는 경우 대비)
+    setInterval(() => {
+        if (finalPromptTextarea.value) {
+            autoResizeTextarea(finalPromptTextarea);
+        }
+    }, 500);
+}
+
+// 페이지 로드 시 저장된 프롬프트 불러오기 및 자동 높이 설정
+document.addEventListener('DOMContentLoaded', () => {
+    loadSavedPrompts();
+    setupFinalPromptAutoResize();
+});

@@ -1520,8 +1520,25 @@ body {
 }
 
 .file-actions {
-    color: #999;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.file-actions .action-btn {
+    padding: 4px 8px;
     font-size: 11px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    background: rgba(255, 255, 255, 0.1);
+    color: #999;
+    transition: all 0.2s ease;
+}
+
+.file-actions .action-btn:hover {
+    background: rgba(255, 255, 255, 0.15);
+    color: #fff;
 }
 
 /* Bottom Right Section - 제거됨 */
@@ -1885,12 +1902,11 @@ body {
     border-left: none;
     border-right: none;
     border-bottom: none;
-    margin: 0;
+    margin: 0 0 40px 0; /* 하단 여백 추가 */
     padding: 0;
-    min-height: 200px; /* 최소 높이 줄임 */
-    max-height: 400px; /* 최대 높이 설정 */
+    min-height: 300px; /* 최소 높이 */
     box-shadow: none;
-    overflow: hidden;
+    overflow: visible; /* 내용이 보이도록 변경 */
     position: relative;
     width: 100%;
     display: flex;
@@ -2024,9 +2040,10 @@ body {
     resize: none; /* 수동 리사이즈 비활성화 */
     transition: all 0.2s ease;
     width: 100%;
-    flex: 1; /* 남은 공간 채우기 */
-    min-height: 150px;
-    overflow-y: auto; /* 스크롤 자동 */
+    min-height: 250px;
+    height: auto; /* 자동 높이 */
+    overflow-y: hidden; /* 내부 스크롤 제거 */
+    box-sizing: border-box;
 }
 
 .final-prompt-textarea:hover {

@@ -1267,6 +1267,7 @@ class StoryboardManager {
         // 모달 외부 클릭시 닫기
         newModalContainer.addEventListener('click', (e) => {
             if (e.target === newModalContainer) {
+                console.log('🔍 모달 외부 클릭 감지됨');
                 this.closeShotDetailModal();
             }
         });
@@ -1274,6 +1275,7 @@ class StoryboardManager {
 
     handleEscKey = (e) => {
         if (e.key === 'Escape') {
+            console.log('🔍 ESC 키 감지됨');
             this.closeShotDetailModal();
         }
     }
