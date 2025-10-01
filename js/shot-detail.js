@@ -2144,9 +2144,15 @@ function displayLocationData(locationNum) {
  * 장소블록 데이터 매칭 (캐릭터 블록과 동일한 패턴)
  */
 function mapLocationBlock(locationData) {
-    if (!locationData) return;
+    // locationData 파라미터는 호환성을 위해 유지하지만 사용하지 않음
 
-    console.log('🏢 장소 블록 매핑 시작:', locationData);
+    console.log('🏢 장소 블록 매핑 시작');
+
+    // 이미 초기화되었으면 스킵 (무한 루프 방지)
+    if (parsedLocationsData && parsedLocationsData.length > 0) {
+        console.log('⚠️ 장소 블록 이미 초기화됨, 스킵');
+        return;
+    }
 
     // sessionStorage에서 Stage1 원본 데이터 가져오기
     const stage1DataStr = sessionStorage.getItem('stage1OriginalData');
@@ -2159,6 +2165,7 @@ function mapLocationBlock(locationData) {
             console.log('📦 Stage1 원본 장소 데이터 (전체):', stage1Locations);
         } catch (error) {
             console.error('❌ Stage1 데이터 파싱 에러:', error);
+            return;
         }
     }
 
@@ -2265,27 +2272,12 @@ window.regenerateImage = async function() {
 
     // 1. 프롬프트 확인
     const prompt = finalPromptTextarea?.value.trim();
-    if (!prompt) {
-        showNotification('먼저 "파싱" 버튼을 눌러 프롬프트를 생성해주세요.', 'warning');
+    if (!prompt || prompt === '생성된 프롬프트가 여기에 표시됩니다...') {
+        alert('먼저 프롬프트를 생성해주세요.');
         return;
     }
 
-    // 2. API 키 확인
-    if (!window.nanoBananaAPI || !window.nanoBananaAPI.isReady()) {
-        // API 초기화 시도
-        window.nanoBananaAPI?.init();
-
-        if (!window.nanoBananaAPI || !window.nanoBananaAPI.isReady()) {
-            showNotification('Gemini API 키가 설정되지 않았습니다. 설정에서 API 키를 입력해주세요.', 'error');
-            return;
-        }
-    }
-
-    // 3. 업로드된 이미지 확인
-    const uploadedImages = imageUploadManager.uploadedImages || [];
-    console.log(`📸 업로드된 이미지: ${uploadedImages.length}개`);
-
-    // 4. 로딩 상태 표시
+    // 2. 로딩 상태 표시
     generationResult.innerHTML = `
         <div style="text-align: center; padding: 20px;">
             <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="spin" style="animation: spin 1s linear infinite;">
@@ -2298,64 +2290,83 @@ window.regenerateImage = async function() {
     `;
 
     try {
-        let result;
+        let imageUrl = '';
 
-        if (uploadedImages.length > 0) {
-            // 이미지가 있으면 이미지 참조하여 생성
-            console.log('🖼️ 참조 이미지와 함께 생성');
+        // Check if Gemini API is available and ready
+        if (window.geminiAPI && window.geminiAPI.isReady()) {
+            try {
+                console.log('🍌 Generating image with Nano Banana:', prompt);
 
-            // 이미지를 base64로 변환
-            const imageData = uploadedImages.slice(0, 3).map(img => ({
-                base64: img.src.split(',')[1], // data:image/...;base64, 제거
-                mimeType: img.src.match(/data:(.*?);/)?.[1] || 'image/jpeg'
-            }));
+                // Use Gemini API to generate image
+                const result = await window.geminiAPI.generateImage(prompt, {
+                    temperature: 1.0,
+                    topK: 40,
+                    topP: 0.95
+                });
 
-            // composeImages 사용
-            if (imageData.length > 1) {
-                result = await window.nanoBananaAPI.composeImages(imageData, prompt);
-            } else {
-                // 단일 이미지는 editImage 사용
-                result = await window.nanoBananaAPI.editImage(
-                    imageData[0].base64,
-                    prompt,
-                    { mimeType: imageData[0].mimeType }
+                if (result.success && result.imageUrl) {
+                    imageUrl = result.imageUrl;
+                    console.log('✅ Nano Banana generated image successfully');
+                } else {
+                    throw new Error('이미지 생성 실패: 응답에 이미지가 없습니다');
+                }
+            } catch (apiError) {
+                console.error('Nano Banana generation error:', apiError);
+
+                // Offer test mode as fallback
+                const useTestMode = confirm(
+                    `Nano Banana 이미지 생성 실패:\n${apiError.message}\n\n` +
+                    '테스트 모드로 진행하시겠습니까?'
                 );
+
+                if (useTestMode) {
+                    const timestamp = Date.now();
+                    const promptHash = btoa(prompt.substring(0, 100)).replace(/[^a-zA-Z0-9]/g, '').substring(0, 10);
+                    imageUrl = `https://picsum.photos/seed/${promptHash}-${timestamp}/1024/1024`;
+                } else {
+                    generationResult.innerHTML = `
+                        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" opacity="0.3">
+                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                            <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                            <polyline points="21 15 16 10 5 21"></polyline>
+                        </svg>
+                        <p>이미지가 생성되면 여기에 표시됩니다</p>
+                    `;
+                    return;
+                }
             }
         } else {
-            // 이미지 없이 프롬프트만으로 생성
-            console.log('📝 프롬프트만으로 생성');
-            result = await window.nanoBananaAPI.generateImage(prompt);
+            // API가 설정되지 않은 경우
+            const useTestMode = confirm(
+                'Gemini API가 설정되지 않았습니다.\n' +
+                '메인 페이지에서 API를 설정하면 Nano Banana로 이미지를 생성할 수 있습니다.\n\n' +
+                '테스트 모드로 진행하시겠습니까?'
+            );
+
+            if (useTestMode) {
+                const timestamp = Date.now();
+                imageUrl = `https://picsum.photos/1024/1024?random=${timestamp}`;
+            } else {
+                generationResult.innerHTML = `
+                    <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" opacity="0.3">
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                        <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                        <polyline points="21 15 16 10 5 21"></polyline>
+                    </svg>
+                    <p>이미지가 생성되면 여기에 표시됩니다</p>
+                `;
+                return;
+            }
         }
 
-        // 5. 결과 표시
-        if (result.success) {
+        // 3. 결과 표시
+        if (imageUrl) {
             console.log('✅ 이미지 생성 성공');
             generationResult.classList.add('has-image');
             generationResult.innerHTML = `
-                <img src="${result.imageUrl}" alt="Generated Image" style="width: 100%; height: 100%; object-fit: contain; border-radius: 8px;">
+                <img src="${imageUrl}" alt="Generated Image" style="width: 100%; height: 100%; object-fit: contain; border-radius: 8px; cursor: pointer;" onclick="openGeneratedImageViewer('${imageUrl}')">
             `;
-
-            // 비용 정보 표시
-            const costInfo = `토큰: ${result.tokensUsed}, 비용: $${result.cost.toFixed(3)}`;
-            showNotification(`이미지 생성 완료! (${costInfo})`, 'success');
-        } else {
-            console.error('❌ 이미지 생성 실패:', result.error);
-
-            // 실패 상태 표시
-            generationResult.innerHTML = `
-                <div style="text-align: center; padding: 20px; color: #ff6b6b;">
-                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <circle cx="12" cy="12" r="10"/>
-                        <line x1="15" y1="9" x2="9" y2="15"/>
-                        <line x1="9" y1="9" x2="15" y2="15"/>
-                    </svg>
-                    <p style="margin-top: 10px;">생성 실패</p>
-                    <p style="font-size: 11px; color: #999; margin-top: 5px;">${result.error || '알 수 없는 오류'}</p>
-                    ${result.suggestion ? `<p style="font-size: 10px; color: #666; margin-top: 8px;">${result.suggestion}</p>` : ''}
-                </div>
-            `;
-
-            showNotification(result.error || '이미지 생성에 실패했습니다.', 'error');
+            alert('이미지 생성 완료!');
         }
 
     } catch (error) {
@@ -3252,3 +3263,47 @@ window.addEventListener('pagehide', function() {
     isInitialized = false;
     isFormEventsInitialized = false;
 });
+
+// 이미지 뷰어 모달 관련 함수들
+window.openGeneratedImageViewer = function(imageUrl) {
+    const modal = document.getElementById('imageViewerModal');
+    const modalImg = document.getElementById('modalImage');
+
+    if (modal && modalImg) {
+        modalImg.src = imageUrl;
+        modal.style.display = 'flex';
+    }
+};
+
+window.closeImageViewer = function() {
+    const modal = document.getElementById('imageViewerModal');
+    if (modal) {
+        modal.style.display = 'none';
+    }
+};
+
+window.downloadGeneratedImage = async function() {
+    const modalImg = document.getElementById('modalImage');
+    if (!modalImg || !modalImg.src) {
+        alert('다운로드할 이미지가 없습니다.');
+        return;
+    }
+
+    try {
+        const response = await fetch(modalImg.src);
+        const blob = await response.blob();
+        const timestamp = new Date().getTime();
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = `generated-image-${timestamp}.png`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(a.href);
+
+        alert('이미지가 다운로드되었습니다!');
+    } catch (error) {
+        console.error('이미지 다운로드 실패:', error);
+        alert('이미지 다운로드에 실패했습니다.');
+    }
+};

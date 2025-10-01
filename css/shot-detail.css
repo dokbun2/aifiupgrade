@@ -2393,6 +2393,78 @@ body {
     border-color: rgba(255, 107, 107, 0.3);
 }
 
+/* 이미지 뷰어 모달 */
+.image-viewer-modal {
+    display: none;
+    position: fixed;
+    z-index: 9999;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.95);
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    padding: 20px;
+}
+
+.image-viewer-modal img {
+    max-width: 90%;
+    max-height: 80%;
+    object-fit: contain;
+    border-radius: 8px;
+    cursor: default;
+}
+
+.image-viewer-modal .modal-close {
+    position: absolute;
+    top: 20px;
+    right: 35px;
+    color: #f1f1f1;
+    font-size: 40px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+    z-index: 10000;
+}
+
+.image-viewer-modal .modal-close:hover {
+    color: #ff6b6b;
+}
+
+.modal-controls {
+    margin-top: 20px;
+    display: flex;
+    gap: 16px;
+    align-items: center;
+}
+
+.modal-controls .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    background: #667eea;
+    border: none;
+    border-radius: 8px;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.modal-controls .btn:hover {
+    background: #5568d3;
+    transform: translateY(-2px);
+}
+
+.modal-controls .image-filename {
+    color: #ccc;
+    font-size: 14px;
+}
+
 /* 추가된 캐릭터 리스트 */
 .added-characters-list {
     display: flex;
