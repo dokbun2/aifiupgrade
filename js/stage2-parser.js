@@ -133,17 +133,19 @@ class Stage2JSONParser {
         }
 
         // 연출 블록의 장면 프롬프트 입력 필드 찾기
-        const scenePromptInput = document.querySelector('[data-prompt="scene"]');
+        // 정확한 셀렉터: 연출 블록 탭(data-tab="scene") 내의 장면 필드(data-block="scene")
+        const scenePromptInput = document.querySelector('.tab-pane[data-tab="scene"] .prompt-blocks .prompt-row-item[data-block="scene"] .prompt-input');
         if (scenePromptInput) {
             scenePromptInput.value = sceneData.scene;
 
             // 입력 이벤트 트리거 (UI 업데이트를 위해)
             scenePromptInput.dispatchEvent(new Event('input', { bubbles: true }));
 
-            console.log(`✅ 샷 ${shotId}의 scene 데이터 적용:`, sceneData.scene);
+            console.log(`✅ 연출 블록 장면 필드에 샷 ${shotId}의 Stage2 scene 데이터 적용:`, sceneData.scene);
             return true;
         } else {
             console.warn('⚠️ 연출 블록의 장면 프롬프트 입력 필드를 찾을 수 없습니다.');
+            console.warn('   셀렉터: .tab-pane[data-tab="scene"] .prompt-blocks .prompt-row-item[data-block="scene"] .prompt-input');
             return false;
         }
     }

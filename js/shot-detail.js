@@ -409,12 +409,12 @@ function applyPropsDefaults(props) {
         cb.checked = false;
     });
 
-    // 선택된 소품 체크
+    // 선택된 소품 체크 (이벤트 트리거 없이)
     props.forEach(prop => {
         const checkbox = document.querySelector(`.props-options input[value="${prop}"]`);
         if (checkbox) {
             checkbox.checked = true;
-            checkbox.dispatchEvent(new Event('change'));
+            // dispatchEvent 제거 - 무한 루프 방지
         }
     });
 }
@@ -474,10 +474,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
                         // 연출 블록의 장면 필드에 scene 값 설정
                         if (shotData.scene) {
-                            const sceneInput = document.querySelector('.tab-pane[data-tab="scene"] .prompt-row-item[data-block="scene"] .prompt-input');
+                            // 정확한 셀렉터: 연출 블록 탭(data-tab="scene") 내의 장면 필드(data-block="scene")
+                            const sceneInput = document.querySelector('.tab-pane[data-tab="scene"] .prompt-blocks .prompt-row-item[data-block="scene"] .prompt-input');
                             if (sceneInput) {
                                 sceneInput.value = shotData.scene;
-                                console.log('✅ 장면 필드에 값 설정:', shotData.scene);
+                                console.log('✅ 연출 블록 장면 필드에 Stage2 scene 값 설정:', shotData.scene);
+                            } else {
+                                console.warn('⚠️ 연출 블록 장면 입력 필드를 찾을 수 없습니다.');
                             }
                         }
                     } catch (error) {
@@ -705,15 +708,15 @@ function initializeFormEvents() {
         copyPropsBtn.addEventListener('click', copyPropsData);
     }
 
+    // 전역 디바운스 타이머
+    let globalDebounceTimer = null;
+
     // 입력 필드 변경 감지 (안전하게 처리)
     document.querySelectorAll('.prompt-input').forEach(input => {
         if (input) {
-            // 디바운스를 위한 타이머
-            let debounceTimer;
-
             input.addEventListener('input', function(e) {
-                clearTimeout(debounceTimer);
-                debounceTimer = setTimeout(() => {
+                clearTimeout(globalDebounceTimer);
+                globalDebounceTimer = setTimeout(() => {
                     updatePromptPreview();
                 }, 300); // 300ms 지연
             });
@@ -1700,17 +1703,18 @@ function setSceneFromStage2(shotId) {
 
         console.log('🎬 [연출블록] Stage2 scene 설정:', shotData.scene);
 
-        // "장면" 필드에만 설정
+        // "장면" 필드에만 설정 (정확한 셀렉터 사용)
         const sceneInput = document.querySelector(
-            `.tab-pane[data-tab="scene"] .prompt-row-item[data-block="scene"] .prompt-input`
+            `.tab-pane[data-tab="scene"] .prompt-blocks .prompt-row-item[data-block="scene"] .prompt-input`
         );
 
         if (sceneInput) {
             sceneInput.value = shotData.scene;
-            console.log('  ✅ 장면 필드 설정 완료');
+            console.log('  ✅ 연출블록 장면 필드에 Stage2 scene 설정 완료:', shotData.scene);
             return true;
         } else {
-            console.error('  ❌ 장면 필드를 찾을 수 없음');
+            console.error('  ❌ 연출블록 장면 필드를 찾을 수 없음');
+            console.error('  셀렉터:', '.tab-pane[data-tab="scene"] .prompt-blocks .prompt-row-item[data-block="scene"] .prompt-input');
             return false;
         }
 
@@ -2037,13 +2041,15 @@ function updateCharactersList() {
         item.className = 'added-character-item';
         item.setAttribute('data-character-num', num);
         item.innerHTML = `
-            <span class="character-name">캐릭터 ${num}</span>
-            <button class="remove-character-btn" onclick="removeCharacter(${num})" title="제거">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <line x1="18" y1="6" x2="6" y2="18"></line>
-                    <line x1="6" y1="6" x2="18" y2="18"></line>
-                </svg>
-            </button>
+            <div class="item-header">
+                <span class="character-name">캐릭터 ${num}</span>
+                <button class="remove-character-btn" onclick="removeCharacter(${num})" title="제거">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
         `;
         listContainer.appendChild(item);
     });
@@ -2209,13 +2215,15 @@ function updateLocationsList() {
         item.className = 'added-location-item';
         item.setAttribute('data-location-num', num);
         item.innerHTML = `
-            <span class="location-name">장소 ${num}</span>
-            <button class="remove-location-btn" onclick="removeLocation(${num})" title="제거">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <line x1="18" y1="6" x2="6" y2="18"></line>
-                    <line x1="6" y1="6" x2="18" y2="18"></line>
-                </svg>
-            </button>
+            <div class="item-header">
+                <span class="location-name">장소 ${num}</span>
+                <button class="remove-location-btn" onclick="removeLocation(${num})" title="제거">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
         `;
         listContainer.appendChild(item);
     });
@@ -2294,17 +2302,14 @@ function updatePropsList() {
 
     sortedProps.forEach(num => {
         const item = document.createElement('div');
-        item.className = 'added-props-item';
+        item.className = 'selected-props-chip';
         item.setAttribute('data-props-num', num);
+
         item.innerHTML = `
-            <span class="props-name">소품 ${num}</span>
-            <button class="remove-props-btn" onclick="removeProps(${num})" title="제거">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <line x1="18" y1="6" x2="6" y2="18"></line>
-                    <line x1="6" y1="6" x2="18" y2="18"></line>
-                </svg>
-            </button>
+            <span>소품 ${num}</span>
+            <button class="chip-remove-btn" onclick="removeProps(${num})">×</button>
         `;
+
         listContainer.appendChild(item);
     });
 
@@ -2491,27 +2496,18 @@ const stage2Integration = {
      * 연출 블록의 장면 프롬프트 입력 필드 찾기
      */
     findScenePromptInput() {
-        // 여러 가능한 선택자로 시도
-        const selectors = [
-            '[data-prompt="scene"]',
-            '.scene-prompt-input',
-            '.prompt-input[data-field="scene"]',
-            '.prompt-blocks .prompt-input:first-child',
-            '.tab-pane[data-tab="scene"] .prompt-input:first-child'
-        ];
+        // ✅ 정확한 셀렉터: 연출 블록 탭의 장면(scene) 필드만 찾기
+        const sceneInput = document.querySelector(
+            '.tab-pane[data-tab="scene"] .prompt-blocks .prompt-row-item[data-block="scene"] .prompt-input'
+        );
 
-        for (const selector of selectors) {
-            const element = document.querySelector(selector);
-            if (element) return element;
+        if (sceneInput) {
+            console.log('✅ 연출 블록 장면 필드 찾음');
+            return sceneInput;
         }
 
-        // 연출 탭의 첫 번째 프롬프트 입력 필드 찾기
-        const sceneTab = document.querySelector('.tab-pane[data-tab="scene"]');
-        if (sceneTab) {
-            const promptInput = sceneTab.querySelector('.prompt-input');
-            if (promptInput) return promptInput;
-        }
-
+        console.error('❌ 연출 블록 장면 필드를 찾을 수 없음');
+        console.error('   셀렉터:', '.tab-pane[data-tab="scene"] .prompt-blocks .prompt-row-item[data-block="scene"] .prompt-input');
         return null;
     },
 
@@ -2589,9 +2585,6 @@ function loadStage2FromSessionStorage() {
                 scenes: window.stage2Parser.scenesMap.size,
                 shots: window.stage2Parser.shotsMap.size
             });
-
-            // 자동 매핑 활성화
-            window.stage2AutoMappingEnabled = true;
 
         }).catch(error => {
             console.error('❌ Stage2 파서 로드 실패:', error);
@@ -2740,3 +2733,18 @@ window.parseAndLoadPropsData = function(jsonData) {
         updatePropsPromptInput();
     }
 };
+// 페이지 언로드 시 정리
+window.addEventListener('beforeunload', function() {
+    // 모든 타이머 정리
+    const highestId = setTimeout(() => {}, 0);
+    for (let i = 0; i < highestId; i++) {
+        clearTimeout(i);
+    }
+});
+
+// iframe이 숨겨질 때 정리
+window.addEventListener('pagehide', function() {
+    // 초기화 플래그 리셋
+    isInitialized = false;
+    isFormEventsInitialized = false;
+});

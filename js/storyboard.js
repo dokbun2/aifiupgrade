@@ -254,9 +254,6 @@ class StoryboardManager {
 
     // Stage2 자동 매핑 활성화
     enableStage2AutoMapping() {
-        // 전역 변수로 Stage2 자동 매핑 활성화 상태 저장
-        window.stage2AutoMappingEnabled = true;
-
         console.log('🎯 Stage2 자동 매핑 활성화됨');
 
         // 스토리보드 카드에 Stage2 매핑 표시 추가
@@ -945,6 +942,7 @@ class StoryboardManager {
     }
 
     createShotCard(shot) {
+        console.log('🃏 카드 생성 중 - Shot ID:', shot.shot_id);
         const card = document.createElement('div');
         card.className = 'storyboard-card';
         card.dataset.shotId = shot.shot_id;
@@ -984,7 +982,6 @@ class StoryboardManager {
         card.innerHTML = `
             <div class="card-header">
                 <span class="shot-id">${shot.shot_id}</span>
-                <span class="${typeClass}">${typeLabel}</span>
             </div>
             <div class="card-thumbnail">
                 <svg class="thumbnail-placeholder" width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
@@ -1019,10 +1016,12 @@ class StoryboardManager {
             if (e.target.closest('.card-tags')) {
                 const tag = e.target.closest('.card-tag');
                 if (tag) {
+                    console.log('🏷️ 태그 클릭:', tag.textContent, 'Shot:', shot.shot_id);
                     this.handleTagClick(tag, shot);
                 }
                 return;
             }
+            console.log('🎬 카드 클릭 - Shot ID:', shot.shot_id, 'Shot 데이터:', shot);
             this.showShotDetails(shot);
         });
 
@@ -1072,9 +1071,20 @@ class StoryboardManager {
     }
 
     editShotBlock(shot) {
+        // Stage2 데이터 병합 (scene 필드 포함)
+        let stage2Data = {};
+        if (window.stage2Parser) {
+            const sceneData = window.stage2Parser.getSceneByshotId(shot.shot_id);
+            if (sceneData) {
+                stage2Data = sceneData;
+                console.log(`✅ Stage2 데이터 병합 (${shot.shot_id}):`, sceneData);
+            }
+        }
+
         // 현재 씬과 시퀀스 정보 포함하여 확장된 샷 데이터 생성
         const extendedShot = {
             ...shot,
+            ...stage2Data, // Stage2의 scene 필드 포함
             scene_id: this.currentScene,
             sequence_id: this.currentSequence,
             merged_data: this.mergedData // 병합된 전체 데이터 포함
@@ -1157,15 +1167,45 @@ class StoryboardManager {
     }
 
     showShotDetails(shot) {
+        console.log('📂 showShotDetails 호출됨 - Shot ID:', shot.shot_id, 'Shot 전체 데이터:', shot);
+
+        // 기존 이벤트 리스너 제거
+        document.removeEventListener('keydown', this.handleEscKey);
+
+        // Stage2 데이터 병합 (scene 필드 포함)
+        let stage2Data = {};
+        if (window.stage2Parser) {
+            const sceneData = window.stage2Parser.getSceneByshotId(shot.shot_id);
+            if (sceneData) {
+                stage2Data = sceneData;
+                console.log(`✅ Stage2 데이터 병합 (${shot.shot_id}):`, sceneData);
+            }
+        }
+
+        // Stage2 scene 필드를 포함한 샷 데이터 생성
+        const extendedShot = {
+            ...shot,
+            ...stage2Data // Stage2의 scene 필드 포함
+        };
+
+        console.log('💾 sessionStorage 저장:', `shot_${shot.shot_id}`, extendedShot);
+
         // 샷 데이터를 sessionStorage에 저장
-        sessionStorage.setItem(`shot_${shot.shot_id}`, JSON.stringify(shot));
+        sessionStorage.setItem(`shot_${shot.shot_id}`, JSON.stringify(extendedShot));
 
         // 모달 컨테이너 표시
         const modalContainer = document.getElementById('shotDetailModal');
         if (!modalContainer) return;
 
+        // 기존 클릭 이벤트 제거를 위해 clone
+        const newModalContainer = modalContainer.cloneNode(false);
+        modalContainer.parentNode.replaceChild(newModalContainer, modalContainer);
+
+        // 모달을 즉시 표시
+        newModalContainer.style.display = 'flex';
+
         // 모달 컨테이너 생성
-        modalContainer.innerHTML = `
+        newModalContainer.innerHTML = `
             <div class="shot-detail-modal-wrapper">
                 <iframe id="shotDetailFrame"
                     src="../shot-detail.html?shotId=${shot.shot_id}"
@@ -1174,52 +1214,36 @@ class StoryboardManager {
             </div>
         `;
 
-        // 모달 표시
-        modalContainer.style.display = 'flex';
-
         // iframe 로드 완료 후 Stage 1 데이터 전달
         const iframe = document.getElementById('shotDetailFrame');
         if (iframe) {
             iframe.onload = () => {
-                // shotDetail 객체가 준비될 때까지 재시도
-                const tryLoadStage1Data = (retries = 0) => {
-                    const maxRetries = 10;
-                    const stage1Data = sessionStorage.getItem('stage1ParsedData');
+                const stage1Data = sessionStorage.getItem('stage1ParsedData');
 
-                    if (!stage1Data) {
-                        console.log('❌ Stage 1 데이터가 sessionStorage에 없습니다.');
-                        return;
+                if (!stage1Data) {
+                    console.log('Stage 1 데이터가 없습니다.');
+                    return;
+                }
+
+                try {
+                    const parsedData = JSON.parse(stage1Data);
+
+                    // iframe 내부의 shotDetail 객체에 데이터 전달 시도
+                    if (iframe.contentWindow && iframe.contentWindow.shotDetail) {
+                        iframe.contentWindow.shotDetail.loadStage1JSON(parsedData);
                     }
-
-                    try {
-                        const parsedData = JSON.parse(stage1Data);
-
-                        // iframe 내부의 shotDetail 객체 확인
-                        if (iframe.contentWindow && iframe.contentWindow.shotDetail) {
-                            iframe.contentWindow.shotDetail.loadStage1JSON(parsedData);
-                            console.log('✅ Stage 1 데이터가 샷 디테일 모달에 전달되었습니다.');
-                        } else if (retries < maxRetries) {
-                            console.log(`⏳ shotDetail 객체 대기 중... (${retries + 1}/${maxRetries})`);
-                            setTimeout(() => tryLoadStage1Data(retries + 1), 300);
-                        } else {
-                            console.error('❌ shotDetail 객체를 찾을 수 없습니다. (최대 재시도 횟수 초과)');
-                        }
-                    } catch (error) {
-                        console.error('Stage 1 데이터 전달 실패:', error);
-                    }
-                };
-
-                // 초기 지연 후 시작
-                setTimeout(() => tryLoadStage1Data(), 500);
+                } catch (error) {
+                    console.error('데이터 전달 오류:', error);
+                }
             };
         }
 
-        // ESC 키로 닫기
+        // ESC 키로 닫기 (한 번만 추가)
         document.addEventListener('keydown', this.handleEscKey);
 
         // 모달 외부 클릭시 닫기
-        modalContainer.addEventListener('click', (e) => {
-            if (e.target === modalContainer) {
+        newModalContainer.addEventListener('click', (e) => {
+            if (e.target === newModalContainer) {
                 this.closeShotDetailModal();
             }
         });
@@ -1234,8 +1258,24 @@ class StoryboardManager {
     closeShotDetailModal() {
         const modalContainer = document.getElementById('shotDetailModal');
         if (modalContainer) {
+            // iframe 완전히 제거
+            const iframe = document.getElementById('shotDetailFrame');
+            if (iframe && iframe.contentWindow) {
+                // iframe 내부의 모든 타이머와 이벤트 정리
+                try {
+                    iframe.contentWindow.stop();
+                } catch (e) {
+                    // 크로스 오리진 오류 무시
+                }
+            }
+
             modalContainer.style.display = 'none';
             modalContainer.innerHTML = '';
+
+            // 강제 가비지 컬렉션 힌트
+            if (iframe) {
+                iframe.src = 'about:blank';
+            }
         }
         document.removeEventListener('keydown', this.handleEscKey);
     }
