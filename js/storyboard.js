@@ -176,6 +176,10 @@ class StoryboardManager {
             console.log('✅ Film metadata가 localStorage에 캐시되었습니다:', data.film_metadata);
         }
 
+        // 원본 Stage1 데이터를 sessionStorage에 저장 (캐릭터 블록 등에서 직접 사용)
+        sessionStorage.setItem('stage1OriginalData', JSON.stringify(data));
+        console.log('✅ Stage1 원본 데이터가 sessionStorage에 저장되었습니다.');
+
         if (window.stage1Parser) {
             // Stage1JSONParser를 사용하여 데이터 파싱
             window.stage1Parser.data = data;
@@ -1028,7 +1032,6 @@ class StoryboardManager {
             <div class="card-footer">
                 <div class="card-tags">
                     <span class="card-tag video-tag">Video</span>
-                    <span class="card-tag">PT북사</span>
                     <span class="card-tag">블록 수정</span>
                     <span class="card-tag">샷 복제</span>
                     <span class="card-tag">삭제</span>
@@ -1071,10 +1074,6 @@ class StoryboardManager {
                 console.log('Playing video for shot:', shot.shot_id);
                 this.showNotification('비디오 재생 기능은 준비 중입니다.', 'info');
                 break;
-            case 'PT북사':
-                console.log('PT book copy for shot:', shot.shot_id);
-                this.copyToPTBook(shot);
-                break;
             case '블록 수정':
                 console.log('Edit block for shot:', shot.shot_id);
                 this.editShotBlock(shot);
@@ -1092,17 +1091,6 @@ class StoryboardManager {
             default:
                 console.log('Unknown tag action:', tagText);
         }
-    }
-
-    copyToPTBook(shot) {
-        // Copy shot information to clipboard in PT format
-        const ptText = `Shot ID: ${shot.shot_id}\nType: ${shot.shot_type || 'regular'}\n${shot.shot_text || shot.shot_summary || ''}`;
-        navigator.clipboard.writeText(ptText).then(() => {
-            this.showNotification('PT북사에 복사되었습니다.', 'success');
-        }).catch(err => {
-            console.error('Failed to copy:', err);
-            this.showNotification('복사 실패', 'error');
-        });
     }
 
     editShotBlock(shot) {

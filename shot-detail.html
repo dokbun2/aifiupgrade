@@ -27,23 +27,35 @@
                 <div class="image-upload-section">
                     <div class="image-upload-header">
                         <h3>이미지 업로드 (최대 5개)</h3>
-                        <div class="upload-controls">
-                            <label for="imageUploadInput" class="upload-btn">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                                    <polyline points="17 8 12 3 7 8"></polyline>
-                                    <line x1="12" y1="3" x2="12" y2="15"></line>
-                                </svg>
-                                이미지 추가
-                            </label>
-                            <input type="file" id="imageUploadInput" accept="image/*" multiple style="display: none;">
-                            <button class="clear-all-btn" onclick="clearAllImages()">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <polyline points="3 6 5 6 21 6"></polyline>
-                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                                </svg>
-                                전체 삭제
-                            </button>
+                        <div class="controls-wrapper">
+                            <div class="upload-controls">
+                                <label for="imageUploadInput" class="upload-btn">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                        <polyline points="17 8 12 3 7 8"></polyline>
+                                        <line x1="12" y1="3" x2="12" y2="15"></line>
+                                    </svg>
+                                    이미지 추가
+                                </label>
+                                <input type="file" id="imageUploadInput" accept="image/*" multiple style="display: none;">
+                                <button class="clear-all-btn" onclick="clearAllImages()">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <polyline points="3 6 5 6 21 6"></polyline>
+                                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                    </svg>
+                                    전체 삭제
+                                </button>
+                            </div>
+                            <div class="url-input-controls">
+                                <input type="text" id="imageUrlInput" class="url-input" placeholder="이미지 URL 붙여넣기">
+                                <button class="url-add-btn" onclick="addImageFromUrl()">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                                    </svg>
+                                    추가
+                                </button>
+                            </div>
                         </div>
                     </div>
                     <div class="image-preview-container">
@@ -202,7 +214,7 @@
                                             <path d="M11 10L13 14L15 10" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
                                             <path d="M11.5 13H14.5" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
                                         </svg>
-                                        <span class="translate-text">EN</span>
+                                        <span class="translate-text">번역</span>
                                     </button>
                                 </div>
                                 <div class="request-blocks">
@@ -504,7 +516,7 @@
                                             <path d="M11 10L13 14L15 10" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
                                             <path d="M11.5 13H14.5" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
                                         </svg>
-                                        <span class="translate-text">EN</span>
+                                        <span class="translate-text">번역</span>
                                     </button>
                                 </div>
                                 <div class="request-blocks">
@@ -703,7 +715,7 @@
                                             <path d="M11 10L13 14L15 10" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
                                             <path d="M11.5 13H14.5" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
                                         </svg>
-                                        <span class="translate-text">EN</span>
+                                        <span class="translate-text">번역</span>
                                     </button>
                                 </div>
                                 <div class="request-blocks">
@@ -974,7 +986,7 @@
                                             <path d="M11 10L13 14L15 10" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
                                             <path d="M11.5 13H14.5" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
                                         </svg>
-                                        <span class="translate-text">EN</span>
+                                        <span class="translate-text">번역</span>
                                     </button>
                                 </div>
                                 <div class="request-blocks">
@@ -1141,7 +1153,7 @@
                                             <path d="M11 10L13 14L15 10" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
                                             <path d="M11.5 13H14.5" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
                                         </svg>
-                                        <span class="translate-text">EN</span>
+                                        <span class="translate-text">번역</span>
                                     </button>
                                 </div>
                                 <div class="request-blocks">
@@ -1210,6 +1222,8 @@
         </div>
     </div>
 
+    <script src="./js/gemini-api.js"></script>
+    <script src="./js/nano-banana-api.js"></script>
     <script src="./js/shot-detail.js"></script>
 </body>
 </html>

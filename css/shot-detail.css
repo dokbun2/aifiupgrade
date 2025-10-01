@@ -102,7 +102,7 @@ body {
 .image-upload-header {
     display: flex;
     justify-content: space-between;
-    align-items: center;
+    align-items: flex-start;
     margin-bottom: 6px;
 }
 
@@ -112,9 +112,64 @@ body {
     font-weight: 600;
 }
 
+.controls-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    align-items: flex-end;
+}
+
 .upload-controls {
     display: flex;
     gap: 6px;
+}
+
+.url-input-controls {
+    display: flex;
+    gap: 6px;
+    width: 100%;
+}
+
+.url-input {
+    flex: 1;
+    min-width: 300px;
+    padding: 6px 10px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 11px;
+    transition: all 0.3s ease;
+}
+
+.url-input:focus {
+    outline: none;
+    background: rgba(255, 255, 255, 0.08);
+    border-color: #667eea;
+}
+
+.url-input::placeholder {
+    color: rgba(255, 255, 255, 0.4);
+}
+
+.url-add-btn {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 12px;
+    background: #667eea;
+    border: none;
+    border-radius: 6px;
+    color: #fff;
+    cursor: pointer;
+    font-size: 11px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.url-add-btn:hover {
+    background: #5568d3;
+    transform: translateY(-1px);
 }
 
 .upload-btn {
@@ -436,6 +491,10 @@ body {
         grid-template-columns: repeat(2, 1fr);
     }
 
+    .controls-wrapper {
+        width: 100%;
+    }
+
     .upload-controls {
         flex-direction: column;
         width: 100%;
@@ -445,6 +504,10 @@ body {
     .clear-all-btn {
         width: 100%;
         justify-content: center;
+    }
+
+    .url-input {
+        min-width: 150px;
     }
 
     .generation-header {
@@ -1560,13 +1623,13 @@ body {
 .translate-btn {
     display: flex;
     align-items: center;
-    gap: 2px;
-    padding: 2px 5px;
+    gap: 4px;
+    padding: 4px 10px;
     background: rgba(0, 188, 212, 0.1);
     border: 1px solid rgba(0, 188, 212, 0.2);
-    border-radius: 3px;
+    border-radius: 4px;
     color: #00bcd4;
-    font-size: 9px;
+    font-size: 11px;
     font-weight: 500;
     cursor: pointer;
     transition: all 0.2s ease;
@@ -1583,12 +1646,12 @@ body {
 }
 
 .translate-icon {
-    width: 10px;
-    height: 10px;
+    width: 12px;
+    height: 12px;
 }
 
 .translate-text {
-    font-size: 8px;
+    font-size: 10px;
     font-weight: 600;
     letter-spacing: 0.2px;
 }
@@ -1845,33 +1908,33 @@ body {
 .copy-prompt-btn {
     display: flex;
     align-items: center;
-    gap: 4px;
-    padding: 4px 8px;
-    background: transparent;
-    border: 1px solid #444;
-    border-radius: 4px;
-    color: #999;
-    font-size: 10px;
-    font-weight: 500;
+    gap: 8px;
+    padding: 10px 20px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    border-radius: 8px;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 600;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
 }
 
 .copy-prompt-btn:hover {
-    background: #333;
-    border-color: #555;
-    color: #fff;
-    transform: translateY(-1px);
+    background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
 }
 
 .copy-prompt-btn:active {
     transform: translateY(0);
+    box-shadow: 0 2px 10px rgba(102, 126, 234, 0.3);
 }
 
 .copy-prompt-btn.copied {
-    background: #333;
-    border-color: #555;
-    color: #4caf50;
+    background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
+    box-shadow: 0 4px 15px rgba(76, 175, 80, 0.4);
 }
 
 .copy-prompt-btn.copied {
@@ -1883,9 +1946,14 @@ body {
 }
 
 .copy-prompt-btn svg {
-    width: 12px;
-    height: 12px;
+    width: 16px;
+    height: 16px;
     transition: transform 0.2s ease;
+}
+
+.copy-prompt-btn span {
+    font-weight: 600;
+    letter-spacing: 0.3px;
 }
 
 @keyframes checkmark {
@@ -2145,7 +2213,9 @@ body {
 .selected-characters-list {
     display: flex;
     gap: 8px;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    align-items: center;
 }
 
 .selected-character-chip {
@@ -2332,14 +2402,19 @@ body {
 }
 
 .added-character-item {
-    display: flex;
+    display: inline-flex;
     align-items: center;
-    gap: 8px;
     padding: 6px 12px;
     background: rgba(255, 107, 107, 0.08);
     border: 1px solid rgba(255, 107, 107, 0.2);
     border-radius: 20px;
     animation: fadeIn 0.3s ease;
+}
+
+.added-character-item .item-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 
 @keyframes fadeIn {

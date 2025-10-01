@@ -27,10 +27,21 @@ const imageUploadManager = {
         const imageInput = document.getElementById('imageUploadInput');
         const container = document.querySelector('.image-preview-container');
         const placeholder = document.getElementById('uploadPlaceholder');
+        const urlInput = document.getElementById('imageUrlInput');
 
         // 파일 선택 이벤트
         if (imageInput) {
             imageInput.addEventListener('change', (e) => this.handleImageSelect(e));
+        }
+
+        // URL 입력 Enter 키 이벤트
+        if (urlInput) {
+            urlInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    this.addFromUrl(urlInput.value.trim());
+                }
+            });
         }
 
         // 드래그 앤 드롭 이벤트
@@ -132,6 +143,49 @@ const imageUploadManager = {
     clearAll() {
         this.uploadedImages = [];
         this.renderImages();
+    },
+
+    addFromUrl(url) {
+        if (this.uploadedImages.length >= 5) {
+            alert('최대 5개까지만 업로드할 수 있습니다.');
+            return;
+        }
+
+        if (!url || !url.trim()) {
+            alert('URL을 입력해주세요.');
+            return;
+        }
+
+        // URL 유효성 검사
+        try {
+            new URL(url);
+        } catch (e) {
+            alert('올바른 URL 형식이 아닙니다.');
+            return;
+        }
+
+        // 이미지 로드 테스트
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+
+        img.onload = () => {
+            const imageData = {
+                src: url,
+                name: url.split('/').pop() || 'image-from-url'
+            };
+            this.uploadedImages.push(imageData);
+            this.renderImages();
+
+            // 입력 필드 초기화
+            const urlInput = document.getElementById('imageUrlInput');
+            if (urlInput) urlInput.value = '';
+        };
+
+        img.onerror = () => {
+            alert('이미지를 로드할 수 없습니다. URL을 확인해주세요.');
+        };
+
+        img.src = url;
     }
 };
 
@@ -139,6 +193,14 @@ const imageUploadManager = {
 window.clearAllImages = function() {
     if (confirm('모든 이미지를 삭제하시겠습니까?')) {
         imageUploadManager.clearAll();
+    }
+};
+
+// URL에서 이미지 추가 함수
+window.addImageFromUrl = function() {
+    const urlInput = document.getElementById('imageUrlInput');
+    if (urlInput) {
+        imageUploadManager.addFromUrl(urlInput.value.trim());
     }
 };
 
@@ -246,6 +308,21 @@ document.addEventListener('DOMContentLoaded', function() {
         const propsSelector = document.getElementById('propsSelector');
         if (propsSelector) {
             propsSelector.addEventListener('change', updatePropsPromptInput);
+        }
+
+        // 장소 셀렉터 이벤트 리스너
+        const locationSelector = document.getElementById('locationSelector');
+        if (locationSelector) {
+            locationSelector.addEventListener('change', function() {
+                const selectedLocation = parseInt(this.value);
+                displayLocationData(selectedLocation);
+            });
+        }
+
+        // 파싱 버튼 이벤트 리스너
+        const parseBtn = document.querySelector('.file-btn');
+        if (parseBtn) {
+            parseBtn.addEventListener('click', parseAllBlocksToFinalPrompt);
         }
 
         // localStorage에서 캐시된 film_metadata 로드
@@ -385,6 +462,26 @@ function initializeTabs() {
 
                 // CAMERA_TECH 채우기
                 fillCameraTechField();
+            }
+
+            // 캐릭터 블록 탭으로 전환 시 액션 자동 채우기
+            if (targetTab === 'character') {
+                console.log('📥 캐릭터 블록 탭 전환 - 액션 자동 적용');
+
+                const startBtn = document.querySelector('.start-btn');
+                const endBtn = document.querySelector('.end-btn');
+
+                if (endBtn && endBtn.classList.contains('active')) {
+                    // END 버튼이 활성화되어 있으면 ending_frame 적용
+                    updateCharacterActions('ending_frame');
+                } else {
+                    // 기본값: starting_frame 적용
+                    updateCharacterActions('starting_frame');
+                }
+
+                // UI 업데이트 (캐릭터 리스트 및 컨테이너)
+                updateCharactersList();
+                updateCharacterContainers();
             }
 
             // 타임라인 섹션 표시/숨김 (연출 블록에서만 표시)
@@ -690,27 +787,36 @@ function extractAndMapShotSpecificData(shotData) {
     fillCameraTechField();
 
     // ========================================
-    // 3단계: 기타 블록 매핑 (캐릭터, 장소 등 - 기존 로직 유지)
+    // 3단계: 기타 블록 매핑 (캐릭터, 장소, 소품 - 원본 데이터 사용)
     // ========================================
-    if (window.stage1Parser && stage1Data) {
-        window.stage1Parser.data = stage1Data;
-        window.stage1Parser.parseAllBlocks();
-        const parsedData = window.stage1Parser.parsedData;
 
-        // 캐릭터 블록
-        if (parsedData.characters && parsedData.characters.length > 0) {
-            mapCharacterBlock(parsedData.characters);
-        }
+    // 디버그: stage1Data 구조 확인
+    console.log('🔍 [디버그] stage1Data 구조:', {
+        hasVisualBlocks: !!stage1Data.visual_blocks,
+        hasCharacters: !!(stage1Data.visual_blocks && stage1Data.visual_blocks.characters),
+        charactersLength: stage1Data.visual_blocks?.characters?.length,
+        firstCharacter: stage1Data.visual_blocks?.characters?.[0]
+    });
 
-        // 장소 블록
-        if (parsedData.locations && parsedData.locations.length > 0) {
-            mapLocationBlock(parsedData.locations[0]);
-        }
+    // 캐릭터 블록 - 원본 visual_blocks.characters 직접 사용
+    if (stage1Data.visual_blocks && stage1Data.visual_blocks.characters) {
+        console.log('📥 [통합파싱] 캐릭터 블록 매핑 (원본 데이터)');
+        mapCharacterBlock(stage1Data.visual_blocks.characters);
+    } else {
+        console.error('❌ [통합파싱] visual_blocks.characters를 찾을 수 없음');
+        console.log('   stage1Data 전체 구조:', stage1Data);
+    }
 
-        // 소품 블록
-        if (parsedData.props && parsedData.props.length > 0) {
-            mapPropsBlock(parsedData.props);
-        }
+    // 장소 블록 - 원본 visual_blocks.locations 직접 사용
+    if (stage1Data.visual_blocks && stage1Data.visual_blocks.locations) {
+        console.log('📥 [통합파싱] 장소 블록 매핑 (원본 데이터)');
+        mapLocationBlock(stage1Data.visual_blocks.locations[0]);
+    }
+
+    // 소품 블록 - 원본 visual_blocks.props 직접 사용
+    if (stage1Data.visual_blocks && stage1Data.visual_blocks.props) {
+        console.log('📥 [통합파싱] 소품 블록 매핑 (원본 데이터)');
+        mapPropsBlock(stage1Data.visual_blocks.props);
     }
 
     console.log('✅ [통합파싱] 샷 데이터 처리 완료:', shotData.shot_id);
@@ -770,6 +876,9 @@ function handleStartButton() {
         // Stage2 데이터에서 starting_frame의 camera_composition 가져와서 구도 필드 업데이트
         updateCameraCompositionFromFrame('starting_frame');
 
+        // 캐릭터 액션 업데이트
+        updateCharacterActions('starting_frame');
+
         // 모든 탭에 대해 프롬프트 생성
         generateAllTabPrompts();
 
@@ -796,6 +905,9 @@ function handleEndButton() {
 
         // Stage2 데이터에서 ending_frame의 camera_composition 가져와서 구도 필드 업데이트
         updateCameraCompositionFromFrame('ending_frame');
+
+        // 캐릭터 액션 업데이트
+        updateCharacterActions('ending_frame');
 
         // 프롬프트 재생성
         generateAllTabPrompts();
@@ -1018,43 +1130,148 @@ function copyPrompt() {
     }
 }
 
-// 최종 프롬프트 복사 (헤더의 복사 버튼용)
+// 최종 프롬프트 복사 (globalFinalPrompt textarea용)
 function copyFinalPrompt() {
-    const activeTextarea = document.querySelector('.tab-pane.active .final-prompt-textarea');
-    if (activeTextarea && activeTextarea.value) {
-        navigator.clipboard.writeText(activeTextarea.value).then(() => {
+    const finalPromptTextarea = document.getElementById('globalFinalPrompt');
+    if (finalPromptTextarea && finalPromptTextarea.value) {
+        navigator.clipboard.writeText(finalPromptTextarea.value).then(() => {
             // 복사 버튼 애니메이션
-            const copyBtn = document.querySelector('.tab-pane.active .copy-prompt-btn');
+            const copyBtn = document.querySelector('.global-final-prompt-section .copy-prompt-btn');
             if (copyBtn) {
                 copyBtn.classList.add('copied');
-                copyBtn.setAttribute('title', '복사됨!');
-
-                // 체크 아이콘으로 변경
-                const icon = copyBtn.querySelector('svg');
-                if (icon) {
-                    const originalPath = icon.innerHTML;
-                    icon.innerHTML = '<path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z" fill="currentColor"/>';
+                const spanText = copyBtn.querySelector('span');
+                if (spanText) {
+                    const originalText = spanText.textContent;
+                    spanText.textContent = '복사됨!';
 
                     setTimeout(() => {
-                        icon.innerHTML = originalPath;
+                        spanText.textContent = originalText;
                         copyBtn.classList.remove('copied');
-                        copyBtn.setAttribute('title', '복사');
                     }, 2000);
                 }
             }
 
-            showNotification('프롬프트가 클립보드에 복사되었습니다.');
+            showNotification('최종 프롬프트가 클립보드에 복사되었습니다.', 'success');
         }).catch(err => {
             console.error('복사 실패:', err);
             showNotification('복사에 실패했습니다. 텍스트를 선택하여 수동으로 복사해주세요.', 'error');
         });
     } else {
-        showNotification('복사할 프롬프트가 없습니다.', 'warning');
+        showNotification('복사할 프롬프트가 없습니다. 먼저 "파싱" 버튼을 눌러주세요.', 'warning');
     }
 }
 
 // 전역으로 노출
 window.copyFinalPrompt = copyFinalPrompt;
+
+// 모든 블록의 프롬프트를 수집해서 최종 프롬프트에 표시
+function parseAllBlocksToFinalPrompt() {
+    console.log('🔄 파싱 버튼 클릭 - 모든 블록 프롬프트 수집 시작');
+
+    const promptLines = [];
+    const parameters = []; // 매개변수 (--ar, --style 등) 따로 저장
+
+    // 블록 라벨명 매핑 (data-block → 대문자 라벨)
+    const labelMap = {
+        // 기본 블록
+        'style': 'STYLE',
+        'artist': 'ARTIST',
+        'medium': 'MEDIUM',
+        'genre': 'GENRE',
+        'era': 'ERA',
+        'quality': 'QUALITY',
+        'parameter': 'PARAMETER',
+        // 연출 블록
+        'scene': 'SCENE',
+        'camera': 'CAMERA',
+        'camera-tech': 'CAMERA_TECH',
+        // 캐릭터 블록
+        'character1': 'CHARACTER_1',
+        'character1-detail': 'CHAR1_DETAIL',
+        'character1-action': 'CHAR1_ACTION',
+        'character2': 'CHARACTER_2',
+        'character2-detail': 'CHAR2_DETAIL',
+        'character2-action': 'CHAR2_ACTION',
+        'character3': 'CHARACTER_3',
+        'character3-detail': 'CHAR3_DETAIL',
+        'character3-action': 'CHAR3_ACTION',
+        'character4': 'CHARACTER_4',
+        'character4-detail': 'CHAR4_DETAIL',
+        'character4-action': 'CHAR4_ACTION',
+        // 장소 블록
+        'location': 'LOCATION',
+        'atmosphere': 'ATMOSPHERE',
+        'color-tone': 'COLOR_TONE',
+        'scale': 'SCALE',
+        'architecture': 'ARCHITECTURE',
+        'material': 'MATERIAL',
+        'object': 'OBJECT',
+        'weather': 'WEATHER',
+        'natural-light': 'NATURAL_LIGHT',
+        'artificial-light': 'ARTIFICIAL_LIGHT',
+        'lighting': 'LIGHTING',
+        'foreground': 'FOREGROUND',
+        'midground': 'MIDGROUND',
+        'background': 'BACKGROUND',
+        'left-side': 'LEFT_SIDE',
+        'right-side': 'RIGHT_SIDE',
+        'ceiling': 'CEILING',
+        'floor': 'FLOOR',
+        // 소품 블록
+        'props': 'PROPS'
+    };
+
+    // 모든 탭의 프롬프트 입력 필드 수집
+    const allInputs = document.querySelectorAll('.tab-pane .prompt-input');
+
+    allInputs.forEach(input => {
+        const value = input.value.trim();
+        if (!value) return;
+
+        // --로 시작하는 매개변수는 따로 저장
+        if (value.startsWith('--')) {
+            parameters.push(value);
+            return;
+        }
+
+        // data-block 속성에서 라벨명 가져오기
+        const promptRow = input.closest('.prompt-row-item');
+        if (promptRow) {
+            const blockName = promptRow.getAttribute('data-block');
+            const label = labelMap[blockName] || blockName.toUpperCase();
+
+            // "LABEL: value;" 형식으로 추가
+            promptLines.push(`${label}: ${value};`);
+        }
+    });
+
+    console.log('  📦 수집된 프롬프트:', promptLines.length, '개');
+    console.log('  📊 매개변수:', parameters.length, '개');
+
+    // 줄바꿈으로 연결
+    let finalPrompt = promptLines.join('\n');
+
+    // 매개변수가 있으면 마지막에 추가 (공백으로 구분)
+    if (parameters.length > 0) {
+        finalPrompt += '\n' + parameters.join(' ');
+    }
+
+    console.log('  ✅ 최종 프롬프트 길이:', finalPrompt.length, '자');
+
+    // 최종 블록 프롬프트 textarea에 표시
+    const finalPromptTextarea = document.getElementById('globalFinalPrompt');
+    if (finalPromptTextarea) {
+        finalPromptTextarea.value = finalPrompt;
+        console.log('  ✅ 최종 프롬프트 텍스트창에 표시 완료');
+        showNotification('프롬프트 파싱 완료!', 'success');
+    } else {
+        console.error('  ❌ 최종 프롬프트 텍스트창을 찾을 수 없습니다.');
+        showNotification('프롬프트 텍스트창을 찾을 수 없습니다.', 'error');
+    }
+}
+
+// 전역으로 노출
+window.parseAllBlocksToFinalPrompt = parseAllBlocksToFinalPrompt;
 
 // Translation function for request dropdowns
 window.translateRequests = function(button) {
@@ -1620,77 +1837,364 @@ function mapDirectionBlock() {
     console.warn('⚠️ mapDirectionBlock() 호출됨 - 레거시 함수, 무시됨');
 }
 
-// 캐릭터블록 데이터 매칭
-function mapCharacterBlock(charactersData) {
-    if (!charactersData || charactersData.length === 0) return;
+// ===== 캐릭터 블록 파싱 (Stage1 + Stage2 통합) =====
 
-    // 최대 2명의 캐릭터 처리
-    const char1 = charactersData[0];
-    const char2 = charactersData[1];
+// 전역 캐릭터 데이터 저장
+let parsedCharactersData = [];
 
-    if (char1) {
-        const mapping1 = {
-            'character1': char1.blocks.character || '',
-            'character1-detail': char1.detail || '',
-            'character1-action': char1.blocks.pose || ''
-        };
-
-        Object.entries(mapping1).forEach(([field, value]) => {
-            const input = document.querySelector(`.tab-pane[data-tab="character"] .prompt-row-item[data-block="${field}"] .prompt-input`);
-            if (input && value) {
-                input.value = value;
-            }
-        });
+/**
+ * 캐릭터 셀렉터에 모든 캐릭터 표시
+ */
+function updateCharacterSelector(charactersData) {
+    if (!charactersData || charactersData.length === 0) {
+        console.log('⚠️ 캐릭터 데이터가 없습니다.');
+        return;
     }
 
-    if (char2) {
-        const mapping2 = {
-            'character2': char2.blocks.character || '',
-            'character2-detail': char2.detail || '',
-            'character2-action': char2.blocks.pose || ''
-        };
+    const selector = document.getElementById('characterSelector');
+    if (!selector) {
+        console.warn('⚠️ #characterSelector를 찾을 수 없습니다.');
+        return;
+    }
 
-        Object.entries(mapping2).forEach(([field, value]) => {
-            const input = document.querySelector(`.tab-pane[data-tab="character"] .prompt-row-item[data-block="${field}"] .prompt-input`);
-            if (input && value) {
-                input.value = value;
+    // 기존 옵션 제거 (첫 번째 제외)
+    selector.innerHTML = '';
+
+    // 캐릭터 옵션 추가
+    charactersData.forEach((char, index) => {
+        const option = document.createElement('option');
+        option.value = index + 1;
+        option.textContent = char.name || `캐릭터 ${index + 1}`;
+        selector.appendChild(option);
+    });
+
+    console.log(`✅ 캐릭터 셀렉터 업데이트 완료: ${charactersData.length}개`);
+}
+
+/**
+ * 캐릭터 블록 데이터 매칭
+ */
+function mapCharacterBlock(charactersData) {
+    if (!charactersData || charactersData.length === 0) {
+        console.log('⚠️ 캐릭터 데이터가 없습니다.');
+        return;
+    }
+
+    // 전역 변수에 저장
+    parsedCharactersData = charactersData;
+
+    console.log('🎭 캐릭터 블록 매핑 시작:', charactersData.length, '개');
+
+    // 캐릭터 셀렉터 업데이트
+    updateCharacterSelector(charactersData);
+
+    // JSON 파일의 모든 캐릭터를 addedCharacters에 추가
+    addedCharacters.clear();
+    charactersData.forEach((char, index) => {
+        addedCharacters.add(index + 1);
+    });
+
+    console.log(`✅ 캐릭터 ${addedCharacters.size}개 자동 추가:`, Array.from(addedCharacters));
+
+    // 먼저 UI 업데이트 (컨테이너 표시)
+    updateCharactersList();
+    updateCharacterContainers();
+
+    // sessionStorage에서 Stage1 원본 데이터 가져오기
+    const stage1DataStr = sessionStorage.getItem('stage1OriginalData');
+    let stage1Characters = null;
+
+    if (stage1DataStr) {
+        try {
+            const stage1Data = JSON.parse(stage1DataStr);
+            stage1Characters = stage1Data.visual_blocks?.characters;
+            console.log('📦 sessionStorage에서 Stage1 캐릭터 데이터 로드:', stage1Characters);
+        } catch (error) {
+            console.error('❌ Stage1 데이터 파싱 에러:', error);
+        }
+    }
+
+    // 그 다음 각 캐릭터 데이터 매핑
+    charactersData.forEach((char, index) => {
+        const charNum = index + 1;
+
+        console.log(`🔍 [캐릭터${charNum}] 원본 데이터:`, {
+            id: char.id,
+            name: char.name,
+            blocks: char.blocks,
+            character_detail: char.character_detail
+        });
+
+        // 5_CHARACTER 값 (Stage1에서 직접 가져오기)
+        let characterValue = '';
+        if (stage1Characters && stage1Characters[index]) {
+            characterValue = stage1Characters[index].blocks?.['5_CHARACTER'] ||
+                           stage1Characters[index].blocks?.CHARACTER || '';
+        }
+
+        // character_detail 값 (현재 로직 유지)
+        const detailValue = char.character_detail || char.detail || '';
+
+        console.log(`📝 [캐릭터${charNum}] 추출된 값:`, {
+            characterValue,
+            detailValue: detailValue.substring(0, 50) + '...'
+        });
+
+        // 프롬프트 필드에 값 설정
+        const characterInput = document.querySelector(
+            `.tab-pane[data-tab="character"] .prompt-row-item[data-block="character${charNum}"] .prompt-input`
+        );
+        const detailInput = document.querySelector(
+            `.tab-pane[data-tab="character"] .prompt-row-item[data-block="character${charNum}-detail"] .prompt-input`
+        );
+
+        console.log(`🎯 [캐릭터${charNum}] DOM 요소:`, {
+            characterInput: characterInput ? '찾음' : '없음',
+            detailInput: detailInput ? '찾음' : '없음'
+        });
+
+        if (characterInput) {
+            characterInput.value = characterValue;
+            console.log(`  ✅ 캐릭터${charNum} 프롬프트: ${characterValue}`);
+        } else {
+            console.error(`  ❌ 캐릭터${charNum} 프롬프트 입력 필드를 찾을 수 없음`);
+        }
+
+        if (detailInput) {
+            detailInput.value = detailValue;
+            console.log(`  ✅ 캐릭터${charNum} 디테일: ${detailValue.substring(0, 50)}...`);
+        } else {
+            console.error(`  ❌ 캐릭터${charNum} 디테일 입력 필드를 찾을 수 없음`);
+        }
+    });
+
+    // starting_frame 액션 적용 (기본값)
+    updateCharacterActions('starting_frame');
+
+    console.log('✅ 캐릭터 블록 매핑 완료');
+}
+
+/**
+ * 캐릭터 액션 업데이트 (START/END 버튼에 따라)
+ */
+function updateCharacterActions(frameType) {
+    if (!parsedCharactersData || parsedCharactersData.length === 0) {
+        console.log('⚠️ 캐릭터 데이터가 없어서 액션을 업데이트할 수 없습니다.');
+        return;
+    }
+
+    try {
+        // URL에서 shotId 가져오기
+        const urlParams = new URLSearchParams(window.location.search);
+        const shotId = urlParams.get('shotId');
+
+        if (!shotId) {
+            console.warn('⚠️ shotId가 없습니다.');
+            return;
+        }
+
+        // sessionStorage에서 Stage2 샷 데이터 가져오기
+        const shotDataStr = sessionStorage.getItem(`shot_${shotId}`);
+        if (!shotDataStr) {
+            console.warn(`⚠️ Stage2 데이터를 찾을 수 없습니다: shot_${shotId}`);
+            return;
+        }
+
+        const shotData = JSON.parse(shotDataStr);
+        const frame = shotData[frameType]; // starting_frame 또는 ending_frame
+
+        if (!frame) {
+            console.warn(`⚠️ ${frameType}이 없습니다.`);
+            return;
+        }
+
+        console.log(`🎬 ${frameType} 캐릭터 액션 업데이트 시작`);
+
+        // 각 캐릭터의 액션 업데이트
+        parsedCharactersData.forEach((char, index) => {
+            const charNum = index + 1;
+            const charName = char.name; // 예: "Jinsu", "CEO"
+
+            // frame 객체에서 캐릭터 이름으로 액션 찾기
+            const actionValue = frame[charName] || '';
+
+            if (actionValue) {
+                const actionInput = document.querySelector(
+                    `.tab-pane[data-tab="character"] .prompt-row-item[data-block="character${charNum}-action"] .prompt-input`
+                );
+
+                if (actionInput) {
+                    actionInput.value = actionValue;
+                    console.log(`  ✅ 캐릭터${charNum} (${charName}) 액션: ${actionValue}`);
+                }
             }
         });
+
+        console.log(`✅ ${frameType} 캐릭터 액션 업데이트 완료`);
+    } catch (error) {
+        console.error('❌ 캐릭터 액션 업데이트 에러:', error);
     }
 }
 
-// 장소블록 데이터 매칭
+// 전역 장소 데이터 저장
+let parsedLocationsData = [];
+
+/**
+ * 장소 셀렉터에 모든 장소 표시
+ */
+function updateLocationSelector(locationsData) {
+    if (!locationsData || locationsData.length === 0) {
+        console.log('⚠️ 장소 데이터가 없습니다.');
+        return;
+    }
+
+    const selector = document.getElementById('locationSelector');
+    if (!selector) {
+        console.warn('⚠️ #locationSelector를 찾을 수 없습니다.');
+        return;
+    }
+
+    // 기존 옵션 제거
+    selector.innerHTML = '';
+
+    // 장소 옵션 추가
+    locationsData.forEach((loc, index) => {
+        const option = document.createElement('option');
+        option.value = index + 1;
+        option.textContent = loc.name || `장소 ${index + 1}`;
+        selector.appendChild(option);
+    });
+
+    console.log(`✅ 장소 셀렉터 업데이트 완료: ${locationsData.length}개`);
+}
+
+/**
+ * 특정 장소의 데이터를 UI에 표시
+ */
+function displayLocationData(locationNum) {
+    if (!parsedLocationsData || parsedLocationsData.length === 0) {
+        console.warn('⚠️ 장소 데이터가 없습니다.');
+        return;
+    }
+
+    const locationIndex = locationNum - 1;
+    if (locationIndex < 0 || locationIndex >= parsedLocationsData.length) {
+        console.warn(`⚠️ 장소 ${locationNum} 데이터가 없습니다.`);
+        return;
+    }
+
+    const locationData = parsedLocationsData[locationIndex];
+    const blocks = locationData.blocks || {};
+
+    console.log(`🏢 장소 ${locationNum} 데이터 표시:`, locationData.name);
+
+    // Stage1 blocks 필드명 → HTML data-block 매핑
+    const mapping = {
+        'location': blocks['5_LOCATION'] || '',
+        'atmosphere': blocks['9_ATMOSPHERE'] || '',
+        'color-tone': blocks['10_COLOR_TONE'] || '',
+        'scale': blocks['11_SCALE'] || '',
+        'architecture': blocks['12_ARCHITECTURE'] || '',
+        'material': blocks['13_MATERIAL'] || '',
+        'object': blocks['14_OBJECT'] || '',
+        'weather': blocks['15_WEATHER'] || '',
+        'natural-light': blocks['16_NATURAL_LIGHT'] || '',
+        'artificial-light': blocks['17_ARTIFICIAL_LIGHT'] || '',
+        'lighting': blocks['18_LIGHTING'] || '',
+        'foreground': blocks['19_FOREGROUND'] || '',
+        'midground': blocks['20_MIDGROUND'] || '',
+        'background': blocks['21_BACKGROUND'] || '',
+        'left-side': blocks['22_LEFT_SIDE'] || '',
+        'right-side': blocks['23_RIGHT_SIDE'] || '',
+        'ceiling': blocks['24_CEILING/SKY'] || '',
+        'floor': blocks['25_FLOOR/GROUND'] || ''
+    };
+
+    const locationTab = document.querySelector('.tab-pane[data-tab="location"]');
+    if (!locationTab) return;
+
+    // 장소블록 탭의 입력 필드에 값 설정 및 빈 값 숨기기
+    Object.entries(mapping).forEach(([field, value]) => {
+        // 라벨 아이템 찾기
+        const labelItem = locationTab.querySelector(`.label-item[data-block="${field}"]`);
+        // 프롬프트 입력 찾기
+        const promptRow = locationTab.querySelector(`.prompt-row-item[data-block="${field}"]`);
+        // 변경 요청 찾기
+        const requestRow = locationTab.querySelector(`.request-row-item[data-block="${field}"]`);
+
+        if (value) {
+            // 값이 있으면 표시하고 값 설정
+            if (labelItem) labelItem.style.display = '';
+            if (promptRow) {
+                promptRow.style.display = '';
+                const input = promptRow.querySelector('.prompt-input');
+                if (input) input.value = value;
+            }
+            if (requestRow) requestRow.style.display = '';
+        } else {
+            // 값이 없으면 숨기기
+            if (labelItem) labelItem.style.display = 'none';
+            if (promptRow) promptRow.style.display = 'none';
+            if (requestRow) requestRow.style.display = 'none';
+        }
+    });
+}
+
+/**
+ * 장소블록 데이터 매칭 (캐릭터 블록과 동일한 패턴)
+ */
 function mapLocationBlock(locationData) {
     if (!locationData) return;
 
-    const mapping = {
-        'location': locationData.blocks.location || '',
-        'atmosphere': locationData.blocks.atmosphere || '',
-        'color-tone': locationData.blocks.colorTone || '',
-        'scale': locationData.blocks.scale || '',
-        'architecture': locationData.blocks.architecture || '',
-        'material': locationData.blocks.material || '',
-        'object': locationData.blocks.object || '',
-        'weather': locationData.blocks.weather || '',
-        'natural-light': locationData.blocks.naturalLight || '',
-        'artificial-light': locationData.blocks.artificialLight || '',
-        'lighting': locationData.blocks.lighting || '',
-        'foreground': locationData.blocks.foreground || '',
-        'midground': locationData.blocks.midground || '',
-        'background': locationData.blocks.background || '',
-        'left-side': locationData.blocks.leftSide || '',
-        'right-side': locationData.blocks.rightSide || '',
-        'ceiling': locationData.blocks.ceiling || locationData.blocks.sky || '',
-        'floor': locationData.blocks.floor || locationData.blocks.ground || ''
-    };
+    console.log('🏢 장소 블록 매핑 시작:', locationData);
 
-    // 장소블록 탭의 입력 필드에 값 설정
-    Object.entries(mapping).forEach(([field, value]) => {
-        const input = document.querySelector(`.tab-pane[data-tab="location"] .prompt-row-item[data-block="${field}"] .prompt-input`);
-        if (input && value) {
-            input.value = value;
+    // sessionStorage에서 Stage1 원본 데이터 가져오기
+    const stage1DataStr = sessionStorage.getItem('stage1OriginalData');
+    let stage1Locations = null;
+
+    if (stage1DataStr) {
+        try {
+            const stage1Data = JSON.parse(stage1DataStr);
+            stage1Locations = stage1Data.visual_blocks?.locations;
+            console.log('📦 Stage1 원본 장소 데이터 (전체):', stage1Locations);
+        } catch (error) {
+            console.error('❌ Stage1 데이터 파싱 에러:', error);
         }
+    }
+
+    if (!stage1Locations || stage1Locations.length === 0) {
+        console.warn('⚠️ Stage1 장소 데이터가 없습니다.');
+        return;
+    }
+
+    // 전역 변수에 저장
+    parsedLocationsData = stage1Locations;
+
+    // 장소 셀렉터 업데이트
+    updateLocationSelector(stage1Locations);
+
+    // JSON 파일의 모든 장소를 addedLocations에 추가
+    addedLocations.clear();
+    stage1Locations.forEach((loc, index) => {
+        addedLocations.add(index + 1);
     });
+
+    console.log(`✅ 장소 ${addedLocations.size}개 자동 추가:`, Array.from(addedLocations));
+
+    // 장소 리스트 UI 업데이트
+    updateLocationsList();
+    updateLocationContainers();
+
+    // 장소 선택 UI 표시
+    const locationCompactContainer = document.querySelector('.location-compact-container');
+    if (locationCompactContainer) {
+        locationCompactContainer.style.display = '';
+    }
+
+    // 기본적으로 첫 번째 장소 표시
+    displayLocationData(1);
+
+    console.log('✅ 장소 블록 매핑 완료');
 }
 
 // 소품블록 데이터 매칭
@@ -1748,29 +2252,130 @@ window.uploadStage1JSON = function() {
 };
 
 // 이미지 생성 관련 함수
-window.regenerateImage = function() {
-    const generationResult = document.getElementById('generationResult');
-    if (!generationResult) return;
+window.regenerateImage = async function() {
+    console.log('🎨 이미지 생성 시작');
 
-    // 로딩 상태 표시
+    const generationResult = document.getElementById('generationResult');
+    const finalPromptTextarea = document.getElementById('globalFinalPrompt');
+
+    if (!generationResult) {
+        console.error('❌ 생성 결과 영역을 찾을 수 없습니다');
+        return;
+    }
+
+    // 1. 프롬프트 확인
+    const prompt = finalPromptTextarea?.value.trim();
+    if (!prompt) {
+        showNotification('먼저 "파싱" 버튼을 눌러 프롬프트를 생성해주세요.', 'warning');
+        return;
+    }
+
+    // 2. API 키 확인
+    if (!window.nanoBananaAPI || !window.nanoBananaAPI.isReady()) {
+        // API 초기화 시도
+        window.nanoBananaAPI?.init();
+
+        if (!window.nanoBananaAPI || !window.nanoBananaAPI.isReady()) {
+            showNotification('Gemini API 키가 설정되지 않았습니다. 설정에서 API 키를 입력해주세요.', 'error');
+            return;
+        }
+    }
+
+    // 3. 업로드된 이미지 확인
+    const uploadedImages = imageUploadManager.uploadedImages || [];
+    console.log(`📸 업로드된 이미지: ${uploadedImages.length}개`);
+
+    // 4. 로딩 상태 표시
     generationResult.innerHTML = `
-        <div style="text-align: center;">
-            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="spin">
-                <path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                <path d="M9 12l2 2 4-4" stroke-opacity="0.3"/>
+        <div style="text-align: center; padding: 20px;">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="spin" style="animation: spin 1s linear infinite;">
+                <circle cx="12" cy="12" r="10" stroke-opacity="0.3"/>
+                <path d="M12 2 A10 10 0 0 1 22 12" stroke-linecap="round"/>
             </svg>
-            <p>이미지 생성 중...</p>
+            <p style="margin-top: 10px; color: #ccc;">이미지 생성 중...</p>
+            <p style="font-size: 10px; color: #666; margin-top: 5px;">Nano Banana AI 사용</p>
         </div>
     `;
 
-    // 실제 이미지 생성 로직은 API 연동 후 구현
-    setTimeout(() => {
-        // 테스트용: 플레이스홀더 이미지로 대체
-        generationResult.classList.add('has-image');
+    try {
+        let result;
+
+        if (uploadedImages.length > 0) {
+            // 이미지가 있으면 이미지 참조하여 생성
+            console.log('🖼️ 참조 이미지와 함께 생성');
+
+            // 이미지를 base64로 변환
+            const imageData = uploadedImages.slice(0, 3).map(img => ({
+                base64: img.src.split(',')[1], // data:image/...;base64, 제거
+                mimeType: img.src.match(/data:(.*?);/)?.[1] || 'image/jpeg'
+            }));
+
+            // composeImages 사용
+            if (imageData.length > 1) {
+                result = await window.nanoBananaAPI.composeImages(imageData, prompt);
+            } else {
+                // 단일 이미지는 editImage 사용
+                result = await window.nanoBananaAPI.editImage(
+                    imageData[0].base64,
+                    prompt,
+                    { mimeType: imageData[0].mimeType }
+                );
+            }
+        } else {
+            // 이미지 없이 프롬프트만으로 생성
+            console.log('📝 프롬프트만으로 생성');
+            result = await window.nanoBananaAPI.generateImage(prompt);
+        }
+
+        // 5. 결과 표시
+        if (result.success) {
+            console.log('✅ 이미지 생성 성공');
+            generationResult.classList.add('has-image');
+            generationResult.innerHTML = `
+                <img src="${result.imageUrl}" alt="Generated Image" style="width: 100%; height: 100%; object-fit: contain; border-radius: 8px;">
+            `;
+
+            // 비용 정보 표시
+            const costInfo = `토큰: ${result.tokensUsed}, 비용: $${result.cost.toFixed(3)}`;
+            showNotification(`이미지 생성 완료! (${costInfo})`, 'success');
+        } else {
+            console.error('❌ 이미지 생성 실패:', result.error);
+
+            // 실패 상태 표시
+            generationResult.innerHTML = `
+                <div style="text-align: center; padding: 20px; color: #ff6b6b;">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <line x1="15" y1="9" x2="9" y2="15"/>
+                        <line x1="9" y1="9" x2="15" y2="15"/>
+                    </svg>
+                    <p style="margin-top: 10px;">생성 실패</p>
+                    <p style="font-size: 11px; color: #999; margin-top: 5px;">${result.error || '알 수 없는 오류'}</p>
+                    ${result.suggestion ? `<p style="font-size: 10px; color: #666; margin-top: 8px;">${result.suggestion}</p>` : ''}
+                </div>
+            `;
+
+            showNotification(result.error || '이미지 생성에 실패했습니다.', 'error');
+        }
+
+    } catch (error) {
+        console.error('❌ 이미지 생성 오류:', error);
+
+        // 에러 상태 표시
         generationResult.innerHTML = `
-            <img src="https://via.placeholder.com/220x220/ff6b6b/ffffff?text=Generated" alt="Generated Image">
+            <div style="text-align: center; padding: 20px; color: #ff6b6b;">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"/>
+                    <line x1="15" y1="9" x2="9" y2="15"/>
+                    <line x1="9" y1="9" x2="15" y2="15"/>
+                </svg>
+                <p style="margin-top: 10px;">오류 발생</p>
+                <p style="font-size: 11px; color: #999; margin-top: 5px;">${error.message}</p>
+            </div>
         `;
-    }, 2000);
+
+        showNotification(`오류: ${error.message}`, 'error');
+    }
 };
 
 // 외부에서 호출 가능한 함수들
@@ -1868,7 +2473,7 @@ window.clearFilmMetadataCache = function() {
 };
 
 // 추가된 캐릭터 목록 관리
-const addedCharacters = new Set([1]); // 기본으로 캐릭터 1이 추가되어 있음
+const addedCharacters = new Set(); // JSON 파일에서 자동으로 채워짐
 
 // 캐릭터를 리스트에 추가하는 함수
 window.addCharacterToList = function() {
@@ -1909,11 +2514,20 @@ window.removeCharacter = function(characterNum) {
 // 모든 캐릭터 지우기
 window.clearAllCharacters = function() {
     addedCharacters.clear();
-    addedCharacters.add(1); // 기본 캐릭터 1 추가
+
+    // JSON에서 파싱된 캐릭터가 있으면 그대로 유지, 없으면 캐릭터 1만 추가
+    if (parsedCharactersData && parsedCharactersData.length > 0) {
+        parsedCharactersData.forEach((char, index) => {
+            addedCharacters.add(index + 1);
+        });
+        showNotification('JSON 파일의 캐릭터로 초기화되었습니다.', 'info');
+    } else {
+        addedCharacters.add(1);
+        showNotification('모든 캐릭터가 제거되었습니다. (캐릭터 1 기본 유지)', 'info');
+    }
+
     updateCharactersList();
     updateCharacterContainers();
-
-    showNotification('모든 캐릭터가 제거되었습니다. (캐릭터 1 기본 유지)', 'info');
 };
 
 // 캐릭터 리스트 UI 업데이트
@@ -1928,12 +2542,18 @@ function updateCharactersList() {
     const sortedCharacters = Array.from(addedCharacters).sort((a, b) => a - b);
 
     sortedCharacters.forEach(num => {
+        // JSON 데이터에서 캐릭터 이름 가져오기
+        let characterName = `캐릭터 ${num}`;
+        if (parsedCharactersData && parsedCharactersData[num - 1]) {
+            characterName = parsedCharactersData[num - 1].name || `캐릭터 ${num}`;
+        }
+
         const item = document.createElement('div');
         item.className = 'added-character-item';
         item.setAttribute('data-character-num', num);
         item.innerHTML = `
             <div class="item-header">
-                <span class="character-name">캐릭터 ${num}</span>
+                <span class="character-name">${characterName}</span>
                 <button class="remove-character-btn" onclick="removeCharacter(${num})" title="제거">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <line x1="18" y1="6" x2="6" y2="18"></line>
@@ -2103,18 +2723,11 @@ function updateLocationsList() {
 
     sortedLocations.forEach(num => {
         const item = document.createElement('div');
-        item.className = 'added-location-item';
+        item.className = 'selected-location-chip';
         item.setAttribute('data-location-num', num);
         item.innerHTML = `
-            <div class="item-header">
-                <span class="location-name">장소 ${num}</span>
-                <button class="remove-location-btn" onclick="removeLocation(${num})" title="제거">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <line x1="18" y1="6" x2="6" y2="18"></line>
-                        <line x1="6" y1="6" x2="18" y2="18"></line>
-                    </svg>
-                </button>
-            </div>
+            <span>장소 ${num}</span>
+            <button class="chip-remove-btn" onclick="removeLocation(${num})">×</button>
         `;
         listContainer.appendChild(item);
     });
