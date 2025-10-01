@@ -625,13 +625,10 @@ function formatPromptForDisplay(promptText) {
     const parts = promptText.split(';').map(part => part.trim()).filter(part => part);
 
     // Join with proper formatting - each item on new line with semicolon
+    // Don't add semicolon to the last item
     const formatted = parts.map((part, index) => {
-        // Don't add semicolon to the last item if it's parameters
-        if (index === parts.length - 1 && part.includes('PARAMETERS')) {
-            return part;
-        }
-        // Add semicolon back
-        return part + ';';
+        const isLast = index === parts.length - 1;
+        return isLast ? part : part + ';';
     }).join('\n');
 
     return formatted;
@@ -2027,8 +2024,11 @@ function savePromptEdit() {
         }
     });
 
-    // Join all parts with semicolon
-    const newText = fieldParts.join('; ');
+    // Join all parts with semicolon, but not after the last item
+    const newText = fieldParts.map((part, index) => {
+        const isLast = index === fieldParts.length - 1;
+        return isLast ? part : part + ';';
+    }).join('\n');
 
     if (currentEditType === 'universal') {
         const element = document.getElementById('universal-prompt');

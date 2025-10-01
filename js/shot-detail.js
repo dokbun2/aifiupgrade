@@ -116,6 +116,10 @@ let selectedImageIndex = 0;
 // 초기화 플래그
 let isInitialized = false;
 
+// 추가된 캐릭터/장소 목록 관리 (전역으로 선언하여 TDZ 방지)
+const addedCharacters = new Set(); // JSON 파일에서 자동으로 채워짐
+const addedLocations = new Set([1]); // 기본으로 장소 1이 추가되어 있음
+
 
 // ===== 레거시 함수 제거됨 (Line 218-420) =====
 // setStartDefaults() - 제거: 하드코딩된 기본값 불필요
@@ -133,7 +137,7 @@ document.addEventListener('DOMContentLoaded', function() {
     isInitialized = true;
 
     try {
-        // 🚀 우선순위 높음: 바로 실행
+        // 🚀 우선순위 높음: 바로 실행 (핵심 기능)
         // 탭 관리자 초기화 (탭 전환 시 콜백 설정)
         tabManager.init((targetTab) => {
             shotDetailManager.currentTab = targetTab;
@@ -153,13 +157,13 @@ document.addEventListener('DOMContentLoaded', function() {
         initializeFormEvents();
         loadShotData();
         imageUploadManager.init();
+        promptManager.init(); // ⚡ 즉시 실행 필요 (generateAllTabPrompts 호출 전)
 
-        // ⏰ 우선순위 낮음: 브라우저 한가할 때 실행
+        // ⏰ 우선순위 낮음: 브라우저 한가할 때 실행 (UI 개선용)
         const idleInit = () => {
             initializeImageUpload();
             initializeBasicBlockLabels();
             initializeScrollSync();
-            promptManager.init();
         };
 
         // requestIdleCallback 지원 여부 확인
@@ -834,6 +838,12 @@ function generateAllTabPrompts() {
 
     tabs.forEach(tabName => {
         try {
+            // promptManager가 초기화되지 않았으면 에러
+            if (!promptManager || typeof promptManager.collectFormData !== 'function') {
+                console.error('❌ promptManager가 초기화되지 않았습니다.');
+                return;
+            }
+
             const promptData = promptManager.collectFormData(tabName);
             const generatedPrompt = promptManager.buildPrompt(promptData);
 
@@ -847,10 +857,12 @@ function generateAllTabPrompts() {
                 }
             }
 
-            // 프롬프트 저장
-            shotDetailManager.shotData.prompts[tabName] = generatedPrompt;
+            // 프롬프트 저장 (안전하게 체크)
+            if (shotDetailManager?.shotData?.prompts) {
+                shotDetailManager.shotData.prompts[tabName] = generatedPrompt;
+            }
         } catch (error) {
-            console.error(`${tabName} 탭 프롬프트 생성 에러:`, error);
+            console.error(`❌ ${tabName} 탭 프롬프트 생성 에러:`, error);
         }
     });
 }
@@ -1029,7 +1041,12 @@ function parseAllBlocksToFinalPrompt() {
     // 줄바꿈으로 연결
     let finalPrompt = promptLines.join('\n');
 
-    // 매개변수가 있으면 마지막에 추가 (공백으로 구분)
+    // 마지막 줄의 세미콜론 제거 (매개변수 추가 전)
+    if (finalPrompt.endsWith(';')) {
+        finalPrompt = finalPrompt.slice(0, -1);
+    }
+
+    // 매개변수가 있으면 마지막에 추가 (공백으로 구분, 세미콜론 없음)
     if (parameters.length > 0) {
         finalPrompt += '\n' + parameters.join(' ');
     }
@@ -2215,11 +2232,8 @@ window.clearFilmMetadataCache = function() {
     console.log('Film metadata cache cleared');
 };
 
-// 추가된 캐릭터 목록 관리
-const addedCharacters = new Set(); // JSON 파일에서 자동으로 채워짐
-
-// 추가된 장소 목록 관리
-const addedLocations = new Set([1]); // 기본으로 장소 1이 추가되어 있음
+// ===== 캐릭터/장소 관리 함수들 =====
+// (addedCharacters, addedLocations는 파일 상단에 선언됨)
 
 // 캐릭터를 리스트에 추가하는 함수
 window.addCharacterToList = function() {
