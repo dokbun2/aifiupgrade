@@ -941,6 +941,32 @@ class StoryboardManager {
         container.appendChild(sceneSection);
     }
 
+    /**
+     * Shot ID로 mergedData에서 실제 샷 찾기
+     */
+    findShotById(shotId) {
+        if (!this.mergedData || !this.mergedData.scenes) {
+            console.warn('⚠️ mergedData가 없습니다.');
+            return null;
+        }
+
+        for (const scene of this.mergedData.scenes) {
+            if (scene.shots) {
+                const foundShot = scene.shots.find(s => s.shot_id === shotId);
+                if (foundShot) {
+                    // scene의 concept_art_references도 함께 반환
+                    return {
+                        ...foundShot,
+                        concept_art_references: foundShot.concept_art_references || scene.concept_art_references
+                    };
+                }
+            }
+        }
+
+        console.warn(`⚠️ Shot ID '${shotId}'를 찾을 수 없습니다.`);
+        return null;
+    }
+
     createShotCard(shot) {
         console.log('🃏 카드 생성 중 - Shot ID:', shot.shot_id);
         const card = document.createElement('div');
@@ -1016,13 +1042,22 @@ class StoryboardManager {
             if (e.target.closest('.card-tags')) {
                 const tag = e.target.closest('.card-tag');
                 if (tag) {
-                    console.log('🏷️ 태그 클릭:', tag.textContent, 'Shot:', shot.shot_id);
-                    this.handleTagClick(tag, shot);
+                    // 카드의 data-shot-id로 실제 샷 찾기
+                    const clickedCard = e.currentTarget;
+                    const shotId = clickedCard.dataset.shotId;
+                    const actualShot = this.findShotById(shotId);
+                    console.log('🏷️ 태그 클릭:', tag.textContent, 'Shot:', shotId);
+                    this.handleTagClick(tag, actualShot || shot);
                 }
                 return;
             }
-            console.log('🎬 카드 클릭 - Shot ID:', shot.shot_id, 'Shot 데이터:', shot);
-            this.showShotDetails(shot);
+
+            // 카드의 data-shot-id로 실제 샷 찾기
+            const clickedCard = e.currentTarget;
+            const shotId = clickedCard.dataset.shotId;
+            const actualShot = this.findShotById(shotId);
+            console.log('🎬 카드 클릭 - Card data-shot-id:', shotId, '실제 찾은 Shot:', actualShot);
+            this.showShotDetails(actualShot || shot);
         });
 
         return card;
