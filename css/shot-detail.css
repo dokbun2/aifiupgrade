@@ -638,13 +638,10 @@ body {
 .bottom-content {
     display: flex;
     flex-direction: row;
-    flex: 1;
-    min-height: 700px; /* 600px에서 800px로 증가 */
-    height: auto;
-    overflow: visible;
     width: 100%;
     gap: 0;
-    margin-bottom: 80px; /* 하단 여백 증가 */
+    margin-bottom: 20px; /* 하단 여백 줄임 */
+    align-items: flex-start; /* 각 섹션이 독립적으로 높이 조절 */
 }
 
 /* Left Section - 왼쪽 메인 영역 */
@@ -654,10 +651,8 @@ body {
     flex-direction: column;
     background-color: #0f0f0f;
     min-width: 700px;
-    overflow: visible !important;
-    height: auto;
-    padding-bottom: 20px;
     border-right: 1px solid #2a2a2a;
+    height: auto; /* 컨텐츠에 따라 자동 조절 */
 }
 
 /* left-section 스크롤바 완전 제거 */
@@ -672,6 +667,89 @@ body {
     scrollbar-width: none !important;
 }
 
+/* Top Action Buttons (START/END) */
+.top-action-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    padding: 12px 16px;
+    background-color: #0f0f0f;
+    border-bottom: 1px solid #2a2a2a;
+}
+
+.action-btn {
+    padding: 0 32px;
+    height: 40px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: none;
+    min-width: 100px;
+    letter-spacing: 0.5px;
+}
+
+.start-btn {
+    background: #1a1a1a;
+    border: 1px solid #2a2a2a;
+    color: #999;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.start-btn:hover {
+    background: #242424;
+    border-color: #3a3a3a;
+    color: #ccc;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    transform: translateY(-1px);
+}
+
+.start-btn:active,
+.start-btn.active {
+    background: linear-gradient(135deg, #2fa360, #27904f);
+    border: none;
+    color: #ffffff;
+    box-shadow: 0 4px 12px rgba(47, 163, 96, 0.35);
+    transform: translateY(0);
+}
+
+.start-btn.active:hover {
+    background: linear-gradient(135deg, #3bb56e, #2fa360);
+    box-shadow: 0 4px 12px rgba(47, 163, 96, 0.5);
+    transform: translateY(-1px);
+}
+
+.end-btn {
+    background: #1a1a1a;
+    border: 1px solid #2a2a2a;
+    color: #999;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.end-btn:hover {
+    background: #242424;
+    border-color: #3a3a3a;
+    color: #ccc;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    transform: translateY(-1px);
+}
+
+.end-btn:active,
+.end-btn.active {
+    background: linear-gradient(135deg, #dc3545, #c82333);
+    border: none;
+    color: #ffffff;
+    box-shadow: 0 4px 12px rgba(220, 53, 69, 0.35);
+    transform: translateY(0);
+}
+
+.end-btn.active:hover {
+    background: linear-gradient(135deg, #e4606d, #dc3545);
+    box-shadow: 0 4px 12px rgba(220, 53, 69, 0.5);
+    transform: translateY(-1px);
+}
+
 /* Tab Navigation */
 .tab-navigation {
     display: flex;
@@ -679,13 +757,15 @@ body {
     background-color: #0f0f0f;
     border-bottom: 1px solid #2a2a2a;
     height: 52px;
-    padding: 5px 16px;
+    padding: 8px 16px;
     align-items: center;
+    gap: 16px;
 }
 
 .tab-buttons-left {
     display: flex;
-    gap: 4px;
+    gap: 8px;
+    flex: 1;
 }
 
 .tab-buttons-right {
@@ -695,63 +775,43 @@ body {
 
 .tab-btn {
     padding: 0 20px;
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.06);
-    color: #888;
+    background: #1a1a1a;
+    border: 1px solid #2a2a2a;
+    color: #999;
     font-size: 13px;
     font-weight: 500;
     cursor: pointer;
     position: relative;
-    transition: all 0.3s ease;
+    transition: all 0.2s ease;
     height: 36px;
-    margin: 0 2px;
-    border-radius: 8px;
+    border-radius: 6px;
     display: flex;
     align-items: center;
     justify-content: center;
     min-width: 90px;
     letter-spacing: 0.3px;
-    backdrop-filter: blur(10px);
 }
 
 .tab-btn:hover {
-    background: rgba(255, 255, 255, 0.06);
-    border-color: rgba(255, 255, 255, 0.1);
-    color: #fff;
-    transform: translateY(-1px);
+    background: #242424;
+    border-color: #333;
+    color: #ccc;
 }
 
 .tab-btn.active {
-    background: linear-gradient(135deg, #f98b58, #ff9966);
+    background: #f98b58;
     border: 1px solid #f98b58;
     color: #ffffff;
     font-weight: 600;
-    box-shadow: 0 4px 12px rgba(249, 139, 88, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.2);
-    transform: translateY(0);
 }
 
 .tab-btn.active:hover {
-    background: linear-gradient(135deg, #ff9966, #ffaa77);
+    background: #ff9966;
     border-color: #ff9966;
-    transform: translateY(0);
-    box-shadow: 0 4px 12px rgba(249, 139, 88, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 
 .tab-btn:active {
     transform: scale(0.98);
-}
-
-/* Tab indicator line */
-.tab-btn.active::before {
-    content: '';
-    position: absolute;
-    bottom: -8px;
-    left: 20%;
-    right: 20%;
-    height: 2px;
-    background: #de5e5e;
-    border-radius: 2px;
-    animation: slideIn 0.3s ease;
 }
 
 @keyframes slideIn {
@@ -763,75 +823,83 @@ body {
     }
 }
 
-/* Start/End Action Buttons */
-.tab-action-btn {
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    color: #aaa;
-    min-width: 70px;
+/* Bottom Action Buttons (생성/복사/저장) */
+.bottom-action-btn {
+    padding: 0 24px;
+    height: 38px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: none;
+    min-width: 80px;
+    letter-spacing: 0.3px;
 }
 
-.tab-action-btn[data-action="start"] {
-    background: linear-gradient(135deg, rgba(34, 197, 94, 0.1), rgba(34, 197, 94, 0.05));
-    border-color: rgba(34, 197, 94, 0.3);
-    color: #22c55e;
+.generate-btn {
+    background: linear-gradient(135deg, #666, #555);
+    color: #ffffff;
+    box-shadow: 0 2px 6px rgba(102, 102, 102, 0.2);
 }
 
-.tab-action-btn[data-action="start"]:hover {
-    background: linear-gradient(135deg, rgba(34, 197, 94, 0.2), rgba(34, 197, 94, 0.1));
-    border-color: rgba(34, 197, 94, 0.5);
-    color: #4ade80;
-    box-shadow: 0 4px 12px rgba(34, 197, 94, 0.2);
+.generate-btn:hover {
+    background: linear-gradient(135deg, #777, #666);
+    box-shadow: 0 4px 10px rgba(102, 102, 102, 0.35);
+    transform: translateY(-1px);
 }
 
-.tab-action-btn[data-action="end"] {
-    background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(239, 68, 68, 0.05));
-    border-color: rgba(239, 68, 68, 0.3);
-    color: #ef4444;
-}
-
-.tab-action-btn[data-action="end"]:hover {
-    background: linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(239, 68, 68, 0.1));
-    border-color: rgba(239, 68, 68, 0.5);
-    color: #f87171;
-    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
-}
-
-.tab-action-btn.active {
+.generate-btn:active {
     transform: translateY(0);
+    box-shadow: 0 1px 3px rgba(102, 102, 102, 0.3);
 }
 
-.tab-action-btn[data-action="start"].active {
-    background: linear-gradient(135deg, #22c55e, #16a34a);
-    border-color: #22c55e;
+.copy-btn {
+    background: linear-gradient(135deg, #2fa360, #27904f);
     color: #ffffff;
-    box-shadow: 0 4px 12px rgba(34, 197, 94, 0.35);
+    box-shadow: 0 2px 6px rgba(47, 163, 96, 0.2);
 }
 
-.tab-action-btn[data-action="end"].active {
-    background: linear-gradient(135deg, #ef4444, #dc2626);
-    border-color: #ef4444;
+.copy-btn:hover {
+    background: linear-gradient(135deg, #3bb56e, #2fa360);
+    box-shadow: 0 4px 10px rgba(47, 163, 96, 0.35);
+    transform: translateY(-1px);
+}
+
+.copy-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 1px 3px rgba(47, 163, 96, 0.3);
+}
+
+.save-btn {
+    background: linear-gradient(135deg, #f98b58, #ff7a45);
     color: #ffffff;
-    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.35);
+    box-shadow: 0 2px 6px rgba(249, 139, 88, 0.2);
+}
+
+.save-btn:hover {
+    background: linear-gradient(135deg, #ff9966, #f98b58);
+    box-shadow: 0 4px 10px rgba(249, 139, 88, 0.35);
+    transform: translateY(-1px);
+}
+
+.save-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 1px 3px rgba(249, 139, 88, 0.3);
 }
 
 /* Tab Content */
 .tab-content {
-    flex: 1;
-    overflow: visible !important;
-    padding: 0;
-    height: auto;
-    min-height: 600px; /* 400px에서 600px로 증가 */
     display: flex;
     flex-direction: column;
+    padding: 0;
+    height: auto; /* 컨텐츠에 따라 자동 조절 */
 }
 
 .tab-pane {
     display: none;
-    height: auto;
-    min-height: 750px; /* 프롬프트 창을 위한 충분한 공간 확보 */
-    flex: 1;
     flex-direction: column;
+    height: auto; /* 컨텐츠에 따라 자동 조절 */
 }
 
 .tab-pane.active {
@@ -849,11 +917,10 @@ body {
 
 /* Block List */
 .block-list {
-    flex: 1;
     display: flex;
     flex-direction: column;
-    overflow-y: auto;
-    min-height: 0;
+    height: auto; /* 컨텐츠에 따라 자동 조절 */
+    padding-bottom: 10px; /* 하단 여백 줄임 */
 }
 
 /* Block Header */
@@ -1104,52 +1171,54 @@ body {
     font-size: 13px;
     font-weight: 500;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: all 0.2s ease;
     border: none;
+    color: #ffffff;
 }
 
 .generate-btn {
-    background-color: #2a2a2a;
-    color: #999;
+    background: linear-gradient(135deg, #666, #555);
+    box-shadow: 0 2px 6px rgba(102, 102, 102, 0.2);
 }
 
 .generate-btn:hover {
-    background-color: #3a3a3a;
-    color: #fff;
+    background: linear-gradient(135deg, #777, #666);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(102, 102, 102, 0.3);
 }
 
 .copy-btn {
-    background-color: #00bcd4;
-    color: #0f0f0f;
+    background: linear-gradient(135deg, #2fa360, #27904f);
+    box-shadow: 0 2px 6px rgba(47, 163, 96, 0.2);
 }
 
 .copy-btn:hover {
-    background-color: #00acc1;
+    background: linear-gradient(135deg, #35b56e, #2ea359);
     transform: translateY(-1px);
-    box-shadow: 0 2px 8px rgba(0, 188, 212, 0.3);
+    box-shadow: 0 4px 10px rgba(47, 163, 96, 0.35);
 }
 
 .save-btn {
-    background-color: #ff6b6b;
-    color: #fff;
+    background: linear-gradient(135deg, #f98b58, #ff7a45);
+    box-shadow: 0 2px 6px rgba(249, 139, 88, 0.2);
 }
 
 .save-btn:hover {
-    background-color: #ff5252;
+    background: linear-gradient(135deg, #ff9665, #ff8752);
     transform: translateY(-1px);
-    box-shadow: 0 2px 8px rgba(255, 107, 107, 0.3);
+    box-shadow: 0 4px 10px rgba(249, 139, 88, 0.35);
 }
 
 /* Right Section - 오른쪽 사이드바 영역 */
 .right-section {
-    width: 420px; /* 350px에서 420px로 증가 */
+    width: 420px;
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 15px;
     background-color: #0f0f0f;
-    padding: 20px;
-    overflow: visible;
+    padding: 15px;
     flex-shrink: 0;
+    height: auto; /* 컨텐츠에 따라 자동으로 늘어남 */
 }
 
 /* Image Upload Section */
@@ -1349,34 +1418,7 @@ body {
     font-size: 11px;
 }
 
-/* Bottom Right Section - 프롬프트 표시 영역 */
-.bottom-right-section {
-    background-color: #1a1a1a;
-    padding: 15px;
-    border-radius: 8px;
-    border: 1px solid #2a2a2a;
-    margin-top: 320px;
-}
-
-.prompt-display {
-    padding: 20px;
-    background-color: rgba(42, 42, 42, 0.5);
-    border-radius: 8px;
-    border: 1px solid #333;
-    min-height: 120px;
-}
-
-.prompt-display p {
-    font-size: 12px;
-    color: #ccc;
-    margin-bottom: 15px;
-}
-
-.prompt-actions {
-    display: flex;
-    gap: 10px;
-    justify-content: center;
-}
+/* Bottom Right Section - 제거됨 */
 
 /* Three Column Layout for Basic Block - 이미 위에서 정의됨 (주석 처리) */
 /* .basic-block-three-columns는 위의 통합 스크롤 섹션에서 정의 */
@@ -1404,17 +1446,6 @@ body {
 }
 
 /* 통합 스크롤 - 컬럼 헤더는 고정, 내용만 스크롤 */
-/* Tab content with individual column scrolls */
-.tab-content {
-    flex: 1;
-    overflow: visible !important;
-    padding: 0;
-    height: auto;
-    min-height: 700px;
-    display: flex;
-    flex-direction: column;
-}
-
 /* tab-content 스크롤바 완전 제거 */
 .tab-content::-webkit-scrollbar {
     display: none !important;
@@ -1425,15 +1456,6 @@ body {
 .tab-content {
     -ms-overflow-style: none !important;
     scrollbar-width: none !important;
-}
-
-/* 탭 패널 스크롤 설정 */
-.tab-pane {
-    display: none; /* 기본적으로 숨김 */
-    flex-direction: column;
-    height: 100%;
-    overflow: visible;
-    padding-bottom: 60px;
 }
 
 /* tab-pane 스크롤바 완전 제거 */
@@ -1459,7 +1481,8 @@ body {
     gap: 1px;
     background: #2a2a2a;
     flex: 1;
-    min-height: 350px; /* 최소 높이 설정 */
+    min-height: auto; /* 고정 높이 제거 - 컨텐츠에 따라 자동 늘어남 */
+    height: auto;
     overflow: visible;
 }
 
@@ -1758,11 +1781,14 @@ body {
     border-bottom: none;
     margin: 0;
     padding: 0;
-    min-height: 280px;
+    min-height: 200px; /* 최소 높이 줄임 */
+    max-height: 400px; /* 최대 높이 설정 */
     box-shadow: none;
     overflow: hidden;
     position: relative;
     width: 100%;
+    display: flex;
+    flex-direction: column;
 }
 
 /* Final Prompt Section - 새로운 디자인 (기존, 사용 안함) */
@@ -1787,6 +1813,7 @@ body {
     background: #242424;
     border-bottom: 1px solid #333;
     position: relative;
+    flex-shrink: 0; /* 헤더 고정 */
 }
 
 .global-final-prompt-section h4,
@@ -1875,33 +1902,29 @@ body {
 }
 
 .final-prompt-textarea {
-    width: 100%;
-    height: 200px;
-    padding: 10px 15px;
-    background: #2a2a2a;
-    border: 1px solid #444;
-    border-radius: 6px;
+    padding: 15px 20px;
+    background: #1a1a1a;
+    border: none;
+    border-top: 1px solid #2a2a2a;
     color: #ccc;
-    font-size: 11px;
+    font-size: 12px;
     font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
-    line-height: 1.5;
-    resize: vertical;
-    transition: all 0.3s ease;
-    margin: 10px 15px;
-    width: calc(100% - 30px);
-    min-height: 180px;
-    max-height: 500px;
+    line-height: 1.6;
+    resize: none; /* 수동 리사이즈 비활성화 */
+    transition: all 0.2s ease;
+    width: 100%;
+    flex: 1; /* 남은 공간 채우기 */
+    min-height: 150px;
+    overflow-y: auto; /* 스크롤 자동 */
 }
 
 .final-prompt-textarea:hover {
-    border-color: #555;
-    background: #333;
+    background: #1f1f1f;
 }
 
 .final-prompt-textarea:focus {
     outline: none;
-    border-color: #666;
-    background: #333;
+    background: #1f1f1f;
     box-shadow: none;
 }
 

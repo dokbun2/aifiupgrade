@@ -90,6 +90,12 @@
             <div class="bottom-content">
                 <!-- 좌측 영역 -->
                 <div class="left-section">
+                <!-- START/END 버튼 영역 (상단) -->
+                <div class="top-action-buttons">
+                    <button class="action-btn start-btn" data-action="start">START</button>
+                    <button class="action-btn end-btn" data-action="end">END</button>
+                </div>
+
                 <!-- 탭 네비게이션 -->
                 <div class="tab-navigation">
                     <div class="tab-buttons-left">
@@ -100,8 +106,9 @@
                         <button class="tab-btn" data-tab="props">소품 블록</button>
                     </div>
                     <div class="tab-buttons-right">
-                        <button class="tab-btn tab-action-btn" data-action="start">START</button>
-                        <button class="tab-btn tab-action-btn" data-action="end">END</button>
+                        <button class="bottom-action-btn generate-btn">생성</button>
+                        <button class="bottom-action-btn copy-btn">복사</button>
+                        <button class="bottom-action-btn save-btn">저장</button>
                     </div>
                 </div>
 
@@ -820,7 +827,7 @@
                                 </div>
                                 <div class="label-list">
                                     <div class="label-item" data-block="location">
-                                        <span class="label-text">장소 명</span>
+                                        <span class="label-text">장소명</span>
                                         <button class="label-tag">LOCATION</button>
                                     </div>
                                     <div class="label-item" data-block="atmosphere">
@@ -828,7 +835,7 @@
                                         <button class="label-tag">ATMOSPHERE</button>
                                     </div>
                                     <div class="label-item" data-block="color-tone">
-                                        <span class="label-text">색상 톤</span>
+                                        <span class="label-text">색상톤</span>
                                         <button class="label-tag">COLOR_TONE</button>
                                     </div>
                                     <div class="label-item" data-block="scale">
@@ -843,6 +850,10 @@
                                         <span class="label-text">재질</span>
                                         <button class="label-tag">MATERIAL</button>
                                     </div>
+                                    <div class="label-item" data-block="object">
+                                        <span class="label-text">소품</span>
+                                        <button class="label-tag">OBJECT</button>
+                                    </div>
                                     <div class="label-item" data-block="weather">
                                         <span class="label-text">날씨</span>
                                         <button class="label-tag">WEATHER</button>
@@ -850,6 +861,42 @@
                                     <div class="label-item" data-block="natural-light">
                                         <span class="label-text">자연 광원</span>
                                         <button class="label-tag">NATURAL_LIGHT</button>
+                                    </div>
+                                    <div class="label-item" data-block="artificial-light">
+                                        <span class="label-text">인공 광원</span>
+                                        <button class="label-tag">ARTIFICIAL_LIGHT</button>
+                                    </div>
+                                    <div class="label-item" data-block="lighting">
+                                        <span class="label-text">조명 기법</span>
+                                        <button class="label-tag">LIGHTING</button>
+                                    </div>
+                                    <div class="label-item" data-block="foreground">
+                                        <span class="label-text">전경</span>
+                                        <button class="label-tag">FOREGROUND</button>
+                                    </div>
+                                    <div class="label-item" data-block="midground">
+                                        <span class="label-text">중경</span>
+                                        <button class="label-tag">MIDGROUND</button>
+                                    </div>
+                                    <div class="label-item" data-block="background">
+                                        <span class="label-text">배경</span>
+                                        <button class="label-tag">BACKGROUND</button>
+                                    </div>
+                                    <div class="label-item" data-block="left-side">
+                                        <span class="label-text">좌측면</span>
+                                        <button class="label-tag">LEFT_SIDE</button>
+                                    </div>
+                                    <div class="label-item" data-block="right-side">
+                                        <span class="label-text">우측면</span>
+                                        <button class="label-tag">RIGHT_SIDE</button>
+                                    </div>
+                                    <div class="label-item" data-block="ceiling">
+                                        <span class="label-text">천장/하늘</span>
+                                        <button class="label-tag">CEILING/SKY</button>
+                                    </div>
+                                    <div class="label-item" data-block="floor">
+                                        <span class="label-text">바닥/지면</span>
+                                        <button class="label-tag">FLOOR/GROUND</button>
                                     </div>
                                 </div>
                             </div>
@@ -878,10 +925,40 @@
                                     <div class="prompt-row-item" data-block="material">
                                         <input type="text" class="prompt-input" placeholder="" value="">
                                     </div>
+                                    <div class="prompt-row-item" data-block="object">
+                                        <input type="text" class="prompt-input" placeholder="" value="">
+                                    </div>
                                     <div class="prompt-row-item" data-block="weather">
                                         <input type="text" class="prompt-input" placeholder="" value="">
                                     </div>
                                     <div class="prompt-row-item" data-block="natural-light">
+                                        <input type="text" class="prompt-input" placeholder="" value="">
+                                    </div>
+                                    <div class="prompt-row-item" data-block="artificial-light">
+                                        <input type="text" class="prompt-input" placeholder="" value="">
+                                    </div>
+                                    <div class="prompt-row-item" data-block="lighting">
+                                        <input type="text" class="prompt-input" placeholder="" value="">
+                                    </div>
+                                    <div class="prompt-row-item" data-block="foreground">
+                                        <input type="text" class="prompt-input" placeholder="" value="">
+                                    </div>
+                                    <div class="prompt-row-item" data-block="midground">
+                                        <input type="text" class="prompt-input" placeholder="" value="">
+                                    </div>
+                                    <div class="prompt-row-item" data-block="background">
+                                        <input type="text" class="prompt-input" placeholder="" value="">
+                                    </div>
+                                    <div class="prompt-row-item" data-block="left-side">
+                                        <input type="text" class="prompt-input" placeholder="" value="">
+                                    </div>
+                                    <div class="prompt-row-item" data-block="right-side">
+                                        <input type="text" class="prompt-input" placeholder="" value="">
+                                    </div>
+                                    <div class="prompt-row-item" data-block="ceiling">
+                                        <input type="text" class="prompt-input" placeholder="" value="">
+                                    </div>
+                                    <div class="prompt-row-item" data-block="floor">
                                         <input type="text" class="prompt-input" placeholder="" value="">
                                     </div>
                                 </div>
@@ -931,12 +1008,62 @@
                                             <option value="">▼</option>
                                         </select>
                                     </div>
+                                    <div class="request-row-item" data-block="object">
+                                        <select class="request-dropdown">
+                                            <option value="">▼</option>
+                                        </select>
+                                    </div>
                                     <div class="request-row-item" data-block="weather">
                                         <select class="request-dropdown">
                                             <option value="">▼</option>
                                         </select>
                                     </div>
                                     <div class="request-row-item" data-block="natural-light">
+                                        <select class="request-dropdown">
+                                            <option value="">▼</option>
+                                        </select>
+                                    </div>
+                                    <div class="request-row-item" data-block="artificial-light">
+                                        <select class="request-dropdown">
+                                            <option value="">▼</option>
+                                        </select>
+                                    </div>
+                                    <div class="request-row-item" data-block="lighting">
+                                        <select class="request-dropdown">
+                                            <option value="">▼</option>
+                                        </select>
+                                    </div>
+                                    <div class="request-row-item" data-block="foreground">
+                                        <select class="request-dropdown">
+                                            <option value="">▼</option>
+                                        </select>
+                                    </div>
+                                    <div class="request-row-item" data-block="midground">
+                                        <select class="request-dropdown">
+                                            <option value="">▼</option>
+                                        </select>
+                                    </div>
+                                    <div class="request-row-item" data-block="background">
+                                        <select class="request-dropdown">
+                                            <option value="">▼</option>
+                                        </select>
+                                    </div>
+                                    <div class="request-row-item" data-block="left-side">
+                                        <select class="request-dropdown">
+                                            <option value="">▼</option>
+                                        </select>
+                                    </div>
+                                    <div class="request-row-item" data-block="right-side">
+                                        <select class="request-dropdown">
+                                            <option value="">▼</option>
+                                        </select>
+                                    </div>
+                                    <div class="request-row-item" data-block="ceiling">
+                                        <select class="request-dropdown">
+                                            <option value="">▼</option>
+                                        </select>
+                                    </div>
+                                    <div class="request-row-item" data-block="floor">
                                         <select class="request-dropdown">
                                             <option value="">▼</option>
                                         </select>
@@ -1062,17 +1189,7 @@
                     </div>
                 </div>
 
-                <!-- 하단 프롬프트 영역 -->
-                <div class="bottom-right-section">
-                    <div class="prompt-display">
-                        <p>최종된 이미지를 일반 이미지 블록으로 파싱하고 프롬프트를 만들어져</p>
-                        <div class="prompt-actions">
-                            <button class="prompt-action-btn add-btn">+</button>
-                            <button class="prompt-action-btn image-btn">🖼</button>
-                            <button class="prompt-action-btn next-btn">▶</button>
-                        </div>
-                    </div>
-                </div>
+                <!-- 하단 프롬프트 영역 제거됨 -->
             </div>
             </div>
 
@@ -1093,6 +1210,6 @@
         </div>
     </div>
 
-    <script src="js/shot-detail.js"></script>
+    <script src="./js/shot-detail.js"></script>
 </body>
 </html>
