@@ -102,38 +102,109 @@ body {
 .image-upload-header {
     display: flex;
     justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 6px;
+    align-items: center;
+    margin-bottom: 10px;
 }
 
 .image-upload-header h3 {
     color: #fff;
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 600;
 }
 
-.controls-wrapper {
+/* 새로운 툴바 스타일 */
+.upload-toolbar {
     display: flex;
-    flex-direction: column;
-    gap: 6px;
-    align-items: flex-end;
+    gap: 8px;
+    align-items: center;
 }
 
-.upload-controls {
+.toolbar-btn {
     display: flex;
+    align-items: center;
     gap: 6px;
+    padding: 8px 14px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 11px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    white-space: nowrap;
 }
 
-.url-input-controls {
+.toolbar-btn svg {
+    flex-shrink: 0;
+}
+
+.toolbar-btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #fff;
+}
+
+.toolbar-btn-primary:hover {
+    background: linear-gradient(135deg, #5568d3 0%, #653a8e 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.toolbar-btn-secondary {
+    background: rgba(255, 255, 255, 0.08);
+    color: #999;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.toolbar-btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.12);
+    color: #fff;
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.toolbar-btn-secondary.active {
+    background: rgba(102, 126, 234, 0.2);
+    color: #667eea;
+    border-color: #667eea;
+}
+
+.toolbar-btn-danger {
+    background: transparent;
+    color: #999;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.toolbar-btn-danger:hover {
+    background: rgba(255, 107, 107, 0.15);
+    border-color: #ff6b6b;
+    color: #ff6b6b;
+}
+
+/* URL 입력 영역 */
+.url-input-wrapper {
     display: flex;
-    gap: 6px;
-    width: 100%;
+    gap: 8px;
+    align-items: center;
+    margin-bottom: 10px;
+    padding: 10px;
+    background: rgba(102, 126, 234, 0.05);
+    border: 1px solid rgba(102, 126, 234, 0.2);
+    border-radius: 6px;
+    animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .url-input {
     flex: 1;
-    min-width: 300px;
-    padding: 6px 10px;
+    padding: 8px 12px;
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 6px;
@@ -146,6 +217,7 @@ body {
     outline: none;
     background: rgba(255, 255, 255, 0.08);
     border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
 
 .url-input::placeholder {
@@ -155,8 +227,8 @@ body {
 .url-add-btn {
     display: flex;
     align-items: center;
-    gap: 4px;
-    padding: 6px 12px;
+    gap: 6px;
+    padding: 8px 16px;
     background: #667eea;
     border: none;
     border-radius: 6px;
@@ -165,50 +237,13 @@ body {
     font-size: 11px;
     font-weight: 600;
     transition: all 0.3s ease;
+    white-space: nowrap;
 }
 
 .url-add-btn:hover {
     background: #5568d3;
     transform: translateY(-1px);
-}
-
-.upload-btn {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    padding: 4px 8px;
-    background: #ff6b6b;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 10px;
-    transition: all 0.3s ease;
-}
-
-.upload-btn:hover {
-    background: #ff5252;
-    transform: translateY(-1px);
-}
-
-.clear-all-btn {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    padding: 4px 8px;
-    background: transparent;
-    color: #999;
-    border: 1px solid #333;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 10px;
-    transition: all 0.3s ease;
-}
-
-.clear-all-btn:hover {
-    background: rgba(255, 107, 107, 0.1);
-    border-color: #ff6b6b;
-    color: #ff6b6b;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
 }
 
 .image-preview-container {

@@ -27,36 +27,45 @@
                 <div class="image-upload-section">
                     <div class="image-upload-header">
                         <h3>이미지 업로드 (최대 5개)</h3>
-                        <div class="controls-wrapper">
-                            <div class="upload-controls">
-                                <label for="imageUploadInput" class="upload-btn">
-                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                                        <polyline points="17 8 12 3 7 8"></polyline>
-                                        <line x1="12" y1="3" x2="12" y2="15"></line>
-                                    </svg>
-                                    이미지 추가
-                                </label>
-                                <input type="file" id="imageUploadInput" accept="image/*" multiple style="display: none;">
-                                <button class="clear-all-btn" onclick="clearAllImages()">
-                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <polyline points="3 6 5 6 21 6"></polyline>
-                                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                                    </svg>
-                                    전체 삭제
-                                </button>
-                            </div>
-                            <div class="url-input-controls">
-                                <input type="text" id="imageUrlInput" class="url-input" placeholder="이미지 URL 붙여넣기">
-                                <button class="url-add-btn" onclick="addImageFromUrl()">
-                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <line x1="12" y1="5" x2="12" y2="19"></line>
-                                        <line x1="5" y1="12" x2="19" y2="12"></line>
-                                    </svg>
-                                    추가
-                                </button>
-                            </div>
+                        <div class="upload-toolbar">
+                            <label for="imageUploadInput" class="toolbar-btn toolbar-btn-primary">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                    <polyline points="17 8 12 3 7 8"></polyline>
+                                    <line x1="12" y1="3" x2="12" y2="15"></line>
+                                </svg>
+                                파일 선택
+                            </label>
+                            <input type="file" id="imageUploadInput" accept="image/*" multiple style="display: none;">
+
+                            <button class="toolbar-btn toolbar-btn-secondary" onclick="toggleUrlInput()" id="toggleUrlBtn">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+                                    <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+                                </svg>
+                                URL
+                            </button>
+
+                            <button class="toolbar-btn toolbar-btn-danger" onclick="clearAllImages()">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="3 6 5 6 21 6"></polyline>
+                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                </svg>
+                                전체 삭제
+                            </button>
                         </div>
+                    </div>
+
+                    <!-- URL 입력 영역 (접을 수 있음) -->
+                    <div class="url-input-wrapper" id="urlInputWrapper" style="display: none;">
+                        <input type="text" id="imageUrlInput" class="url-input" placeholder="이미지 URL을 입력하세요 (https://...)">
+                        <button class="url-add-btn" onclick="addImageFromUrl()">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="12" y1="5" x2="12" y2="19"></line>
+                                <line x1="5" y1="12" x2="19" y2="12"></line>
+                            </svg>
+                            추가
+                        </button>
                     </div>
                     <div class="image-preview-container">
                         <div class="image-preview-grid" id="imagePreviewGrid">

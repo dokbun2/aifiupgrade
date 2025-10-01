@@ -196,11 +196,29 @@ window.clearAllImages = function() {
     }
 };
 
+// URL 입력 영역 토글 함수
+window.toggleUrlInput = function() {
+    const wrapper = document.getElementById('urlInputWrapper');
+    const toggleBtn = document.getElementById('toggleUrlBtn');
+
+    if (wrapper && toggleBtn) {
+        if (wrapper.style.display === 'none') {
+            wrapper.style.display = 'flex';
+            toggleBtn.classList.add('active');
+        } else {
+            wrapper.style.display = 'none';
+            toggleBtn.classList.remove('active');
+        }
+    }
+};
+
 // URL에서 이미지 추가 함수
 window.addImageFromUrl = function() {
     const urlInput = document.getElementById('imageUrlInput');
     if (urlInput) {
         imageUploadManager.addFromUrl(urlInput.value.trim());
+        // URL 추가 후 입력창 비우기
+        urlInput.value = '';
     }
 };
 
@@ -697,6 +715,8 @@ function loadShotData() {
 
 // 샷 로드 캐시
 let loadedShotId = null;
+let isStyleFieldInitialized = false; // 스타일 필드 초기화 여부
+let originalStage1Style = null; // Stage1에서 가져온 원본 스타일
 
 // 특정 샷 ID로 데이터 로드
 function loadShotById(shotId) {
