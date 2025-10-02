@@ -399,3 +399,137 @@ window.addEventListener('resize', () => {
         // Responsive adjustments would go here
     }, 250);
 });
+
+// Logo click handler - check login before navigating to start page
+async function handleLogoClick(event) {
+    event.preventDefault();
+
+    // Check if user is logged in
+    const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+
+    if (isLoggedIn) {
+        // Double check with Supabase if available
+        if (window.supabaseAuth && window.supabaseAuth.getUser) {
+            const user = await window.supabaseAuth.getUser();
+            if (!user) {
+                // User is not actually logged in, show login modal
+                if (typeof openAuthModal === 'function') {
+                    openAuthModal();
+                }
+                return;
+            }
+        }
+
+        // If logged in, navigate to start page
+        const currentPath = window.location.pathname;
+
+        // Determine the correct path based on current location
+        if (currentPath.includes('/start/')) {
+            // Already in start folder, just reload the page
+            window.location.reload();
+        } else if (currentPath === '/' || currentPath.endsWith('/aifiupgrade/') || currentPath.endsWith('/aifiupgrade/index.html')) {
+            // From root, go to start/index.html
+            window.location.href = 'start/index.html';
+        } else {
+            // From other subfolders (storyboard, gallery, etc.), go up then to start
+            window.location.href = '../start/index.html';
+        }
+    } else {
+        // If not logged in, show login modal if available
+        if (typeof openAuthModal === 'function') {
+            openAuthModal();
+        } else {
+            // Fallback: navigate to main page if openAuthModal is not available
+            const currentPath = window.location.pathname;
+            if (currentPath === '/' || currentPath.endsWith('/index.html')) {
+                // Already at root
+                return;
+            } else if (currentPath.includes('/start/')) {
+                window.location.href = '../index.html';
+            } else {
+                window.location.href = '../index.html';
+            }
+        }
+    }
+}
+
+// Make function globally available
+window.handleLogoClick = handleLogoClick;
+
+// Check login and protect links/buttons
+function initLoginProtection() {
+    // Check if user is logged in
+    const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+
+    if (!isLoggedIn) {
+        // Protect all internal navigation elements
+        document.addEventListener('click', function(event) {
+            // Check if clicked element is a protected element
+            const protectedElement = event.target.closest(
+                '.sidebar-link, .stage-card, .mobile-nav-item, .sidebar-icon, ' +
+                'a[href*="storyboard"], a[href*="conceptart"], a[href*="start"], ' +
+                'a[href*="gallery"], a[href*="banana"], a[href*="profile"], a[href*="projects"]'
+            );
+
+            if (protectedElement) {
+                const href = protectedElement.getAttribute('href');
+
+                // Stage card는 특별 처리 - 외부 링크라도 로그인 필요
+                if (protectedElement.classList.contains('stage-card')) {
+                    event.preventDefault();
+                    event.stopPropagation();
+
+                    if (typeof openAuthModal === 'function') {
+                        openAuthModal();
+                    } else if (typeof window.openAuthModal === 'function') {
+                        window.openAuthModal();
+                    }
+                    return false;
+                }
+
+                // Skip external links (they have target="_blank") - except stage-card
+                if (protectedElement.hasAttribute('target') && protectedElement.getAttribute('target') === '_blank') {
+                    return;
+                }
+
+                // Skip external href links (http:// or https://) - except stage-card
+                if (href && (href.startsWith('http://') || href.startsWith('https://'))) {
+                    return;
+                }
+
+                // Skip if it's the current active page
+                if (protectedElement.classList.contains('active')) {
+                    return;
+                }
+
+                // Skip if it's just a hash link (#)
+                if (href === '#') {
+                    // But check if it has onclick handler for navigation
+                    const onclickAttr = protectedElement.getAttribute('onclick');
+                    if (!onclickAttr || onclickAttr.includes('Modal') || onclickAttr.includes('Menu')) {
+                        return;
+                    }
+                }
+
+                // Prevent navigation and show login modal
+                event.preventDefault();
+                event.stopPropagation();
+
+                if (typeof openAuthModal === 'function') {
+                    openAuthModal();
+                } else if (typeof window.openAuthModal === 'function') {
+                    window.openAuthModal();
+                }
+
+                return false;
+            }
+        }, true); // Use capture phase to catch events early
+    }
+}
+
+// Initialize login protection when DOM is ready
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initLoginProtection);
+} else {
+    initLoginProtection();
+}

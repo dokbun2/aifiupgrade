@@ -96,19 +96,31 @@ body {
 .logo {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 12px;
     text-decoration: none;
     color: var(--foreground);
     font-weight: 600;
     font-size: 15px;
+    transition: opacity 0.2s ease;
+}
+
+.logo:hover {
+    opacity: 0.8;
 }
 
 .logo-icon {
     font-size: 20px;
 }
 
+.logo-img {
+    height: 32px;
+    width: auto;
+    object-fit: contain;
+    display: block;
+}
+
 .logo-text {
-    font-size: 20px;
+    font-size: 18px;
     font-weight: 800;
     background: linear-gradient(135deg, #ff6b6b, #ff8e53, #ffb347, #ffd93d);
     background-clip: text;
@@ -3048,4 +3060,13 @@ body:not(.dark) .copy-btn-compact:hover {
     border-radius: 8px;
     border: 1px solid var(--border);
     margin-top: 20px;
+}
+
+/* Hide Gallery Section - sidebar and mobile navigation */
+.sidebar-section:has(a[href*="gallery"]) {
+    display: none !important;
+}
+
+a.mobile-nav-item[href*="gallery"] {
+    display: none !important;
 }

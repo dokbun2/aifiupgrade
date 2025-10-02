@@ -130,7 +130,23 @@ document.getElementById('loginForm')?.addEventListener('submit', async function(
             showSuccess('로그인 성공!');
             setTimeout(() => {
                 closeAuthModal();
-                location.reload(); // Refresh to update UI
+                // START 페이지로 이동
+                const currentPath = window.location.pathname;
+
+                // 서브폴더 리스트 (profile, projects는 루트에 있으므로 제외)
+                const subfolders = ['storyboard', 'conceptart', 'gallery', 'banana'];
+                const isInSubfolder = subfolders.some(folder => currentPath.includes(`/${folder}/`));
+
+                if (currentPath.includes('/start/')) {
+                    // 이미 start 폴더에 있으면 리로드
+                    window.location.reload();
+                } else if (isInSubfolder) {
+                    // 서브폴더에서 로그인 - 상위 폴더로 이동 후 start
+                    window.location.href = '../start/index.html';
+                } else {
+                    // 루트 또는 다른 위치에서 로그인
+                    window.location.href = 'start/index.html';
+                }
             }, 1000);
         } else {
             showError('loginEmail', result.error || '로그인에 실패했습니다');
@@ -367,6 +383,29 @@ window.onclick = function(event) {
     }
 }
 
+// Handle Start Button Click
+async function handleStartClick(event) {
+    event.preventDefault();
+
+    // Check if user is logged in
+    const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+
+    if (isLoggedIn) {
+        // Double check with Supabase
+        if (window.supabaseAuth && window.supabaseAuth.getUser) {
+            const user = await window.supabaseAuth.getUser();
+            if (user) {
+                // User is logged in, redirect to start page
+                window.location.href = 'start/index.html';
+                return;
+            }
+        }
+    }
+
+    // User is not logged in, show auth modal
+    openAuthModal();
+}
+
 // Export functions for global use
 window.openAuthModal = openAuthModal;
 window.closeAuthModal = closeAuthModal;
@@ -377,3 +416,4 @@ window.showSignup = showSignup;
 window.showForgotPassword = showForgotPassword;
 window.toggleUserMenu = toggleUserMenu;
 window.handleLogout = handleLogout;
+window.handleStartClick = handleStartClick;

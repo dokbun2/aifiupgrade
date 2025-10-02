@@ -91,10 +91,19 @@ async function signIn(email, password) {
     try {
         const { data, error } = await supabase.auth.signInWithPassword({
             email: email,
-            password: password
+            password: password,
+            options: {
+                persistSession: true // 세션을 영구적으로 저장
+            }
         });
 
         if (error) throw error;
+
+        // 로그인 상태를 localStorage에 추가로 저장 (백업)
+        if (data.session) {
+            localStorage.setItem('isLoggedIn', 'true');
+            localStorage.setItem('userEmail', email);
+        }
 
         return { success: true, data };
     } catch (error) {
@@ -108,6 +117,10 @@ async function signOut() {
     try {
         const { error } = await supabase.auth.signOut();
         if (error) throw error;
+
+        // localStorage에서 로그인 상태 제거
+        localStorage.removeItem('isLoggedIn');
+        localStorage.removeItem('userEmail');
 
         return { success: true };
     } catch (error) {

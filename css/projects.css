@@ -697,3 +697,37 @@
         width: 95%;
     }
 }
+
+/* Close Button - 프로필 관리와 동일한 스타일 */
+.projects-container .btn-close {
+    padding: 10px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--muted-foreground);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+}
+
+.btn-close:hover {
+    background: var(--accent);
+    color: var(--foreground);
+    border-color: var(--accent);
+    transform: translateY(-2px);
+}
+
+.btn-close svg {
+    width: 20px;
+    height: 20px;
+}
+
+/* Mobile responsive for close button */
+@media (max-width: 768px) {
+    .projects-container .btn-close {
+        padding: 10px;
+    }
+}
