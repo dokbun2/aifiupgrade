@@ -577,14 +577,26 @@ function loadShotById(shotId) {
 function applyConceptArtFiltering(shotData) {
     console.log('🎨 [필터링] concept_art_references로 필터링 시작:', shotData.shot_id);
 
-    // Stage1 데이터 가져오기
-    const stage1DataStr = sessionStorage.getItem('stage1ParsedData');
-    if (!stage1DataStr) {
+    // Stage1 데이터 가져오기 (원본 데이터 우선)
+    const stage1OriginalStr = sessionStorage.getItem('stage1OriginalData');
+    const stage1ParsedStr = sessionStorage.getItem('stage1ParsedData');
+
+    if (!stage1OriginalStr && !stage1ParsedStr) {
         console.warn('⚠️ Stage1 데이터가 없어서 필터링할 수 없습니다');
         return;
     }
 
-    const stage1Data = JSON.parse(stage1DataStr);
+    // 원본 데이터 우선 사용
+    let stage1Data;
+    if (stage1OriginalStr) {
+        const originalData = JSON.parse(stage1OriginalStr);
+        stage1Data = {
+            characters: originalData.visual_blocks?.characters || [],
+            locations: originalData.visual_blocks?.locations || []
+        };
+    } else {
+        stage1Data = JSON.parse(stage1ParsedStr);
+    }
 
     // 캐릭터 필터링
     if (stage1Data.characters && shotData.concept_art_references?.characters) {
@@ -605,7 +617,7 @@ function applyConceptArtFiltering(shotData) {
 
         console.log('📊 [필터링] 캐릭터 결과:', filteredCharacters.map(c => c.name));
 
-        // 필터링된 캐릭터만 표시
+        // 필터링된 캐릭터를 표시하지만, 셀렉터에는 전체 캐릭터 유지
         mapCharacterBlock(filteredCharacters, allCharacters);
     }
 
@@ -1775,7 +1787,8 @@ function mapDirectionBlock() {
 // ===== 캐릭터 블록 파싱 (Stage1 + Stage2 통합) =====
 
 // 전역 캐릭터 데이터 저장
-let parsedCharactersData = [];
+let parsedCharactersData = [];  // 씬에 표시되는 필터링된 캐릭터
+let allCharactersData = [];     // 전체 캐릭터 (셀렉터용)
 
 /**
  * 캐릭터 셀렉터에 모든 캐릭터 표시
@@ -1825,12 +1838,14 @@ function mapCharacterBlock(charactersData, allCharacters) {
     }
 
     // 전역 변수에 저장
-    parsedCharactersData = charactersData;
+    parsedCharactersData = charactersData;  // 씬에 표시할 필터링된 캐릭터
+    allCharactersData = allCharacters;      // 전체 캐릭터 (셀렉터 및 추가/삭제용)
 
-    console.log('🎭 캐릭터 블록 매핑 시작:', charactersData.length, '개');
+    console.log('🎭 캐릭터 블록 매핑 시작:', charactersData.length, '개 (씬 필터링)');
+    console.log('📋 전체 캐릭터:', allCharacters.length, '개 (셀렉터 표시)');
 
-    // 캐릭터 셀렉터 업데이트
-    updateCharacterSelector(charactersData);
+    // 캐릭터 셀렉터에는 전체 캐릭터 표시 (추가/삭제 가능하도록)
+    updateCharacterSelector(allCharacters);
 
     // 씬에 등장하는 캐릭터의 원래 인덱스를 찾아서 addedCharacters에 추가
     addedCharacters.clear();
@@ -2541,9 +2556,12 @@ function updateCharactersList() {
     const sortedCharacters = Array.from(addedCharacters).sort((a, b) => a - b);
 
     sortedCharacters.forEach(num => {
-        // JSON 데이터에서 캐릭터 이름 가져오기
+        // JSON 데이터에서 캐릭터 이름 가져오기 (전체 캐릭터 데이터 사용)
         let characterName = `캐릭터 ${num}`;
-        if (parsedCharactersData && parsedCharactersData[num - 1]) {
+        if (allCharactersData && allCharactersData[num - 1]) {
+            characterName = allCharactersData[num - 1].name || `캐릭터 ${num}`;
+        } else if (parsedCharactersData && parsedCharactersData[num - 1]) {
+            // fallback: 필터링된 데이터에서 찾기
             characterName = parsedCharactersData[num - 1].name || `캐릭터 ${num}`;
         }
 
