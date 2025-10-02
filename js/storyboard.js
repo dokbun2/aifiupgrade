@@ -154,6 +154,11 @@ class StoryboardManager {
             if (projectData.stage1Data) {
                 console.log('Stage1 데이터 복원 중...');
                 sessionStorage.setItem('stage1OriginalData', JSON.stringify(projectData.stage1Data));
+
+                // localStorage에도 백업
+                localStorage.setItem('stage1OriginalData_backup', JSON.stringify(projectData.stage1Data));
+
+                // parseStage1Data 호출 (이미 내부에서 백업 처리함)
                 this.parseStage1Data(projectData.stage1Data);
                 this.uploadedFiles.set('stage1', projectData.stage1Data);
             }
@@ -174,6 +179,17 @@ class StoryboardManager {
                 }
                 this.uploadedFiles.set('stage2', this.storyboardData);
 
+                // localStorage에도 백업
+                const stage2CacheData = {
+                    data: this.storyboardData,
+                    shotsMap: [],
+                    scenesMap: [],
+                    timestamp: Date.now(),
+                    filmId: this.storyboardData.film_id || 'unknown'
+                };
+                sessionStorage.setItem('stage2ParsedData', JSON.stringify(stage2CacheData));
+                localStorage.setItem('stage2ParsedData_backup', JSON.stringify(stage2CacheData));
+
                 // parseStage2Data는 scenes가 필요하므로 체크
                 if (this.storyboardData.scenes) {
                     this.parseStage2Data(this.storyboardData);
@@ -184,6 +200,7 @@ class StoryboardManager {
             if (projectData.mergedData) {
                 console.log('병합된 데이터 복원 중...');
                 this.mergedData = projectData.mergedData;
+                localStorage.setItem('mergedData', JSON.stringify(this.mergedData));
             } else if (projectData.stage1Data && this.storyboardData) {
                 // 병합된 데이터가 없으면 자동 병합
                 console.log('데이터 자동 병합 중...');
@@ -193,9 +210,13 @@ class StoryboardManager {
             // 4. 샷별 수정 데이터 복원
             if (projectData.shotData) {
                 console.log('샷별 데이터 복원 중...');
+                const shotDataBackup = {};
                 for (const [shotId, shotData] of Object.entries(projectData.shotData)) {
                     sessionStorage.setItem(`shot_${shotId}`, JSON.stringify(shotData));
+                    shotDataBackup[`shot_${shotId}`] = JSON.stringify(shotData);
                 }
+                // localStorage에 백업
+                localStorage.setItem('shotData_backup', JSON.stringify(shotDataBackup));
             }
 
             // 5. 썸네일 복원
@@ -213,6 +234,10 @@ class StoryboardManager {
                 this.hideUploadSection();
                 this.showControls();
             }
+
+            // 7. 모든 데이터를 localStorage에 백업
+            this.saveToLocalStorage();
+            console.log('✅ 모든 데이터가 localStorage에 백업되었습니다.');
 
             // 성공 메시지
             const metadata = projectData.metadata || {};
@@ -284,6 +309,10 @@ class StoryboardManager {
         sessionStorage.setItem('stage1OriginalData', JSON.stringify(data));
         console.log('✅ Stage1 원본 데이터가 sessionStorage에 저장되었습니다.');
 
+        // localStorage에도 백업 저장
+        localStorage.setItem('stage1OriginalData_backup', JSON.stringify(data));
+        console.log('✅ Stage1 원본 데이터가 localStorage에 백업되었습니다.');
+
         if (window.stage1Parser) {
             // Stage1JSONParser를 사용하여 데이터 파싱
             window.stage1Parser.data = data;
@@ -292,6 +321,9 @@ class StoryboardManager {
             // 파싱된 데이터를 세션 스토리지에 저장
             const parsedData = window.stage1Parser.parsedData;
             sessionStorage.setItem('stage1ParsedData', JSON.stringify(parsedData));
+
+            // localStorage에도 백업 저장
+            localStorage.setItem('stage1ParsedData_backup', JSON.stringify(parsedData));
 
             console.log('✅ Stage 1 데이터가 파싱되어 저장되었습니다:', parsedData);
         } else {
@@ -317,6 +349,10 @@ class StoryboardManager {
                 filmId: data.film_id || 'unknown'
             };
             sessionStorage.setItem('stage2ParsedData', JSON.stringify(stage2CacheData));
+
+            // localStorage에도 백업 저장
+            localStorage.setItem('stage2ParsedData_backup', JSON.stringify(stage2CacheData));
+            console.log('✅ Stage2 데이터가 localStorage에 백업되었습니다.');
 
             console.log('✅ Stage2 데이터 파싱 완료:', {
                 scenes: window.stage2Parser.scenesMap.size,
@@ -1605,15 +1641,115 @@ class StoryboardManager {
     }
 
     saveToLocalStorage() {
+        // storyboardData와 mergedData 저장
         if (this.storyboardData) {
             localStorage.setItem('storyboardData', JSON.stringify(this.storyboardData));
         }
         if (this.mergedData) {
             localStorage.setItem('mergedData', JSON.stringify(this.mergedData));
         }
+
+        // sessionStorage의 Stage1, Stage2 데이터를 localStorage로 백업
+        const stage1OriginalData = sessionStorage.getItem('stage1OriginalData');
+        const stage1ParsedData = sessionStorage.getItem('stage1ParsedData');
+        const stage2ParsedData = sessionStorage.getItem('stage2ParsedData');
+
+        if (stage1OriginalData) {
+            localStorage.setItem('stage1OriginalData_backup', stage1OriginalData);
+        }
+        if (stage1ParsedData) {
+            localStorage.setItem('stage1ParsedData_backup', stage1ParsedData);
+        }
+        if (stage2ParsedData) {
+            localStorage.setItem('stage2ParsedData_backup', stage2ParsedData);
+        }
+
+        // 샷 데이터들도 localStorage로 백업
+        const shotDataBackup = {};
+        for (let i = 0; i < sessionStorage.length; i++) {
+            const key = sessionStorage.key(i);
+            if (key && key.startsWith('shot_')) {
+                shotDataBackup[key] = sessionStorage.getItem(key);
+            }
+        }
+        if (Object.keys(shotDataBackup).length > 0) {
+            localStorage.setItem('shotData_backup', JSON.stringify(shotDataBackup));
+        }
+
+        console.log('✅ 모든 데이터가 localStorage에 백업되었습니다.');
     }
 
     loadFromLocalStorage() {
+        // 먼저 localStorage에서 백업 데이터 확인 및 sessionStorage로 복원
+        const stage1BackupData = localStorage.getItem('stage1OriginalData_backup');
+        const stage1ParsedBackup = localStorage.getItem('stage1ParsedData_backup');
+        const stage2BackupData = localStorage.getItem('stage2ParsedData_backup');
+        const shotDataBackup = localStorage.getItem('shotData_backup');
+
+        // localStorage 백업이 있으면 sessionStorage로 복원
+        if (stage1BackupData && !sessionStorage.getItem('stage1OriginalData')) {
+            sessionStorage.setItem('stage1OriginalData', stage1BackupData);
+            console.log('✅ Stage1 원본 데이터가 백업에서 복원되었습니다.');
+        }
+        if (stage1ParsedBackup && !sessionStorage.getItem('stage1ParsedData')) {
+            sessionStorage.setItem('stage1ParsedData', stage1ParsedBackup);
+            console.log('✅ Stage1 파싱 데이터가 백업에서 복원되었습니다.');
+        }
+        if (stage2BackupData && !sessionStorage.getItem('stage2ParsedData')) {
+            sessionStorage.setItem('stage2ParsedData', stage2BackupData);
+            console.log('✅ Stage2 데이터가 백업에서 복원되었습니다.');
+        }
+
+        // 샷 데이터 백업 복원
+        if (shotDataBackup) {
+            try {
+                const shotData = JSON.parse(shotDataBackup);
+                for (const [key, value] of Object.entries(shotData)) {
+                    if (!sessionStorage.getItem(key)) {
+                        sessionStorage.setItem(key, value);
+                    }
+                }
+                console.log('✅ 샷 데이터가 백업에서 복원되었습니다.');
+            } catch (error) {
+                console.error('샷 데이터 백업 복원 실패:', error);
+            }
+        }
+
+        // sessionStorage에서 Stage1, Stage2 데이터 복원
+        const stage1OriginalData = sessionStorage.getItem('stage1OriginalData');
+        const stage1ParsedData = sessionStorage.getItem('stage1ParsedData');
+        const stage2ParsedData = sessionStorage.getItem('stage2ParsedData');
+
+        // Stage1 데이터 복원
+        if (stage1OriginalData) {
+            try {
+                const stage1Data = JSON.parse(stage1OriginalData);
+                this.uploadedFiles.set('stage1', stage1Data);
+                console.log('✅ Stage1 데이터가 sessionStorage에서 복원되었습니다.');
+
+                // 파싱된 데이터도 복원
+                if (stage1ParsedData && window.stage1Parser) {
+                    window.stage1Parser.parsedData = JSON.parse(stage1ParsedData);
+                }
+            } catch (error) {
+                console.error('Stage1 데이터 복원 실패:', error);
+            }
+        }
+
+        // Stage2 데이터 복원
+        if (stage2ParsedData) {
+            try {
+                const stage2Data = JSON.parse(stage2ParsedData);
+                if (stage2Data.scenes) {
+                    this.storyboardData = stage2Data;
+                    console.log('✅ Stage2 데이터가 sessionStorage에서 복원되었습니다.');
+                }
+            } catch (error) {
+                console.error('Stage2 데이터 복원 실패:', error);
+            }
+        }
+
+        // localStorage에서 병합된 데이터 복원
         const savedMergedData = localStorage.getItem('mergedData');
         const savedData = localStorage.getItem('storyboardData');
 
@@ -1627,6 +1763,7 @@ class StoryboardManager {
                 this.renderStoryboard();
                 this.hideUploadSection();
                 this.showControls();
+                console.log('✅ 병합된 데이터가 localStorage에서 복원되었습니다.');
             } catch (error) {
                 console.error('Failed to load merged data:', error);
             }
@@ -1637,9 +1774,18 @@ class StoryboardManager {
                 this.renderStoryboard();
                 this.hideUploadSection();
                 this.showControls();
+                console.log('✅ 스토리보드 데이터가 localStorage에서 복원되었습니다.');
             } catch (error) {
                 console.error('Failed to load saved storyboard data:', error);
             }
+        } else if (this.storyboardData) {
+            // sessionStorage에서 복원한 데이터가 있으면 UI 업데이트
+            this.updateMetadata();
+            this.populateSequenceDropdown();
+            this.populateSceneDropdown();
+            this.renderStoryboard();
+            this.hideUploadSection();
+            this.showControls();
         }
     }
 
@@ -1652,8 +1798,29 @@ class StoryboardManager {
         this.currentScene = null;
         this.currentShot = null;
         this.uploadedFiles.clear();
+
+        // localStorage의 모든 관련 데이터 삭제
         localStorage.removeItem('storyboardData');
         localStorage.removeItem('mergedData');
+        localStorage.removeItem('stage1OriginalData_backup');
+        localStorage.removeItem('stage1ParsedData_backup');
+        localStorage.removeItem('stage2ParsedData_backup');
+        localStorage.removeItem('shotData_backup');
+
+        // sessionStorage도 클리어
+        sessionStorage.removeItem('stage1OriginalData');
+        sessionStorage.removeItem('stage1ParsedData');
+        sessionStorage.removeItem('stage2ParsedData');
+
+        // 모든 shot_ 데이터 삭제
+        for (let i = sessionStorage.length - 1; i >= 0; i--) {
+            const key = sessionStorage.key(i);
+            if (key && key.startsWith('shot_')) {
+                sessionStorage.removeItem(key);
+            }
+        }
+
+        console.log('✅ 모든 데이터가 삭제되었습니다.');
 
         // Reset UI
         const uploadSection = document.querySelector('.upload-section');
