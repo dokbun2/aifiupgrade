@@ -1806,6 +1806,7 @@ class StoryboardManager {
         localStorage.removeItem('stage1ParsedData_backup');
         localStorage.removeItem('stage2ParsedData_backup');
         localStorage.removeItem('shotData_backup');
+        localStorage.removeItem('shotThumbnails');
 
         // sessionStorage도 클리어
         sessionStorage.removeItem('stage1OriginalData');

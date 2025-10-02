@@ -2295,6 +2295,52 @@ window.uploadStage1JSON = function() {
     input.click();
 };
 
+// generationResult 클릭 시 URL 입력 기능
+window.showGenerationUrlInput = function() {
+    const generationResult = document.getElementById('generationResult');
+
+    // 이미 이미지가 있으면 무시
+    if (generationResult.classList.contains('has-image')) {
+        return;
+    }
+
+    const imageUrl = prompt('이미지 URL을 입력하세요:');
+
+    if (imageUrl && imageUrl.trim()) {
+        // URL 유효성 검사
+        if (!imageUrl.startsWith('http://') && !imageUrl.startsWith('https://')) {
+            alert('올바른 URL을 입력해주세요 (http:// 또는 https://로 시작해야 합니다)');
+            return;
+        }
+
+        // 이미지 로딩 테스트
+        const img = new Image();
+        img.onload = function() {
+            generationResult.classList.add('has-image');
+            generationResult.innerHTML = `
+                <img src="${imageUrl}" alt="Generated Image" style="width: 100%; height: 100%; object-fit: contain; border-radius: 8px; cursor: pointer;" onclick="openGeneratedImageViewer('${imageUrl}')">
+            `;
+            generationResult.setAttribute('data-image-url', imageUrl);
+
+            // 저장 버튼 표시
+            const saveBtn = document.querySelector('.save-image-btn');
+            if (saveBtn) {
+                saveBtn.style.display = 'flex';
+                saveBtn.textContent = '저장';
+                saveBtn.classList.remove('saved');
+            }
+
+            console.log('✅ URL 이미지 로드 성공:', imageUrl);
+        };
+
+        img.onerror = function() {
+            alert('이미지를 불러올 수 없습니다. URL을 확인해주세요.');
+        };
+
+        img.src = imageUrl;
+    }
+};
+
 // 이미지 생성 관련 함수
 window.regenerateImage = async function() {
     console.log('🎨 이미지 생성 시작');
