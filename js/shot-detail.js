@@ -253,27 +253,16 @@ document.addEventListener('DOMContentLoaded', function() {
             console.log('✅ Shot ID 헤더 업데이트 완료:', shotId);
         }
 
-        // Stage1 자동 로드 (sessionStorage에서)
+        // Stage1 자동 로드 (sessionStorage에서) - Stage2 데이터 확인 후 처리
         setTimeout(() => {
-            const stage1Data = sessionStorage.getItem('stage1ParsedData');
-            if (stage1Data) {
-                try {
-                    const parsedData = JSON.parse(stage1Data);
-                    console.log('📂 Stage1 데이터 자동 로드:', parsedData);
-                    mapStage1DataToBlocks(parsedData);
-                } catch (error) {
-                    console.error('Stage1 데이터 파싱 에러:', error);
-                }
-            }
-
-            // 현재 샷의 Stage2 데이터 로드
+            // 현재 샷의 Stage2 데이터 먼저 확인
             if (shotId) {
-                loadShotById(shotId);
-
-                // 샷별 Stage2 데이터 로드
-                const shotDataKey = `shot_${shotId}`;
-                const shotDataStr = sessionStorage.getItem(shotDataKey);
+                const shotDataStr = sessionStorage.getItem(`shot_${shotId}`);
                 if (shotDataStr) {
+                    // Stage2 데이터가 있으면 loadShotById가 모든 것을 처리
+                    console.log('📂 Stage2 데이터가 있으므로 loadShotById에서 처리');
+                    loadShotById(shotId);
+
                     try {
                         const shotData = JSON.parse(shotDataStr);
                         console.log('📂 샷 데이터 로드 완료:', shotData);
@@ -291,6 +280,30 @@ document.addEventListener('DOMContentLoaded', function() {
                         }
                     } catch (error) {
                         console.error('샷 데이터 파싱 에러:', error);
+                    }
+                } else {
+                    // Stage2 데이터가 없을 때만 Stage1 전체 로드
+                    const stage1Data = sessionStorage.getItem('stage1ParsedData');
+                    if (stage1Data) {
+                        try {
+                            const parsedData = JSON.parse(stage1Data);
+                            console.log('📂 Stage1 데이터 자동 로드 (Stage2 없음):', parsedData);
+                            mapStage1DataToBlocks(parsedData);
+                        } catch (error) {
+                            console.error('Stage1 데이터 파싱 에러:', error);
+                        }
+                    }
+                }
+            } else {
+                // shotId가 없으면 Stage1 전체 로드
+                const stage1Data = sessionStorage.getItem('stage1ParsedData');
+                if (stage1Data) {
+                    try {
+                        const parsedData = JSON.parse(stage1Data);
+                        console.log('📂 Stage1 데이터 자동 로드 (shotId 없음):', parsedData);
+                        mapStage1DataToBlocks(parsedData);
+                    } catch (error) {
+                        console.error('Stage1 데이터 파싱 에러:', error);
                     }
                 }
             }
@@ -526,12 +539,23 @@ function loadShotById(shotId) {
         shotDetailManager.shotData = data;
 
         // 병합된 데이터가 있으면 현재 샷에 맞는 데이터 추출
+        console.log('🔍 [loadShotById] merged_data 확인:', {
+            hasMergedData: !!data.merged_data,
+            hasConceptArtRefs: !!data.concept_art_references,
+            conceptArtRefs: data.concept_art_references
+        });
+
         if (data.merged_data) {
+            console.log('📥 [loadShotById] extractAndMapShotSpecificData 호출');
             extractAndMapShotSpecificData(data);
+        } else if (data.concept_art_references) {
+            // merged_data가 없어도 concept_art_references가 있으면 필터링 적용
+            console.log('📥 [loadShotById] concept_art_references로 필터링 시도');
+            applyConceptArtFiltering(data);
         }
 
         // populateForm은 사용하지 않음 - extractAndMapShotSpecificData가 모든 것을 처리
-        console.log('✅ [loadShotById] populateForm 스킵 - extractAndMapShotSpecificData가 처리함');
+        console.log('✅ [loadShotById] populateForm 스킵');
 
         // 헤더 업데이트
         // 🔧 Null 체크 추가
@@ -548,6 +572,65 @@ function loadShotById(shotId) {
 // ============================================================
 
 /**
+ * concept_art_references만 있을 때 필터링 적용
+ */
+function applyConceptArtFiltering(shotData) {
+    console.log('🎨 [필터링] concept_art_references로 필터링 시작:', shotData.shot_id);
+
+    // Stage1 데이터 가져오기
+    const stage1DataStr = sessionStorage.getItem('stage1ParsedData');
+    if (!stage1DataStr) {
+        console.warn('⚠️ Stage1 데이터가 없어서 필터링할 수 없습니다');
+        return;
+    }
+
+    const stage1Data = JSON.parse(stage1DataStr);
+
+    // 캐릭터 필터링
+    if (stage1Data.characters && shotData.concept_art_references?.characters) {
+        const allCharacters = stage1Data.characters;
+        const sceneCharacters = shotData.concept_art_references.characters;
+
+        console.log('🎭 [필터링] 전체 캐릭터:', allCharacters.map(c => c.name));
+        console.log('🎬 [필터링] 씬 캐릭터:', sceneCharacters);
+
+        const filteredCharacters = allCharacters.filter(char => {
+            const matched = sceneCharacters.some(scenChar =>
+                char.name?.toLowerCase() === scenChar.toLowerCase() ||
+                char.id?.toLowerCase() === scenChar.toLowerCase()
+            );
+            console.log(`  ${char.name}: ${matched ? '✅' : '❌'}`);
+            return matched;
+        });
+
+        console.log('📊 [필터링] 캐릭터 결과:', filteredCharacters.map(c => c.name));
+
+        // 필터링된 캐릭터만 표시
+        mapCharacterBlock(filteredCharacters, allCharacters);
+    }
+
+    // 장소 필터링
+    if (stage1Data.locations && shotData.concept_art_references?.location) {
+        const allLocations = stage1Data.locations;
+        const sceneLocation = shotData.concept_art_references.location;
+
+        console.log('🏢 [필터링] 씬 장소:', sceneLocation);
+
+        const matchedLocation = allLocations.find(loc =>
+            loc.name === sceneLocation || loc.id === sceneLocation
+        );
+
+        if (matchedLocation) {
+            const foundIndex = allLocations.indexOf(matchedLocation);
+            console.log(`✅ [필터링] 장소 매칭: ${sceneLocation} (인덱스 ${foundIndex})`);
+            mapLocationBlock(matchedLocation, foundIndex);
+        }
+    }
+
+    console.log('✅ [필터링] concept_art_references 필터링 완료');
+}
+
+/**
  * 스토리보드에서 샷을 클릭했을 때 실행
  * Stage1 (film_metadata) + Stage2 (scene) 데이터를 통합 처리
  */
@@ -560,6 +643,14 @@ function extractAndMapShotSpecificData(shotData) {
         console.warn('⚠️ [통합파싱] merged_data 없음');
         return;
     }
+
+    // 디버깅: mergedData 구조 상세 확인
+    console.log('🔍 [디버그] mergedData 구조:', {
+        hasStage1Original: !!mergedData.stage1_original,
+        hasVisualBlocks: !!mergedData.visual_blocks,
+        stage1OriginalKeys: mergedData.stage1_original ? Object.keys(mergedData.stage1_original) : [],
+        directKeys: Object.keys(mergedData)
+    });
 
     // ========================================
     // 1단계: Stage1 film_metadata로 기본블록 초기화
@@ -603,25 +694,124 @@ function extractAndMapShotSpecificData(shotData) {
         firstCharacter: stage1Data.visual_blocks?.characters?.[0]
     });
 
-    // 캐릭터 블록 - 원본 visual_blocks.characters 직접 사용
+    // 캐릭터 블록 - Stage2 씬에 등장하는 캐릭터만 필터링
     if (stage1Data.visual_blocks && stage1Data.visual_blocks.characters) {
-        console.log('📥 [통합파싱] 캐릭터 블록 매핑 (원본 데이터)');
-        mapCharacterBlock(stage1Data.visual_blocks.characters);
-    } else {
-        console.error('❌ [통합파싱] visual_blocks.characters를 찾을 수 없음');
-        console.log('   stage1Data 전체 구조:', stage1Data);
+        const allCharacters = stage1Data.visual_blocks.characters;
+        let charactersToShow = allCharacters;
+
+        console.log('📥 [캐릭터 필터링] Stage1 전체 캐릭터:', allCharacters.map(c => ({
+            id: c.id,
+            name: c.name
+        })));
+
+        if (shotData.concept_art_references && shotData.concept_art_references.characters) {
+            const sceneCharacters = shotData.concept_art_references.characters;
+            console.log('🎬 [캐릭터 필터링] 씬에 등장하는 캐릭터:', sceneCharacters);
+            console.log('🔍 [캐릭터 필터링] shotData 전체 구조:', {
+                shot_id: shotData.shot_id,
+                hasConceptArtRefs: !!shotData.concept_art_references,
+                conceptArtRefsKeys: shotData.concept_art_references ? Object.keys(shotData.concept_art_references) : []
+            });
+
+            // Stage1 캐릭터 중에서 씬에 등장하는 캐릭터만 필터링
+            charactersToShow = allCharacters.filter(char => {
+                // 대소문자 구분 없이 비교
+                const matched = sceneCharacters.some(scenChar => {
+                    const nameMatch = char.name?.toLowerCase() === scenChar.toLowerCase();
+                    const idMatch = char.id?.toLowerCase() === scenChar.toLowerCase();
+
+                    console.log(`  비교중: Stage1="${char.name}" vs Stage2="${scenChar}" -> name:${nameMatch}, id:${idMatch}`);
+
+                    return nameMatch || idMatch;
+                });
+
+                if (matched) {
+                    console.log(`  ✅ 최종 매칭됨: ${char.name}`);
+                } else {
+                    console.log(`  ❌ 최종 매칭 안됨: ${char.name}`);
+                }
+                return matched;
+            });
+
+            console.log(`📊 필터링 결과: ${charactersToShow.length}/${allCharacters.length}개 캐릭터만 표시`);
+            console.log('  표시할 캐릭터:', charactersToShow.map(c => c.name));
+
+            if (charactersToShow.length === 0) {
+                console.warn('⚠️ 매칭되는 캐릭터가 없습니다');
+                // 빈 상태로 설정
+                mapCharacterBlock([], allCharacters);
+            } else {
+                // 필터링된 캐릭터만 표시
+                mapCharacterBlock(charactersToShow, allCharacters);
+            }
+        } else {
+            console.log('⚠️ concept_art_references.characters가 없어 모든 캐릭터 표시');
+            mapCharacterBlock(allCharacters, allCharacters);
+        }
     }
 
-    // 장소 블록 - 원본 visual_blocks.locations 직접 사용
+    // 장소 블록 - Stage2 씬의 장소만 표시
     if (stage1Data.visual_blocks && stage1Data.visual_blocks.locations) {
-        console.log('📥 [통합파싱] 장소 블록 매핑 (원본 데이터)');
-        mapLocationBlock(stage1Data.visual_blocks.locations[0]);
+        console.log('🏢 [장소 필터링] Stage1 전체 장소:', stage1Data.visual_blocks.locations.map(l => ({
+            id: l.id,
+            name: l.name
+        })));
+
+        if (shotData.concept_art_references && shotData.concept_art_references.location) {
+            const sceneLocation = shotData.concept_art_references.location;
+            console.log('🏢 [장소 필터링] 씬에서 사용하는 장소:', sceneLocation);
+
+            // Stage1 장소 중에서 씬의 장소와 매칭되는 것 찾기
+            const matchedLocation = stage1Data.visual_blocks.locations.find(loc => {
+                const nameMatch = loc.name === sceneLocation;
+                const idMatch = loc.id === sceneLocation;
+                console.log(`  비교중: Stage1="${loc.name}" vs Stage2="${sceneLocation}" -> name:${nameMatch}, id:${idMatch}`);
+                return nameMatch || idMatch;
+            });
+
+            if (matchedLocation) {
+                const foundIndex = stage1Data.visual_blocks.locations.indexOf(matchedLocation);
+                console.log(`📊 ✅ 장소 매칭 성공: ${sceneLocation} → ${matchedLocation.name} (인덱스 ${foundIndex})`);
+
+                // 매칭된 장소만 표시
+                mapLocationBlock(matchedLocation, foundIndex);
+            } else {
+                console.warn(`⚠️ ❌ 장소 매칭 실패: ${sceneLocation}`);
+                console.warn('  Stage1 장소들:', stage1Data.visual_blocks.locations.map(l => l.name));
+                // 장소가 매칭되지 않으면 첫 번째 장소 사용
+                mapLocationBlock(stage1Data.visual_blocks.locations[0], 0);
+            }
+        } else {
+            console.log('⚠️ concept_art_references.location이 없어 첫 번째 장소 표시');
+            mapLocationBlock(stage1Data.visual_blocks.locations[0], 0);
+        }
+    } else {
+        console.warn('⚠️ Stage1에 장소 데이터가 없음');
     }
 
-    // 소품 블록 - 원본 visual_blocks.props 직접 사용
+    // 소품 블록 - Stage2 씬의 소품만 필터링
     if (stage1Data.visual_blocks && stage1Data.visual_blocks.props) {
-        console.log('📥 [통합파싱] 소품 블록 매핑 (원본 데이터)');
-        mapPropsBlock(stage1Data.visual_blocks.props);
+        if (shotData.concept_art_references && shotData.concept_art_references.props) {
+            const sceneProps = shotData.concept_art_references.props;
+            console.log('🎭 씬에서 사용하는 소품:', sceneProps);
+
+            // Stage1 소품 중에서 씬의 소품과 매칭되는 것만 필터링
+            const filteredProps = stage1Data.visual_blocks.props.filter(prop => {
+                return sceneProps.includes(prop.name) || sceneProps.includes(prop.id);
+            });
+
+            console.log(`📊 소품 필터링 결과: ${filteredProps.length}/${stage1Data.visual_blocks.props.length}개`);
+
+            if (filteredProps.length > 0) {
+                mapPropsBlock(filteredProps);
+            } else {
+                console.warn('⚠️ 매칭되는 소품이 없습니다');
+                mapPropsBlock([]);
+            }
+        } else {
+            console.log('⚠️ concept_art_references.props가 없어 모든 소품 표시');
+            mapPropsBlock(stage1Data.visual_blocks.props);
+        }
     }
 
     console.log('✅ [통합파싱] 샷 데이터 처리 완료:', shotData.shot_id);
@@ -1439,25 +1629,28 @@ function handleStage1Upload(event) {
 let isStage1Mapped = false;
 let cachedStage1Data = null;
 
-// 레거시 함수 - 더 이상 사용하지 않음
-// extractAndMapShotSpecificData()가 대체
+// Stage1 데이터를 모두 로드하는 함수 (Stage2 없이 사용할 때)
 function mapStage1DataToBlocks(parsedData, forceUpdate = false) {
-    console.warn('⚠️ mapStage1DataToBlocks() 호출됨 - 레거시 함수');
-    console.log('   → extractAndMapShotSpecificData() 사용 권장');
+    console.log('📥 mapStage1DataToBlocks() 호출 - Stage1 전체 데이터 로드 (Stage2 없음)');
 
     // 기본 블록은 건드리지 않음 (이미 잠김)
-    // 캐릭터, 장소, 소품만 처리
+
+    // 캐릭터 블록 - 모든 캐릭터 로드
     if (parsedData.characters && parsedData.characters.length > 0) {
-        mapCharacterBlock(parsedData.characters);
+        mapCharacterBlock(parsedData.characters, parsedData.characters);
     }
 
+    // 장소 블록 - 모든 장소 로드 (null로 전달하면 전체 표시)
     if (parsedData.locations && parsedData.locations.length > 0) {
-        mapLocationBlock(parsedData.locations[0]);
+        mapLocationBlock(null, null); // 전체 로드
     }
 
+    // 소품 블록
     if (parsedData.props && parsedData.props.length > 0) {
         mapPropsBlock(parsedData.props);
     }
+
+    console.log('✅ Stage1 전체 데이터 로드 완료 (Stage2와 연동 시 필터링됨)');
 }
 
 // ============================================================
@@ -1616,10 +1809,19 @@ function updateCharacterSelector(charactersData) {
 /**
  * 캐릭터 블록 데이터 매칭
  */
-function mapCharacterBlock(charactersData) {
+function mapCharacterBlock(charactersData, allCharacters) {
     if (!charactersData || charactersData.length === 0) {
         console.log('⚠️ 캐릭터 데이터가 없습니다.');
+        // 모든 캐릭터 컨테이너 숨기기
+        addedCharacters.clear();
+        updateCharactersList();
+        updateCharacterContainers();
         return;
+    }
+
+    // allCharacters가 없으면 charactersData를 그대로 사용 (하위 호환성)
+    if (!allCharacters) {
+        allCharacters = charactersData;
     }
 
     // 전역 변수에 저장
@@ -1630,10 +1832,17 @@ function mapCharacterBlock(charactersData) {
     // 캐릭터 셀렉터 업데이트
     updateCharacterSelector(charactersData);
 
-    // JSON 파일의 모든 캐릭터를 addedCharacters에 추가
+    // 씬에 등장하는 캐릭터의 원래 인덱스를 찾아서 addedCharacters에 추가
     addedCharacters.clear();
-    charactersData.forEach((char, index) => {
-        addedCharacters.add(index + 1);
+    charactersData.forEach((char) => {
+        // allCharacters에서 현재 캐릭터의 원래 인덱스 찾기
+        const originalIndex = allCharacters.findIndex(c =>
+            (c.id === char.id) || (c.name === char.name)
+        );
+
+        if (originalIndex !== -1) {
+            addedCharacters.add(originalIndex + 1);
+        }
     });
 
     console.log(`✅ 캐릭터 ${addedCharacters.size}개 자동 추가:`, Array.from(addedCharacters));
@@ -1657,8 +1866,18 @@ function mapCharacterBlock(charactersData) {
     }
 
     // 그 다음 각 캐릭터 데이터 매핑
-    charactersData.forEach((char, index) => {
-        const charNum = index + 1;
+    charactersData.forEach((char) => {
+        // allCharacters에서 현재 캐릭터의 원래 인덱스 찾기
+        const originalIndex = allCharacters.findIndex(c =>
+            (c.id === char.id) || (c.name === char.name)
+        );
+
+        if (originalIndex === -1) {
+            console.error('❌ 캐릭터를 찾을 수 없음:', char);
+            return;
+        }
+
+        const charNum = originalIndex + 1;
 
         console.log(`🔍 [캐릭터${charNum}] 원본 데이터:`, {
             id: char.id,
@@ -1669,9 +1888,9 @@ function mapCharacterBlock(charactersData) {
 
         // 5_CHARACTER 값 (Stage1에서 직접 가져오기)
         let characterValue = '';
-        if (stage1Characters && stage1Characters[index]) {
-            characterValue = stage1Characters[index].blocks?.['5_CHARACTER'] ||
-                           stage1Characters[index].blocks?.CHARACTER || '';
+        if (stage1Characters && stage1Characters[originalIndex]) {
+            characterValue = stage1Characters[originalIndex].blocks?.['5_CHARACTER'] ||
+                           stage1Characters[originalIndex].blocks?.CHARACTER || '';
         }
 
         // character_detail 값 (현재 로직 유지)
@@ -1892,16 +2111,8 @@ function displayLocationData(locationNum) {
 /**
  * 장소블록 데이터 매칭 (캐릭터 블록과 동일한 패턴)
  */
-function mapLocationBlock(locationData) {
-    // locationData 파라미터는 호환성을 위해 유지하지만 사용하지 않음
-
+function mapLocationBlock(locationData, locationIndex) {
     console.log('🏢 장소 블록 매핑 시작');
-
-    // 이미 초기화되었으면 스킵 (무한 루프 방지)
-    if (parsedLocationsData && parsedLocationsData.length > 0) {
-        console.log('⚠️ 장소 블록 이미 초기화됨, 스킵');
-        return;
-    }
 
     // sessionStorage에서 Stage1 원본 데이터 가져오기
     const stage1DataStr = sessionStorage.getItem('stage1OriginalData');
@@ -1926,16 +2137,40 @@ function mapLocationBlock(locationData) {
     // 전역 변수에 저장
     parsedLocationsData = stage1Locations;
 
-    // 장소 셀렉터 업데이트
-    updateLocationSelector(stage1Locations);
+    // 특정 장소만 표시하는 경우
+    if (locationData) {
+        console.log(`📍 특정 장소만 표시: ${locationData.name || locationData.id}`);
 
-    // JSON 파일의 모든 장소를 addedLocations에 추가
-    addedLocations.clear();
-    stage1Locations.forEach((loc, index) => {
-        addedLocations.add(index + 1);
-    });
+        // 셀렉터에는 해당 장소만 표시
+        const selector = document.getElementById('locationSelector');
+        if (selector) {
+            selector.innerHTML = '';
+            const option = document.createElement('option');
+            option.value = locationIndex + 1;
+            option.textContent = locationData.name || `장소 ${locationIndex + 1}`;
+            selector.appendChild(option);
+        }
 
-    console.log(`✅ 장소 ${addedLocations.size}개 자동 추가:`, Array.from(addedLocations));
+        // 리스트에도 해당 장소만 추가
+        addedLocations.clear();
+        addedLocations.add(locationIndex + 1);
+
+        // 해당 장소 데이터 표시
+        displayLocationData(locationIndex + 1);
+
+        console.log(`✅ 장소 필터링 완료: ${locationData.name} 만 표시`);
+    } else {
+        // locationData가 없으면 모든 장소 표시 (Stage1 파일 업로드 시)
+        updateLocationSelector(stage1Locations);
+
+        addedLocations.clear();
+        stage1Locations.forEach((loc, index) => {
+            addedLocations.add(index + 1);
+        });
+
+        console.log(`✅ 장소 ${addedLocations.size}개 모두 표시`);
+        displayLocationData(1);
+    }
 
     // 장소 리스트 UI 업데이트
     updateLocationsList();
@@ -1946,9 +2181,6 @@ function mapLocationBlock(locationData) {
     if (locationCompactContainer) {
         locationCompactContainer.style.display = '';
     }
-
-    // 기본적으로 첫 번째 장소 표시
-    displayLocationData(1);
 
     console.log('✅ 장소 블록 매핑 완료');
 }

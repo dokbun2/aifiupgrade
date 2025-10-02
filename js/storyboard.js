@@ -1110,8 +1110,17 @@ class StoryboardManager {
             ...stage2Data, // Stage2의 scene 필드 포함
             scene_id: this.currentScene,
             sequence_id: this.currentSequence,
-            merged_data: this.mergedData // 병합된 전체 데이터 포함
+            merged_data: this.mergedData, // 병합된 전체 데이터 포함
+            concept_art_references: shot.concept_art_references // concept_art_references 명시적 포함
         };
+
+        // 디버깅: extendedShot 구조 확인
+        console.log('📦 [editShotBlock] extendedShot 구조:', {
+            shot_id: extendedShot.shot_id,
+            hasConceptArtRefs: !!extendedShot.concept_art_references,
+            conceptArtRefs: extendedShot.concept_art_references,
+            hasMergedData: !!extendedShot.merged_data
+        });
 
         // 샷 데이터를 sessionStorage에 저장
         sessionStorage.setItem(`shot_${shot.shot_id}`, JSON.stringify(extendedShot));
