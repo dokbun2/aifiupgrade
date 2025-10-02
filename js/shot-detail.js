@@ -319,6 +319,47 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             }, 500);
         }, 500);
+
+        // 저장된 썸네일이 있는지 확인하고 표시
+        setTimeout(() => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const shotId = urlParams.get('shotId');
+
+            if (shotId) {
+                try {
+                    const savedThumbnails = JSON.parse(localStorage.getItem('shotThumbnails') || '{}');
+                    const savedThumbnail = savedThumbnails[shotId];
+
+                    if (savedThumbnail && savedThumbnail.imageUrl) {
+                        console.log(`📸 저장된 썸네일 로드: ${shotId}`, savedThumbnail);
+
+                        const generationResult = document.getElementById('generationResult');
+                        if (generationResult) {
+                            generationResult.classList.add('has-image');
+                            generationResult.innerHTML = `
+                                <img src="${savedThumbnail.imageUrl}" alt="Generated Image" style="width: 100%; height: 100%; object-fit: contain; border-radius: 8px; cursor: pointer;" onclick="openGeneratedImageViewer('${savedThumbnail.imageUrl}')">
+                            `;
+                            generationResult.setAttribute('data-image-url', savedThumbnail.imageUrl);
+
+                            // 저장 버튼 표시 및 "저장됨" 상태로 변경
+                            const saveBtn = document.querySelector('.save-image-btn');
+                            if (saveBtn) {
+                                saveBtn.style.display = 'flex';
+                                saveBtn.style.background = 'linear-gradient(135deg, #888, #666)';
+                                saveBtn.innerHTML = `
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <polyline points="20 6 9 17 4 12"></polyline>
+                                    </svg>
+                                    저장됨
+                                `;
+                            }
+                        }
+                    }
+                } catch (error) {
+                    console.error('썸네일 로드 오류:', error);
+                }
+            }
+        }, 600);
     } catch (error) {
         console.error('초기화 중 오류:', error);
     }
@@ -2362,6 +2403,16 @@ window.regenerateImage = async function() {
             generationResult.innerHTML = `
                 <img src="${imageUrl}" alt="Generated Image" style="width: 100%; height: 100%; object-fit: contain; border-radius: 8px; cursor: pointer;" onclick="openGeneratedImageViewer('${imageUrl}')">
             `;
+
+            // 생성된 이미지 URL을 데이터 속성에 저장
+            generationResult.setAttribute('data-image-url', imageUrl);
+
+            // 저장 버튼 표시
+            const saveBtn = document.querySelector('.save-image-btn');
+            if (saveBtn) {
+                saveBtn.style.display = 'flex';
+            }
+
             alert('이미지 생성 완료!');
         }
 
@@ -2382,6 +2433,75 @@ window.regenerateImage = async function() {
         `;
 
         showNotification(`오류: ${error.message}`, 'error');
+    }
+};
+
+// 생성된 이미지를 썸네일로 저장하는 함수
+window.saveGeneratedImageToThumbnail = function() {
+    console.log('💾 이미지 썸네일 저장 시작');
+
+    // 1. 생성된 이미지 URL 가져오기
+    const generationResult = document.getElementById('generationResult');
+    const imageUrl = generationResult?.getAttribute('data-image-url');
+
+    if (!imageUrl) {
+        alert('저장할 이미지가 없습니다. 먼저 이미지를 생성해주세요.');
+        return;
+    }
+
+    // 2. 현재 Shot ID 가져오기
+    const urlParams = new URLSearchParams(window.location.search);
+    const shotId = urlParams.get('shotId') || document.querySelector('.shot-id')?.textContent;
+
+    if (!shotId) {
+        console.error('❌ Shot ID를 찾을 수 없습니다');
+        return;
+    }
+
+    // 3. localStorage에 이미지 데이터 저장
+    try {
+        // 기존에 저장된 썸네일 데이터 가져오기
+        const savedThumbnails = JSON.parse(localStorage.getItem('shotThumbnails') || '{}');
+
+        // 현재 샷의 썸네일 업데이트
+        savedThumbnails[shotId] = {
+            imageUrl: imageUrl,
+            timestamp: Date.now(),
+            prompt: document.getElementById('globalFinalPrompt')?.value || ''
+        };
+
+        // localStorage에 저장
+        localStorage.setItem('shotThumbnails', JSON.stringify(savedThumbnails));
+
+        console.log(`✅ 썸네일 저장 완료: ${shotId}`, savedThumbnails[shotId]);
+
+        // 저장 성공 알림
+        alert('이미지가 썸네일로 저장되었습니다!');
+
+        // 저장 버튼 스타일 변경 (이미 저장됨 표시)
+        const saveBtn = document.querySelector('.save-image-btn');
+        if (saveBtn) {
+            saveBtn.style.background = 'linear-gradient(135deg, #888, #666)';
+            saveBtn.innerHTML = `
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+                저장됨
+            `;
+        }
+
+        // 부모 창에 메시지 전송 (iframe 내부인 경우)
+        if (window.parent !== window) {
+            window.parent.postMessage({
+                type: 'thumbnailSaved',
+                shotId: shotId,
+                imageUrl: imageUrl
+            }, '*');
+        }
+
+    } catch (error) {
+        console.error('❌ 썸네일 저장 실패:', error);
+        alert('이미지 저장 중 오류가 발생했습니다.');
     }
 };
 

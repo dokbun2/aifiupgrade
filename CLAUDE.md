@@ -7,7 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-AIFI FRAMEWORK - AI-powered concept art generation and creative workflow management system with Node.js backend and Google Gemini integration.
+AIFI FRAMEWORK - AI-powered concept art generation and creative workflow management system designed for film and video production. The system integrates Stage1 (concept art blocks) and Stage2 (storyboard/shot details) JSON workflows with Google Gemini API for AI assistance.
 
 ## Development Commands
 
@@ -221,3 +221,67 @@ PORT=3000
 - **Mobile Navigation**: Bottom nav appears <768px
 - **Sidebar**: Transforms to overlay on mobile
 - **Grid Layouts**: Auto-adjust columns (3→2→1)
+
+## Storyboard & Shot Detail Architecture
+
+### Stage1 and Stage2 JSON Integration
+The system processes two types of JSON files that work together:
+
+#### Stage1 JSON (Concept Art Blocks)
+- Contains `film_metadata`, `visual_blocks` (characters, locations, props)
+- Stored in `sessionStorage` as `stage1OriginalData` and `stage1ParsedData`
+- Example structure: `/[아이파이강의]/아이파이/업그레이드/샘플제이슨/귀면의칼날 샘플1.json`
+
+#### Stage2 JSON (Storyboard/Shot Details)
+- Contains scenes with shots, `concept_art_references` for filtering
+- Each shot has `starting_frame` and `ending_frame` with character actions
+- Example: `/[아이파이강의]/아이파이/업그레이드/샘플제이슨/귀멸의칼날샘플2.json`
+
+### Key JavaScript Modules
+
+#### StoryboardManager (`js/storyboard.js`)
+- Handles file uploads and JSON parsing
+- Merges Stage1 + Stage2 data
+- Creates shot cards with concept art references
+- Stores shot data in sessionStorage as `shot_${shotId}`
+
+#### Shot Detail System (`js/shot-detail.js`)
+- **Character Filtering**: Shows only scene-specific characters in blocks
+  - Selector dropdown shows ALL characters for add/remove functionality
+  - Blocks display only filtered characters based on `concept_art_references`
+- **Location Filtering**: Displays scene-specific location
+- **Frame Actions**: START/END buttons apply character actions from frames
+
+Key functions:
+- `extractAndMapShotSpecificData()`: Processes merged Stage1+Stage2 data
+- `applyConceptArtFiltering()`: Filters based on concept_art_references
+- `mapCharacterBlock()`: Maps filtered characters to UI blocks
+- `updateCharacterSelector()`: Populates dropdown with all characters
+
+### SessionStorage Data Flow
+1. **Stage1 Upload**: `stage1OriginalData`, `stage1ParsedData`
+2. **Stage2 Processing**: `shot_${shotId}` with merged data
+3. **Shot Detail Page**: Reads shot data, applies filtering
+4. **Character Management**:
+   - `allCharactersData`: Full character list for selector
+   - `parsedCharactersData`: Filtered characters for display
+
+### Character Block Management
+- **addedCharacters**: Set of character indices to display
+- **Character Containers**: Show/hide based on scene filtering
+- **Selector Dropdown**: Always shows full character list
+- **Add/Remove**: Manual override of automatic filtering
+
+### Important Data Structures
+```javascript
+// Shot data in sessionStorage
+{
+  shot_id: "S01.02.01",
+  merged_data: { /* Stage1 + Stage2 */ },
+  concept_art_references: {
+    characters: ["Hwarang", "Seoyun"],
+    location: "Data_Contamination_Zone",
+    props: ["Saingeom"]
+  }
+}
+```

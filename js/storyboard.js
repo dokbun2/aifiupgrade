@@ -13,6 +13,13 @@ class StoryboardManager {
     init() {
         // Initialize event listeners
         document.addEventListener('DOMContentLoaded', () => {
+            // iframe으로부터 썸네일 저장 메시지 수신
+            window.addEventListener('message', (event) => {
+                if (event.data.type === 'thumbnailSaved') {
+                    console.log('📨 썸네일 저장 메시지 수신:', event.data);
+                    this.updateCardThumbnail(event.data.shotId, event.data.imageUrl);
+                }
+            });
             this.setupFileUpload();
             this.setupDropdowns();
             this.setupJSONUpload();
@@ -123,7 +130,13 @@ class StoryboardManager {
         const fileType = this.detectFileType(data);
         console.log(`Processing ${filename} as ${fileType}`);
 
-        // 파일 저장
+        // 프로젝트 전체 데이터 복원
+        if (fileType === 'project_complete') {
+            await this.restoreProjectData(data);
+            return;
+        }
+
+        // 일반 파일 처리
         this.uploadedFiles.set(fileType, data);
 
         // 자동 병합 시도
@@ -132,9 +145,100 @@ class StoryboardManager {
         }
     }
 
+    // 프로젝트 전체 데이터 복원
+    async restoreProjectData(projectData) {
+        try {
+            console.log('🔄 프로젝트 데이터 복원 시작...', projectData);
+
+            // 1. Stage1 데이터 복원
+            if (projectData.stage1Data) {
+                console.log('Stage1 데이터 복원 중...');
+                sessionStorage.setItem('stage1OriginalData', JSON.stringify(projectData.stage1Data));
+                this.parseStage1Data(projectData.stage1Data);
+                this.uploadedFiles.set('stage1', projectData.stage1Data);
+            }
+
+            // 2. Stage2 데이터 복원
+            if (projectData.stage2Data) {
+                console.log('Stage2 데이터 복원 중...');
+                // stage2Data가 scenes를 포함하는 경우
+                if (projectData.stage2Data.scenes) {
+                    this.storyboardData = projectData.stage2Data;
+                } else {
+                    // stage2Data가 scenes 없이 treatment 등만 있는 경우
+                    // projectData 최상위 scenes 사용
+                    this.storyboardData = {
+                        ...projectData.stage2Data,
+                        scenes: projectData.scenes || []
+                    };
+                }
+                this.uploadedFiles.set('stage2', this.storyboardData);
+
+                // parseStage2Data는 scenes가 필요하므로 체크
+                if (this.storyboardData.scenes) {
+                    this.parseStage2Data(this.storyboardData);
+                }
+            }
+
+            // 3. 병합된 데이터 복원
+            if (projectData.mergedData) {
+                console.log('병합된 데이터 복원 중...');
+                this.mergedData = projectData.mergedData;
+            } else if (projectData.stage1Data && this.storyboardData) {
+                // 병합된 데이터가 없으면 자동 병합
+                console.log('데이터 자동 병합 중...');
+                await this.autoMergeData();
+            }
+
+            // 4. 샷별 수정 데이터 복원
+            if (projectData.shotData) {
+                console.log('샷별 데이터 복원 중...');
+                for (const [shotId, shotData] of Object.entries(projectData.shotData)) {
+                    sessionStorage.setItem(`shot_${shotId}`, JSON.stringify(shotData));
+                }
+            }
+
+            // 5. 썸네일 복원
+            if (projectData.thumbnails && Object.keys(projectData.thumbnails).length > 0) {
+                console.log('썸네일 복원 중...');
+                const existingThumbnails = JSON.parse(localStorage.getItem('shotThumbnails') || '{}');
+                const mergedThumbnails = { ...existingThumbnails, ...projectData.thumbnails };
+                localStorage.setItem('shotThumbnails', JSON.stringify(mergedThumbnails));
+            }
+
+            // 6. UI 업데이트
+            console.log('UI 업데이트 중...');
+            if (this.mergedData || (this.storyboardData && this.storyboardData.scenes)) {
+                this.renderStoryboard();
+                this.hideUploadSection();
+                this.showControls();
+            }
+
+            // 성공 메시지
+            const metadata = projectData.metadata || {};
+            const shotCount = metadata.totalShots ||
+                              (this.storyboardData?.scenes?.reduce((acc, scene) =>
+                                  acc + (scene.shots?.length || 0), 0)) || 0;
+
+            this.showNotification(
+                `✅ 프로젝트 복원 완료!\n${shotCount}개 샷, ${Object.keys(projectData.thumbnails || {}).length}개 썸네일 복원됨\n(내보낸 날짜: ${new Date(projectData.exportDate).toLocaleDateString('ko-KR')})`,
+                'success'
+            );
+
+        } catch (error) {
+            console.error('프로젝트 복원 중 오류:', error);
+            console.error('스택 추적:', error.stack);
+            this.showNotification(`프로젝트 복원 실패: ${error.message}`, 'error');
+        }
+    }
+
     detectFileType(data) {
+        // 프로젝트 전체 데이터 파일 감지 (버전 2.0)
+        if (data.version === '2.0' && (data.stage1Data || data.stage2Data || data.mergedData)) {
+            return 'project_complete';
+        }
         // stage1 타입 감지 (visual_blocks가 있으면 stage1)
-        if (data.visual_blocks) {
+        else if (data.visual_blocks) {
             // Stage 1 파일이 업로드되면 파싱하여 저장
             this.parseStage1Data(data);
             return 'stage1';
@@ -948,6 +1052,39 @@ class StoryboardManager {
     /**
      * Shot ID로 mergedData에서 실제 샷 찾기
      */
+    updateCardThumbnail(shotId, imageUrl) {
+        console.log(`🖼️ 카드 썸네일 업데이트: ${shotId}`);
+
+        // 해당 shot의 카드 찾기
+        const card = document.querySelector(`.storyboard-card[data-shot-id="${shotId}"]`);
+        if (!card) {
+            console.warn(`⚠️ Shot ID '${shotId}'의 카드를 찾을 수 없습니다.`);
+            return;
+        }
+
+        // 썸네일 영역 찾기
+        const thumbnailDiv = card.querySelector('.card-thumbnail');
+        if (!thumbnailDiv) {
+            console.warn('⚠️ 썸네일 영역을 찾을 수 없습니다.');
+            return;
+        }
+
+        // 새로운 이미지로 교체
+        thumbnailDiv.innerHTML = `
+            <img src="${imageUrl}"
+                 alt="Shot Thumbnail"
+                 style="width: 100%; height: 100%; object-fit: cover; border-radius: 4px;"
+                 onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+            <svg class="thumbnail-placeholder" width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" style="display: none;">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                <polyline points="21 15 16 10 5 21"></polyline>
+            </svg>
+        `;
+
+        console.log(`✅ 썸네일 업데이트 완료: ${shotId}`);
+    }
+
     findShotById(shotId) {
         if (!this.mergedData || !this.mergedData.scenes) {
             console.warn('⚠️ mergedData가 없습니다.');
@@ -1009,11 +1146,49 @@ class StoryboardManager {
             }
         }
 
-        card.innerHTML = `
-            <div class="card-header">
-                <span class="shot-id">${shot.shot_id}</span>
-            </div>
-            <div class="card-thumbnail">
+        // localStorage에서 저장된 썸네일 확인
+        let thumbnailContent = '';
+        try {
+            const savedThumbnails = JSON.parse(localStorage.getItem('shotThumbnails') || '{}');
+            const savedThumbnail = savedThumbnails[shot.shot_id];
+
+            if (savedThumbnail && savedThumbnail.imageUrl) {
+                // 저장된 이미지가 있으면 표시
+                console.log(`📸 저장된 썸네일 발견: ${shot.shot_id}`, savedThumbnail);
+                thumbnailContent = `
+                    <img src="${savedThumbnail.imageUrl}"
+                         alt="Shot Thumbnail"
+                         style="width: 100%; height: 100%; object-fit: cover; border-radius: 4px;"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                    <svg class="thumbnail-placeholder" width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" style="display: none;">
+                        ${isScene ?
+                            `<rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                             <line x1="3" y1="9" x2="21" y2="9"></line>
+                             <line x1="9" y1="21" x2="9" y2="9"></line>` :
+                            `<rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                             <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                             <polyline points="21 15 16 10 5 21"></polyline>`
+                        }
+                    </svg>
+                `;
+            } else {
+                // 저장된 이미지가 없으면 기본 SVG 표시
+                thumbnailContent = `
+                    <svg class="thumbnail-placeholder" width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+                        ${isScene ?
+                            `<rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                             <line x1="3" y1="9" x2="21" y2="9"></line>
+                             <line x1="9" y1="21" x2="9" y2="9"></line>` :
+                            `<rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                             <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                             <polyline points="21 15 16 10 5 21"></polyline>`
+                        }
+                    </svg>
+                `;
+            }
+        } catch (error) {
+            console.error('썸네일 로드 오류:', error);
+            thumbnailContent = `
                 <svg class="thumbnail-placeholder" width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
                     ${isScene ?
                         `<rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
@@ -1024,6 +1199,15 @@ class StoryboardManager {
                          <polyline points="21 15 16 10 5 21"></polyline>`
                     }
                 </svg>
+            `;
+        }
+
+        card.innerHTML = `
+            <div class="card-header">
+                <span class="shot-id">${shot.shot_id}</span>
+            </div>
+            <div class="card-thumbnail">
+                ${thumbnailContent}
             </div>
             <div class="card-content">
                 <p class="shot-text">${displayText}</p>
@@ -1333,13 +1517,52 @@ class StoryboardManager {
             return;
         }
 
-        const dataToDownload = this.mergedData || this.storyboardData;
-        const blob = new Blob([JSON.stringify(dataToDownload, null, 2)], { type: 'application/json' });
+        // 전체 프로젝트 데이터 수집
+        const projectData = {
+            version: '2.0', // 버전 정보 추가
+            exportDate: new Date().toISOString(),
+
+            // 원본 데이터
+            stage1Data: JSON.parse(sessionStorage.getItem('stage1OriginalData') || 'null'),
+            stage2Data: this.storyboardData,
+            mergedData: this.mergedData,
+
+            // 샷별 수정된 데이터
+            shotData: {},
+
+            // 썸네일 이미지
+            thumbnails: JSON.parse(localStorage.getItem('shotThumbnails') || '{}'),
+
+            // 추가 메타데이터
+            metadata: {
+                totalShots: 0,
+                modifiedShots: [],
+                hasCustomThumbnails: false
+            }
+        };
+
+        // sessionStorage에서 모든 샷 데이터 수집
+        for (let i = 0; i < sessionStorage.length; i++) {
+            const key = sessionStorage.key(i);
+            if (key && key.startsWith('shot_')) {
+                const shotId = key.replace('shot_', '');
+                projectData.shotData[shotId] = JSON.parse(sessionStorage.getItem(key));
+                projectData.metadata.modifiedShots.push(shotId);
+            }
+        }
+
+        // 메타데이터 업데이트
+        projectData.metadata.totalShots = Object.keys(projectData.shotData).length;
+        projectData.metadata.hasCustomThumbnails = Object.keys(projectData.thumbnails).length > 0;
+
+        const blob = new Blob([JSON.stringify(projectData, null, 2)], { type: 'application/json' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
 
-        const title = dataToDownload.film_metadata?.title_working || 'storyboard';
-        const filename = `${title}_storyboard_${new Date().toISOString().split('T')[0]}.json`;
+        const title = projectData.mergedData?.film_metadata?.title_working ||
+                      projectData.stage2Data?.film_metadata?.title_working ||
+                      'project';
+        const filename = `${title}_complete_${new Date().toISOString().split('T')[0]}.json`;
 
         a.href = url;
         a.download = filename;
@@ -1348,7 +1571,7 @@ class StoryboardManager {
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
 
-        this.showNotification('JSON 파일이 다운로드되었습니다.', 'success');
+        this.showNotification(`✅ 프로젝트 전체 데이터가 저장되었습니다 (샷: ${projectData.metadata.totalShots}개, 썸네일: ${Object.keys(projectData.thumbnails).length}개)`, 'success');
     }
 
     renderEmptyState() {

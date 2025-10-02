@@ -388,6 +388,44 @@ body {
     font-weight: 600;
 }
 
+.generation-buttons {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.save-image-btn {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 6px 12px;
+    background: linear-gradient(135deg, #4CAF50, #45a049);
+    color: #ffffff;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 11px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(76, 175, 80, 0.3);
+}
+
+.save-image-btn:hover {
+    background: linear-gradient(135deg, #5CBF60, #4CAF50);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(76, 175, 80, 0.5);
+}
+
+.save-image-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 1px 4px rgba(76, 175, 80, 0.3);
+}
+
+.save-image-btn svg {
+    width: 14px;
+    height: 14px;
+}
+
 .regenerate-btn {
     display: flex;
     align-items: center;
@@ -551,6 +589,13 @@ body {
         align-items: flex-start;
     }
 
+    .generation-buttons {
+        width: 100%;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .save-image-btn,
     .regenerate-btn {
         width: 100%;
         justify-content: center;
