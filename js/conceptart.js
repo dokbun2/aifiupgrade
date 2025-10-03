@@ -1952,7 +1952,7 @@ function editPrompt(type) {
 
     if (!modal || !container) return;
 
-    // Get current prompt text
+    // Get current prompt text from conceptData (not from display)
     let currentText = '';
     if (type === 'universal') {
         currentText = conceptData.universal || '';
@@ -1960,39 +1960,39 @@ function editPrompt(type) {
     } else if (type === 'translated') {
         currentText = conceptData.universal_translated || '';
         if (currentText === '번역된 프롬프트가 여기에 표시됩니다...') currentText = '';
+    } else if (type === 'voice') {
+        currentText = conceptData.voice_style || '';
+        if (currentText === '음성 스타일이 여기에 표시됩니다...') currentText = '';
     }
 
-    // Parse prompt to fields
-    const fieldValues = parsePromptToFields(currentText);
-
-    // Generate field inputs
+    // Create single textarea
     container.innerHTML = '';
-    PROMPT_FIELDS.forEach(field => {
-        const fieldDiv = document.createElement('div');
-        fieldDiv.className = 'prompt-field-row';
+    const textarea = document.createElement('textarea');
+    textarea.className = 'prompt-edit-textarea';
+    textarea.id = 'prompt-edit-textarea';
+    textarea.placeholder = '프롬프트를 입력하세요...';
+    textarea.value = currentText;
+    textarea.style.cssText = `
+        width: 100%;
+        min-height: 400px;
+        padding: 15px;
+        font-size: 14px;
+        line-height: 1.6;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        background: var(--bg-secondary);
+        color: var(--text-primary);
+        resize: vertical;
+        font-family: inherit;
+    `;
 
-        const label = document.createElement('label');
-        label.className = 'prompt-field-label';
-        label.textContent = field.label + ':';
-
-        const input = document.createElement('input');
-        input.type = 'text';
-        input.className = 'prompt-field-input';
-        input.id = `field-${field.key}`;
-        input.placeholder = field.placeholder;
-        input.value = fieldValues[field.key] || '';
-
-        fieldDiv.appendChild(label);
-        fieldDiv.appendChild(input);
-        container.appendChild(fieldDiv);
-    });
-
+    container.appendChild(textarea);
     modal.style.display = 'flex';
 
-    // Focus first input
+    // Focus textarea
     setTimeout(() => {
-        const firstInput = container.querySelector('.prompt-field-input');
-        if (firstInput) firstInput.focus();
+        textarea.focus();
+        textarea.setSelectionRange(textarea.value.length, textarea.value.length);
     }, 100);
 }
 
@@ -2006,35 +2006,17 @@ function closePromptEdit() {
 
 function savePromptEdit() {
     const modal = document.getElementById('promptEditModal');
-    const container = modal?.querySelector('.prompt-fields-container');
-    if (!container) return;
+    const textarea = modal?.querySelector('#prompt-edit-textarea');
+    if (!textarea) return;
 
-    // Collect field values
-    const fieldParts = [];
-    PROMPT_FIELDS.forEach(field => {
-        const input = container.querySelector(`#field-${field.key}`);
-        if (input && input.value.trim()) {
-            const value = input.value.trim();
-            if (field.key === 'PARAMETERS') {
-                // PARAMETERS doesn't need a colon
-                fieldParts.push(value);
-            } else {
-                fieldParts.push(`${field.key}: ${value}`);
-            }
-        }
-    });
-
-    // Join all parts with semicolon, but not after the last item
-    const newText = fieldParts.map((part, index) => {
-        const isLast = index === fieldParts.length - 1;
-        return isLast ? part : part + ';';
-    }).join('\n');
+    const newText = textarea.value.trim();
 
     if (currentEditType === 'universal') {
         const element = document.getElementById('universal-prompt');
         if (element) {
             if (newText) {
-                element.innerHTML = formatPromptForDisplay(newText).replace(/\n/g, '<br>');
+                // 줄바꿈을 유지하면서 표시 (formatPromptForDisplay 사용하지 않음)
+                element.innerHTML = newText.replace(/\n/g, '<br>');
             } else {
                 element.textContent = '기본 프롬프트가 여기에 표시됩니다...';
             }
@@ -2058,7 +2040,8 @@ function savePromptEdit() {
         const element = document.getElementById('universal-prompt-translated');
         if (element) {
             if (newText) {
-                element.innerHTML = formatPromptForDisplay(newText).replace(/\n/g, '<br>');
+                // 줄바꿈을 유지하면서 표시 (formatPromptForDisplay 사용하지 않음)
+                element.innerHTML = newText.replace(/\n/g, '<br>');
             } else {
                 element.textContent = '번역된 프롬프트가 여기에 표시됩니다...';
             }
@@ -2076,6 +2059,30 @@ function savePromptEdit() {
 
             if (currentKey && conceptData.prompts[currentKey]) {
                 conceptData.prompts[currentKey].universal_translated = newText;
+            }
+        }
+    } else if (currentEditType === 'voice') {
+        const element = document.getElementById('voice-style-display');
+        if (element) {
+            if (newText) {
+                element.innerHTML = newText;
+            } else {
+                element.textContent = '음성 스타일이 여기에 표시됩니다...';
+            }
+            conceptData.voice_style = newText;
+
+            // 현재 선택된 항목에 voice_style 저장
+            let currentKey = null;
+            if (conceptData.currentType === 'character' && conceptData.currentCharacter) {
+                currentKey = conceptData.currentCharacter;
+            } else if (conceptData.currentType === 'location' && conceptData.currentLocation) {
+                currentKey = conceptData.currentLocation;
+            } else if (conceptData.currentType === 'props' && conceptData.currentProps) {
+                currentKey = conceptData.currentProps;
+            }
+
+            if (currentKey && conceptData.prompts[currentKey]) {
+                conceptData.prompts[currentKey].voice_style = newText;
             }
         }
     }
