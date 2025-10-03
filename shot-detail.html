@@ -1226,6 +1226,40 @@
                     </div>
                 </div>
 
+                <!-- Gemini AI 채팅 섹션 -->
+                <div class="gemini-chat-section">
+                    <div class="chat-header">
+                        <div class="chat-title">
+                            <svg class="chat-icon" width="16" height="16" viewBox="0 0 24 24" fill="none">
+                                <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M2 17L12 22L22 17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M2 12L12 17L22 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            <span>AI Assistant</span>
+                        </div>
+                        <div class="chat-controls">
+                            <button class="chat-minimize-btn" onclick="toggleChatSize()" title="최소화/최대화">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                                    <path d="M4 14h16v1H4zm0-5h16v1H4z" fill="currentColor"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="chat-iframe-container" id="geminiChatContainer">
+                        <iframe
+                            id="geminiChatIframe"
+                            src="https://prompt-transformation-chat-252213558759.us-west1.run.app/"
+                            frameborder="0"
+                            allow="clipboard-write; clipboard-read; microphone"
+                            allowfullscreen>
+                        </iframe>
+                        <div class="chat-loading" id="chatLoading">
+                            <div class="loading-spinner"></div>
+                            <span>AI Assistant 로딩중...</span>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- 하단 프롬프트 영역 제거됨 -->
             </div>
             </div>

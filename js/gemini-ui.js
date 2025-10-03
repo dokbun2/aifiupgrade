@@ -165,6 +165,25 @@ async function testAPIConnection() {
             loadAPIStatus();
             updateAPIStatusInMenu();
 
+            // shot-detail 페이지의 iframe에 API 키 전송
+            if (typeof sendAPIKeyToIframe === 'function') {
+                setTimeout(sendAPIKeyToIframe, 500);
+                console.log('shot-detail iframe으로 API 키 전송 시도');
+            }
+
+            // storage 이벤트 수동 트리거 (같은 창의 다른 컨텍스트에 알림)
+            try {
+                window.dispatchEvent(new StorageEvent('storage', {
+                    key: 'gemini_api_state',
+                    newValue: sessionStorage.getItem('gemini_api_state'),
+                    oldValue: null,
+                    url: window.location.href,
+                    storageArea: sessionStorage
+                }));
+            } catch (e) {
+                console.log('Storage 이벤트 디스패치 실패 (정상적인 동작):', e);
+            }
+
             // Show success toast and close modal after short delay
             setTimeout(() => {
                 showToast('API 키가 성공적으로 저장되었습니다', 'success');

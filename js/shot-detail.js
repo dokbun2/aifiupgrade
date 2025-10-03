@@ -43,6 +43,145 @@ window.savePrompt = savePrompt;
 window.copyPrompt = copyPrompt;
 window.deletePrompt = deletePrompt;
 
+// Gemini Chat 관련 함수
+window.toggleChatSize = function() {
+    const chatSection = document.querySelector('.gemini-chat-section');
+    const minimizeBtn = document.querySelector('.chat-minimize-btn');
+
+    if (chatSection) {
+        chatSection.classList.toggle('minimized');
+
+        // 버튼 아이콘 변경
+        if (chatSection.classList.contains('minimized')) {
+            minimizeBtn.innerHTML = `
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                    <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2"/>
+                </svg>
+            `;
+            minimizeBtn.title = "최대화";
+        } else {
+            minimizeBtn.innerHTML = `
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                    <path d="M4 14h16v1H4zm0-5h16v1H4z" fill="currentColor"/>
+                </svg>
+            `;
+            minimizeBtn.title = "최소화";
+        }
+
+        // 상태를 sessionStorage에 저장
+        sessionStorage.setItem('chatMinimized', chatSection.classList.contains('minimized'));
+    }
+};
+
+// iframe API 키 전송 함수
+function sendAPIKeyToIframe() {
+    const iframe = document.getElementById('geminiChatIframe');
+    const savedState = sessionStorage.getItem('gemini_api_state');
+
+    if (savedState && iframe && iframe.contentWindow) {
+        try {
+            const state = JSON.parse(savedState);
+            if (state.apiKey) {
+                // PostMessage로 안전하게 전송
+                iframe.contentWindow.postMessage({
+                    type: 'GEMINI_API_KEY',
+                    timestamp: Date.now(),
+                    data: {
+                        apiKey: state.apiKey,
+                        isConnected: state.isConnected || false,
+                        models: state.models
+                    }
+                }, 'https://prompt-transformation-chat-252213558759.us-west1.run.app');
+
+                debugLog('API 키를 iframe으로 전송했습니다');
+            }
+        } catch (error) {
+            debugError('API 키 전송 실패:', error);
+        }
+    }
+}
+
+// sendAPIKeyToIframe를 전역으로 노출
+window.sendAPIKeyToIframe = sendAPIKeyToIframe;
+
+// iframe으로부터 응답 받기
+window.addEventListener('message', function(e) {
+    // origin 확인
+    if (e.origin === 'https://prompt-transformation-chat-252213558759.us-west1.run.app') {
+        if (e.data.type === 'API_KEY_RECEIVED') {
+            debugLog('iframe이 API 키를 수신했습니다:', e.data);
+
+            // UI 업데이트 (선택)
+            const chatTitle = document.querySelector('.chat-title span');
+            if (chatTitle) {
+                chatTitle.textContent = 'AI Assistant (연결됨)';
+            }
+        } else if (e.data.type === 'API_KEY_ERROR') {
+            debugError('iframe API 키 처리 오류:', e.data.error);
+        }
+    }
+});
+
+// iframe 로딩 완료 처리
+document.addEventListener('DOMContentLoaded', function() {
+    const iframe = document.getElementById('geminiChatIframe');
+    const loadingDiv = document.getElementById('chatLoading');
+
+    if (iframe) {
+        iframe.addEventListener('load', function() {
+            // 로딩 화면 숨기기
+            if (loadingDiv) {
+                loadingDiv.classList.add('hidden');
+            }
+
+            // API 키 자동 전송 (2초 대기 후)
+            setTimeout(sendAPIKeyToIframe, 2000);
+        });
+
+        // 에러 처리
+        iframe.addEventListener('error', function() {
+            if (loadingDiv) {
+                loadingDiv.innerHTML = `
+                    <div style="text-align: center; color: #ff6b6b;">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" style="margin-bottom: 10px;">
+                            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+                            <path d="M12 8v4m0 4h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                        <p>AI Assistant를 불러올 수 없습니다.</p>
+                        <p style="font-size: 12px; margin-top: 5px;">네트워크 연결을 확인해주세요.</p>
+                    </div>
+                `;
+            }
+        });
+
+        // storage 변경 감지 (실시간 동기화)
+        window.addEventListener('storage', function(e) {
+            if (e.key === 'gemini_api_state') {
+                debugLog('API 키가 변경되었습니다. 재전송합니다.');
+                setTimeout(sendAPIKeyToIframe, 500);
+            }
+        });
+    }
+
+    // 이전 상태 복원
+    const wasMinimized = sessionStorage.getItem('chatMinimized') === 'true';
+    if (wasMinimized) {
+        const chatSection = document.querySelector('.gemini-chat-section');
+        if (chatSection) {
+            chatSection.classList.add('minimized');
+            const minimizeBtn = document.querySelector('.chat-minimize-btn');
+            if (minimizeBtn) {
+                minimizeBtn.innerHTML = `
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                        <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2"/>
+                    </svg>
+                `;
+                minimizeBtn.title = "최대화";
+            }
+        }
+    }
+});
+
 // 샷 상세 데이터 관리
 const shotDetailManager = {
     currentShot: null,
