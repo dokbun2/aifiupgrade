@@ -321,7 +321,36 @@
                         </svg>
                         <p class="upload-text">JSON 파일을 업로드하세요</p>
                         <p class="upload-hint">클릭하거나 파일을 드래그 앤 드롭하세요</p>
-                        <input type="file" id="fileInput" class="file-input" accept=".json">
+                        <input type="file" id="fileInput" class="file-input" accept=".json" multiple>
+                    </div>
+
+                    <!-- Stage2 Merge Options -->
+                    <div class="merge-options" id="mergeOptions" style="display: none;">
+                        <h3 class="merge-title">Stage2 파일 병합 옵션</h3>
+                        <div class="merge-mode-selector">
+                            <label class="merge-option">
+                                <input type="radio" name="mergeMode" value="replace" checked>
+                                <span>교체 모드</span>
+                                <small>새 파일로 기존 데이터를 완전히 교체합니다</small>
+                            </label>
+                            <label class="merge-option">
+                                <input type="radio" name="mergeMode" value="merge">
+                                <span>병합 모드</span>
+                                <small>기존 데이터에 새 파일의 샷들을 추가합니다</small>
+                            </label>
+                        </div>
+                        <select id="stage2MergeMode" class="merge-mode-dropdown" style="display: none;">
+                            <option value="replace">교체</option>
+                            <option value="merge">병합</option>
+                        </select>
+
+                        <!-- File History -->
+                        <div class="file-history" id="fileHistory" style="display: none;">
+                            <h4>업로드 히스토리</h4>
+                            <div id="fileHistoryList" class="file-history-list">
+                                <!-- Dynamic content will be added here -->
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -711,6 +740,7 @@
     <script src="../js/gemini-api.js"></script>
     <script src="../js/gemini-ui.js"></script>
     <script src="../js/stage1-parser.js"></script>
+    <script src="../js/stage2-parser.js"></script>
     <script src="../js/storyboard.js"></script>
     <!-- Gemini Floating Button -->
     <script src="../js/gemini-button.js"></script>

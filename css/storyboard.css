@@ -397,6 +397,13 @@
     margin-bottom: 24px;
 }
 
+.scene-header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
 .scene-title {
     font-size: 24px;
     font-weight: 700;
@@ -872,4 +879,130 @@
 
 .scenario-content::-webkit-scrollbar-thumb:hover {
     background: rgba(255, 107, 107, 0.5);
+}
+
+/* Merge Options Styles */
+.merge-options {
+    margin-top: 20px;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+}
+
+.merge-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.9);
+    margin-bottom: 15px;
+}
+
+.merge-mode-selector {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.merge-option {
+    display: flex;
+    flex-direction: column;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.merge-option:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 107, 107, 0.5);
+}
+
+.merge-option input[type="radio"] {
+    margin-right: 8px;
+}
+
+.merge-option span {
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.9);
+    margin-bottom: 4px;
+}
+
+.merge-option small {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 12px;
+}
+
+.merge-mode-dropdown {
+    width: 100%;
+    padding: 8px 12px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+    color: #fff;
+}
+
+/* File History */
+.file-history {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.file-history h4 {
+    font-size: 14px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.8);
+    margin-bottom: 12px;
+}
+
+.file-history-list {
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.file-history-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 6px;
+    margin-bottom: 8px;
+}
+
+.file-name {
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.8);
+    flex: 1;
+}
+
+.file-action {
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 500;
+    margin: 0 8px;
+}
+
+.file-action.merged {
+    background: rgba(76, 175, 80, 0.2);
+    color: #4caf50;
+}
+
+.file-action.replaced {
+    background: rgba(255, 152, 0, 0.2);
+    color: #ff9800;
+}
+
+.file-action.loaded {
+    background: rgba(33, 150, 243, 0.2);
+    color: #2196f3;
+}
+
+.file-time {
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.5);
 }

@@ -7,6 +7,7 @@ class StoryboardManager {
         this.currentScene = null;
         this.currentShot = null;
         this.uploadedFiles = new Map(); // 업로드된 파일 추적
+        this.stage2FileCount = 0;  // Stage2 파일 카운터
         this.init();
     }
 
@@ -23,6 +24,7 @@ class StoryboardManager {
             this.setupFileUpload();
             this.setupDropdowns();
             this.setupJSONUpload();
+            this.setupMergeOptions();  // 병합 옵션 설정
             this.loadFromLocalStorage();
             this.checkInitialData();
             this.setupMessageListener();
@@ -40,6 +42,33 @@ class StoryboardManager {
                 this.closeShotDetailModal();
             }
         });
+    }
+
+    // 병합 옵션 UI 설정
+    setupMergeOptions() {
+        const mergeRadios = document.querySelectorAll('input[name="mergeMode"]');
+        const mergeDropdown = document.getElementById('stage2MergeMode');
+        const mergeOptions = document.getElementById('mergeOptions');
+        const fileHistory = document.getElementById('fileHistory');
+
+        // Radio 버튼과 dropdown 동기화
+        mergeRadios.forEach(radio => {
+            radio.addEventListener('change', (e) => {
+                if (mergeDropdown) {
+                    mergeDropdown.value = e.target.value;
+                }
+            });
+        });
+
+        // Dropdown 변경 시 radio 버튼도 업데이트
+        if (mergeDropdown) {
+            mergeDropdown.addEventListener('change', (e) => {
+                const radio = document.querySelector(`input[name="mergeMode"][value="${e.target.value}"]`);
+                if (radio) {
+                    radio.checked = true;
+                }
+            });
+        }
     }
 
     setupFileUpload() {
@@ -136,12 +165,94 @@ class StoryboardManager {
             return;
         }
 
-        // 일반 파일 처리
-        this.uploadedFiles.set(fileType, data);
+        // Stage2 파일 병합 처리
+        if (fileType === 'stage2') {
+            // Stage2 파일이 업로드되면 병합 옵션 표시
+            const mergeOptions = document.getElementById('mergeOptions');
+            const fileHistory = document.getElementById('fileHistory');
+            if (mergeOptions) mergeOptions.style.display = 'block';
+            if (fileHistory) fileHistory.style.display = 'block';
+
+            // 병합 모드 확인 - 기존 데이터가 있으면 항상 병합
+            const hasExistingStage2 = this.uploadedFiles.has('stage2');
+            let mergeMode = hasExistingStage2 ? 'merge' : 'replace';
+
+            // 사용자가 명시적으로 선택한 경우에만 오버라이드
+            const checkedRadio = document.querySelector('input[name="mergeMode"]:checked');
+            if (checkedRadio && checkedRadio.value === 'replace') {
+                mergeMode = 'replace';
+            }
+
+            console.log(`🎬 Stage2 처리 모드: ${mergeMode} (기존 데이터: ${hasExistingStage2 ? '있음' : '없음'})`);
+
+            if (!hasExistingStage2 || mergeMode === 'replace') {
+                // 첫 파일이거나 교체 모드인 경우
+                console.log('📝 Stage2 파일 새로 설정 중...');
+
+                // stage2Parser 사용하여 데이터 초기화
+                if (window.stage2Parser) {
+                    window.stage2Parser.clearAllData();
+                    window.stage2Parser.data = data;
+                    window.stage2Parser.parseData();
+                    this.uploadedFiles.set('stage2', data);
+                }
+
+                this.updateFileHistory(filename, 'loaded');
+            } else {
+                // 병합 모드인 경우
+                console.log('🔄 Stage2 파일 병합 모드로 처리 중...');
+
+                // stage2Parser를 사용하여 병합
+                if (window.stage2Parser) {
+                    // File 객체 생성하여 병합
+                    const file = new File([JSON.stringify(data)], filename, { type: 'application/json' });
+                    await window.stage2Parser.mergeJSON(file);
+
+                    // 병합된 데이터로 업데이트
+                    const mergedData = window.stage2Parser.data;
+                    this.uploadedFiles.set('stage2', mergedData);
+
+                    this.updateFileHistory(filename, 'merged');
+                }
+
+                this.showNotification(`${filename}이 기존 Stage2 데이터와 병합되었습니다.`, 'success');
+            }
+        } else {
+            // 다른 파일 타입은 기존 방식대로 처리
+            this.uploadedFiles.set(fileType, data);
+        }
 
         // 자동 병합 시도
         if (this.uploadedFiles.size > 0) {
             await this.autoMergeData();
+        }
+    }
+
+    // 파일 히스토리 업데이트
+    updateFileHistory(filename, action) {
+        const historyList = document.getElementById('fileHistoryList');
+        if (!historyList) return;
+
+        // 액션 텍스트 매핑
+        const actionText = {
+            'merged': '병합됨',
+            'replaced': '교체됨',
+            'loaded': '로드됨'
+        };
+
+        const historyItem = document.createElement('div');
+        historyItem.className = 'file-history-item';
+        historyItem.innerHTML = `
+            <span class="file-name">${filename}</span>
+            <span class="file-action ${action}">${actionText[action] || action}</span>
+            <span class="file-time">${new Date().toLocaleTimeString()}</span>
+        `;
+
+        historyList.insertBefore(historyItem, historyList.firstChild);
+
+        // 최대 10개 항목만 유지
+        while (historyList.children.length > 10) {
+            historyList.removeChild(historyList.lastChild);
         }
     }
 
@@ -280,8 +391,7 @@ class StoryboardManager {
         }
         // stage2 타입 감지
         else if (data.scenes && Array.isArray(data.scenes)) {
-            // Stage 2 파일이 업로드되면 파싱하여 저장
-            this.parseStage2Data(data);
+            // Stage 2 파일임을 감지만 하고 파싱은 나중에
             return 'stage2';
         }
         // 기본 스토리보드 타입
@@ -331,33 +441,46 @@ class StoryboardManager {
         }
     }
 
-    // Stage 2 데이터 파싱
-    parseStage2Data(data) {
-        console.log('🎬 Stage2 JSON 파싱 시작:', data.film_id);
+    // Stage 2 데이터 파싱 (병합 모드 지원)
+    parseStage2Data(data, mergeMode = 'replace') {
+        console.log('🎬 Stage2 JSON 파싱 시작:', data.film_id, `(${mergeMode} 모드)`);
 
         // Stage2 파서 초기화 및 파싱
         if (window.stage2Parser) {
-            window.stage2Parser.data = data;
-            window.stage2Parser.parseData();
+            if (mergeMode === 'replace') {
+                // 기존 방식: 전체 교체
+                window.stage2Parser.clearAllData(); // 기존 데이터 초기화
+                window.stage2Parser.data = data;
+                window.stage2Parser.parseData();
 
-            // 파싱된 데이터를 세션 스토리지에 저장
-            const stage2CacheData = {
-                data: data,
-                shotsMap: Array.from(window.stage2Parser.shotsMap.entries()),
-                scenesMap: Array.from(window.stage2Parser.scenesMap.entries()),
-                timestamp: Date.now(),
-                filmId: data.film_id || 'unknown'
-            };
-            sessionStorage.setItem('stage2ParsedData', JSON.stringify(stage2CacheData));
+                // 세션 스토리지에 저장
+                const cacheData = {
+                    data: data,
+                    timestamp: Date.now(),
+                    filmId: data.film_id || 'unknown'
+                };
+                sessionStorage.setItem('stage2ParsedData', JSON.stringify(cacheData));
+                console.log('💾 Stage2 데이터 저장됨');
 
-            // localStorage에도 백업 저장
-            localStorage.setItem('stage2ParsedData_backup', JSON.stringify(stage2CacheData));
-            console.log('✅ Stage2 데이터가 localStorage에 백업되었습니다.');
+            } else if (mergeMode === 'merge') {
+                // 새로운 방식: 기존 데이터와 병합
+                // mergeJSON은 비동기 함수이므로 Promise 처리 필요
+                const file = new File([JSON.stringify(data)], 'temp.json', { type: 'application/json' });
+                return window.stage2Parser.mergeJSON(file).then(result => {
+                    console.log('병합 결과:', result);
 
-            console.log('✅ Stage2 데이터 파싱 완료:', {
-                scenes: window.stage2Parser.scenesMap.size,
-                shots: window.stage2Parser.shotsMap.size
-            });
+                    // 병합 후 세션 스토리지 업데이트
+                    const cacheData = {
+                        data: window.stage2Parser.data,
+                        timestamp: Date.now(),
+                        filmId: window.stage2Parser.data.film_id || 'unknown'
+                    };
+                    sessionStorage.setItem('stage2ParsedData', JSON.stringify(cacheData));
+                    console.log('💾 병합된 Stage2 데이터 저장됨');
+
+                    return result;
+                });
+            }
 
             // 연출 블록 자동 매핑 활성화 (shot-detail 모달에서 사용)
             this.enableStage2AutoMapping();
@@ -368,7 +491,7 @@ class StoryboardManager {
             // Stage2 파서 스크립트 동적 로드 시도
             this.loadStage2Parser().then(() => {
                 console.log('🔄 Stage2 파서 동적 로드 완료, 재시도 중...');
-                setTimeout(() => this.parseStage2Data(data), 500);
+                setTimeout(() => this.parseStage2Data(data, mergeMode), 500);
             }).catch(error => {
                 console.error('❌ Stage2 파서 로드 실패:', error);
             });
@@ -487,6 +610,15 @@ class StoryboardManager {
         }
 
         if (this.mergedData) {
+            // 병합된 데이터의 씬을 정렬
+            if (this.mergedData.scenes && Array.isArray(this.mergedData.scenes)) {
+                this.mergedData.scenes.sort((a, b) => {
+                    const numA = parseInt(a.scene_id.replace(/^S/, ''));
+                    const numB = parseInt(b.scene_id.replace(/^S/, ''));
+                    return numA - numB;
+                });
+            }
+
             this.storyboardData = this.mergedData;
 
             // 병합된 데이터에 Stage 1이 포함되어 있으면 파싱하여 저장
@@ -509,10 +641,58 @@ class StoryboardManager {
     mergeStage1WithStage2(stage1, stage2) {
         console.log('Merging stage1 with stage2 data...');
 
-        // stage1에서 기본 구조 가져오기
+        // 이미 병합된 데이터가 있으면 기존 구조 유지하면서 업데이트
+        if (this.mergedData && this.mergedData.scenes) {
+            console.log('기존 병합 데이터에 Stage2 추가 중...');
+
+            // Stage2의 새로운 씬들만 추가
+            stage2.scenes.forEach(s2Scene => {
+                const existingSceneIndex = this.mergedData.scenes.findIndex(s =>
+                    s.scene_id === s2Scene.scene_id
+                );
+
+                if (existingSceneIndex >= 0) {
+                    // 기존 씬이 있으면 shots만 업데이트 (Stage2가 더 상세함)
+                    const existingScene = this.mergedData.scenes[existingSceneIndex];
+
+                    // Stage2의 shots로 교체 (더 상세한 정보)
+                    if (s2Scene.shots && s2Scene.shots.length > 0) {
+                        existingScene.shots = s2Scene.shots;
+                        existingScene.concept_art_references = s2Scene.concept_art_references || existingScene.concept_art_references;
+                    }
+                } else {
+                    // 새로운 씬 추가
+                    const matchingStage1Scene = stage1.current_work?.scenario?.scenes?.find(s1 =>
+                        s1.scene_id === s2Scene.scene_id ||
+                        s1.scene_number === parseInt(s2Scene.scene_id.replace('S', ''))
+                    );
+
+                    this.mergedData.scenes.push({
+                        ...s2Scene,
+                        sequence_id: matchingStage1Scene?.sequence_id || null,
+                        scenario_text: matchingStage1Scene?.scenario_text || s2Scene.scene_scenario,
+                        stage1_data: matchingStage1Scene || null
+                    });
+                }
+            });
+
+            // 씬 정렬
+            this.mergedData.scenes.sort((a, b) => {
+                const numA = parseInt(a.scene_id.replace(/^S/, ''));
+                const numB = parseInt(b.scene_id.replace(/^S/, ''));
+                return numA - numB;
+            });
+
+            return this.mergedData;
+        }
+
+        // 첫 병합인 경우 새로운 구조 생성
         const merged = {
             // 메타데이터는 stage1에서
             film_metadata: stage1.film_metadata || {},
+            film_id: stage1.film_id || stage2.film_id || "",
+            current_step: stage2.current_step || stage1.current_step || "",
+            timestamp: new Date().toISOString(),
             treatment: stage1.current_work?.treatment || {},
 
             // Stage 1의 visual_blocks 데이터 보존
@@ -528,57 +708,39 @@ class StoryboardManager {
         // stage1의 scenario.scenes를 기반으로 초기 구조 생성
         const stage1Scenes = stage1.current_work?.scenario?.scenes || [];
 
+        // Stage2가 없을 때를 위한 기본 씬 처리
+        if (!stage2.scenes || !Array.isArray(stage2.scenes) || stage2.scenes.length === 0) {
+            // Stage1만으로 씬과 샷 구성
+            return this.processStage1Data(stage1);
+        }
+
         // stage2의 상세 정보를 병합
-        if (stage2.scenes && Array.isArray(stage2.scenes)) {
-            stage2.scenes.forEach(s2Scene => {
-                // stage1에서 매칭되는 scene 찾기
-                const matchingStage1Scene = stage1Scenes.find(s1 =>
-                    s1.scene_id === s2Scene.scene_id ||
-                    s1.scene_number === parseInt(s2Scene.scene_id.replace('S', ''))
-                );
+        stage2.scenes.forEach(s2Scene => {
+            // stage1에서 매칭되는 scene 찾기
+            const matchingStage1Scene = stage1Scenes.find(s1 =>
+                s1.scene_id === s2Scene.scene_id ||
+                s1.scene_number === parseInt(s2Scene.scene_id.replace('S', ''))
+            );
 
-                // sequence_id 찾기
-                let sequenceId = matchingStage1Scene?.sequence_id || null;
+            // sequence_id 찾기
+            let sequenceId = matchingStage1Scene?.sequence_id || null;
 
-                merged.scenes.push({
-                    ...s2Scene,
-                    sequence_id: sequenceId,
-                    scenario_text: matchingStage1Scene?.scenario_text || s2Scene.scene_scenario,
-                    stage1_data: matchingStage1Scene || null
-                });
+            merged.scenes.push({
+                ...s2Scene,
+                sequence_id: sequenceId,
+                scenario_text: matchingStage1Scene?.scenario_text || s2Scene.scene_scenario,
+                stage1_data: matchingStage1Scene || null
             });
+        });
 
-            // stage2에 없는 stage1 scene들도 추가 (scene을 shot처럼 표시)
-            stage1Scenes.forEach(s1Scene => {
-                const existsInStage2 = stage2.scenes.some(s2 =>
-                    s2.scene_id === s1Scene.scene_id ||
-                    s1Scene.scene_number === parseInt(s2.scene_id.replace('S', ''))
-                );
+        // stage2에 없는 stage1 scene들도 추가 (scene을 shot처럼 표시)
+        stage1Scenes.forEach(s1Scene => {
+            const existsInStage2 = stage2.scenes.some(s2 =>
+                s2.scene_id === s1Scene.scene_id ||
+                s1Scene.scene_number === parseInt(s2.scene_id.replace('S', ''))
+            );
 
-                if (!existsInStage2) {
-                    const sceneAsShot = {
-                        shot_id: s1Scene.scene_id,
-                        shot_type: 'scene',
-                        shot_text: s1Scene.scenario_text,
-                        shot_summary: s1Scene.scenario_text?.split('\n')[0] || `Scene ${s1Scene.scene_number}`,
-                        camera_movement: {
-                            type: 'establishing',
-                            duration: 'N/A'
-                        }
-                    };
-
-                    merged.scenes.push({
-                        scene_id: s1Scene.scene_id,
-                        scene_title: s1Scene.scenario_text?.split('\n')[0] || `Scene ${s1Scene.scene_number}`,
-                        scene_scenario: s1Scene.scenario_text,
-                        sequence_id: s1Scene.sequence_id,
-                        shots: [sceneAsShot]
-                    });
-                }
-            });
-        } else {
-            // stage2가 없으면 stage1의 scenes를 shot처럼 표시
-            stage1Scenes.forEach(s1Scene => {
+            if (!existsInStage2) {
                 const sceneAsShot = {
                     shot_id: s1Scene.scene_id,
                     shot_type: 'scene',
@@ -597,8 +759,16 @@ class StoryboardManager {
                     sequence_id: s1Scene.sequence_id,
                     shots: [sceneAsShot]
                 });
-            });
-        }
+            }
+        });
+
+        // 씬을 scene_id 기준으로 정렬 (S01, S02, ... S10)
+        merged.scenes.sort((a, b) => {
+            // scene_id에서 숫자 추출 (S01 -> 1, S10 -> 10)
+            const numA = parseInt(a.scene_id.replace(/^S/, ''));
+            const numB = parseInt(b.scene_id.replace(/^S/, ''));
+            return numA - numB;
+        });
 
         return merged;
     }
@@ -719,16 +889,51 @@ class StoryboardManager {
         const scenes = [];
         const stage1Scenes = stage1.current_work?.scenario?.scenes || [];
 
+        // 시퀀스별로 씬 그룹화
+        const scenesBySequence = {};
         stage1Scenes.forEach(scene => {
-            // stage1의 각 scene을 하나의 shot처럼 처리
-            const sceneAsShot = {
-                shot_id: scene.scene_id,
-                shot_type: 'scene',
+            const seqId = scene.sequence_id || 'SEQ1';
+            if (!scenesBySequence[seqId]) {
+                scenesBySequence[seqId] = [];
+            }
+            scenesBySequence[seqId].push(scene);
+        });
+
+        stage1Scenes.forEach(scene => {
+            // 씬에서 캐릭터 추출
+            const characters = this.extractCharactersFromScenario(scene.scenario_text);
+            const location = this.extractLocationFromScene(scene.scenario_text);
+
+            // shot_id 형식: S{씬번호}.01.01
+            // 각 씬마다 기본적으로 01.01 샷을 생성
+            const shotId = `${scene.scene_id}.01.01`;
+
+            // stage1의 각 scene에 대해 기본 shot 생성
+            const defaultShot = {
+                shot_id: shotId,
+                shot_type: 'regular',
                 shot_text: scene.scenario_text,
                 shot_summary: scene.scenario_text?.split('\n')[0] || `Scene ${scene.scene_number}`,
+                shot_character: characters,
+                scene: scene.scenario_text?.split('\n')[0] || '',
+                movement_description: {
+                    action: {},
+                    expression: {},
+                    environment_move: "",
+                    mood_emotion: ""
+                },
                 camera_movement: {
-                    type: 'establishing',
-                    duration: 'N/A'
+                    type: 'static',
+                    speed: 'normal',
+                    duration: '5s'
+                },
+                starting_frame: {
+                    environment: scene.scenario_text?.split('\n')[0] || "",
+                    camera_composition: "medium shot, front view, eye level"
+                },
+                ending_frame: {
+                    environment: scene.scenario_text?.split('\n')[0] || "",
+                    camera_composition: "medium shot, front view, eye level"
                 }
             };
 
@@ -737,16 +942,68 @@ class StoryboardManager {
                 scene_title: scene.scenario_text?.split('\n')[0] || `Scene ${scene.scene_number}`,
                 scene_scenario: scene.scenario_text,
                 sequence_id: scene.sequence_id,
-                shots: [sceneAsShot] // scene 자체를 shot으로 추가
+                concept_art_references: {
+                    characters: characters,
+                    location: location,
+                    props: []
+                },
+                shots: [defaultShot] // 기본 shot 포함
             });
+        });
+
+        // 씬을 scene_id 기준으로 정렬 (S01, S02, ... S10)
+        scenes.sort((a, b) => {
+            const numA = parseInt(a.scene_id.replace(/^S/, ''));
+            const numB = parseInt(b.scene_id.replace(/^S/, ''));
+            return numA - numB;
         });
 
         return {
             film_metadata: stage1.film_metadata || {},
+            film_id: stage1.film_id || "",
+            current_step: stage1.current_step || "",
+            timestamp: stage1.timestamp || new Date().toISOString(),
             treatment: stage1.current_work?.treatment || {},
             visual_blocks: stage1.visual_blocks || {},
+            stage1_original: stage1,
             scenes: scenes
         };
+    }
+
+    // 시나리오 텍스트에서 캐릭터 추출
+    extractCharactersFromScenario(scenarioText) {
+        if (!scenarioText) return [];
+
+        const characters = [];
+        // 하준, 만수, 종구 캐릭터 찾기
+        if (scenarioText.includes('하준')) characters.push('Hajun');
+        if (scenarioText.includes('만수')) characters.push('Mansu');
+        if (scenarioText.includes('종구')) characters.push('Jonggu');
+
+        return characters;
+    }
+
+    // 씬 텍스트에서 로케이션 추출
+    extractLocationFromScene(sceneText) {
+        if (!sceneText) return "";
+
+        const firstLine = sceneText.split('\n')[0];
+        // INT./EXT. 제거하고 위치 추출
+        const location = firstLine.replace(/^(INT\.|EXT\.)\s*/i, '')
+                                  .replace(/\s*-\s*.*$/, '') // 시간 정보 제거
+                                  .trim();
+
+        // 로케이션 매핑
+        const locationMap = {
+            '하준의 주방': 'HajunsKitchen',
+            '만수의 거실': 'MansusLivingRoom',
+            '종구의 거실': 'JonggusLivingRoom',
+            '아파트 복도': 'ApartmentCorridor',
+            '만수의 집 현관': 'MansusEntrance',
+            '하준의 차 안': 'HajunsCar'
+        };
+
+        return locationMap[location] || location.replace(/\s+/g, '');
     }
 
     mergeConceptArtWithStage2(conceptArt, stage2) {
@@ -797,19 +1054,70 @@ class StoryboardManager {
         // stage2 데이터만 있을 때 기본 구조 생성
         console.log('Processing Stage2 data:', data);
 
+        // 이미 병합된 데이터가 있으면 기존 구조에 Stage2만 추가
+        if (this.mergedData && this.mergedData.scenes) {
+            console.log('기존 병합 데이터에 Stage2 씬 추가 중...');
+
+            data.scenes.forEach(s2Scene => {
+                const existingSceneIndex = this.mergedData.scenes.findIndex(s =>
+                    s.scene_id === s2Scene.scene_id
+                );
+
+                if (existingSceneIndex >= 0) {
+                    // 기존 씬이 있으면 shots 업데이트
+                    const existingScene = this.mergedData.scenes[existingSceneIndex];
+                    if (s2Scene.shots && s2Scene.shots.length > 0) {
+                        // Stage2의 샷으로 완전 교체
+                        existingScene.shots = s2Scene.shots;
+                        existingScene.concept_art_references = s2Scene.concept_art_references || existingScene.concept_art_references;
+                        existingScene.scene_title = s2Scene.scene_title || existingScene.scene_title;
+                        existingScene.scene_scenario = s2Scene.scene_scenario || existingScene.scene_scenario;
+                    }
+                } else {
+                    // 새로운 씬 추가 (S06~S10 등)
+                    this.mergedData.scenes.push({
+                        ...s2Scene,
+                        sequence_id: null, // Stage1 정보가 없으므로
+                        scenario_text: s2Scene.scene_scenario,
+                        stage1_data: null
+                    });
+                }
+            });
+
+            // 씬 정렬
+            this.mergedData.scenes.sort((a, b) => {
+                const numA = parseInt(a.scene_id.replace(/^S/, ''));
+                const numB = parseInt(b.scene_id.replace(/^S/, ''));
+                return numA - numB;
+            });
+
+            return this.mergedData;
+        }
+
+        // 첫 Stage2 처리 (mergedData가 없는 경우)
         // 각 scene의 concept_art_references 확인
         if (data.scenes) {
             data.scenes.forEach((scene, index) => {
                 console.log(`Scene ${index + 1} (${scene.scene_id}):`, scene.concept_art_references);
             });
+
+            // 씬을 scene_id 기준으로 정렬
+            data.scenes.sort((a, b) => {
+                const numA = parseInt(a.scene_id.replace(/^S/, ''));
+                const numB = parseInt(b.scene_id.replace(/^S/, ''));
+                return numA - numB;
+            });
         }
 
         return {
-            film_metadata: {
+            film_metadata: data.film_metadata || {
                 title_working: "제목 없음",
                 genre: "미정",
                 duration: "미정"
             },
+            film_id: data.film_id || "",
+            current_step: data.current_step || "",
+            timestamp: data.timestamp || new Date().toISOString(),
             scenes: data.scenes || []
         };
     }
@@ -1038,7 +1346,24 @@ class StoryboardManager {
         const needsToggle = fullDescription.length > 20;
 
         sceneHeader.innerHTML = `
-            <h2 class="scene-title">${scene.scene_id}: ${scene.scene_title}${sequenceInfo}</h2>
+            <div class="scene-header-content">
+                <h2 class="scene-title">${scene.scene_id}: ${scene.scene_title}${sequenceInfo}</h2>
+                <button class="add-shot-btn" data-scene-id="${scene.scene_id}" data-sequence-id="${scene.sequence_id || ''}"
+                        style="
+                            padding: 6px 12px;
+                            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                            color: white;
+                            border: none;
+                            border-radius: 6px;
+                            cursor: pointer;
+                            font-size: 14px;
+                            transition: all 0.3s;
+                        "
+                        onmouseover="this.style.transform='scale(1.05)'"
+                        onmouseout="this.style.transform='scale(1)'">
+                    + 샷 추가
+                </button>
+            </div>
             <div class="scene-description-wrapper">
                 <p class="scene-description ${needsToggle ? 'collapsed' : ''}" data-full="${fullDescription.replace(/"/g, '&quot;')}">
                     ${needsToggle ? shortDescription + '...' : fullDescription}
@@ -1054,6 +1379,14 @@ class StoryboardManager {
             </div>
         `;
         sceneSection.appendChild(sceneHeader);
+
+        // 샷 추가 버튼에 이벤트 리스너 추가
+        const addShotBtn = sceneHeader.querySelector('.add-shot-btn');
+        if (addShotBtn) {
+            addShotBtn.addEventListener('click', () => {
+                this.addNewShot(scene);
+            });
+        }
 
         // Shots grid
         const shotsGrid = document.createElement('div');
@@ -1410,8 +1743,165 @@ class StoryboardManager {
         });
     }
 
+    addNewShot(scene) {
+        // 씬에 샷이 없으면 초기화
+        if (!scene.shots) {
+            scene.shots = [];
+        }
+
+        // 기존 샷들의 번호를 분석하여 다음 번호 결정
+        let maxMainNum = 1;
+        let maxSubNum = 1;
+
+        scene.shots.forEach(shot => {
+            const parts = shot.shot_id.split('.');
+            if (parts.length === 3) {
+                const mainNum = parseInt(parts[1]);
+                const subNum = parseInt(parts[2]);
+
+                if (mainNum > maxMainNum) {
+                    maxMainNum = mainNum;
+                    maxSubNum = subNum;
+                } else if (mainNum === maxMainNum && subNum >= maxSubNum) {
+                    maxSubNum = subNum + 1;
+                }
+            }
+        });
+
+        // 새 샷 ID 생성: S{씬번호}.01.{샷번호}
+        // 추가 샷은 S01.01.02, S01.01.03 형식으로 생성
+        const newShotId = `${scene.scene_id}.${String(maxMainNum).padStart(2, '0')}.${String(maxSubNum).padStart(2, '0')}`;
+
+        // 새 샷 생성
+        const newShot = {
+            shot_id: newShotId,
+            shot_type: 'regular',
+            shot_text: '',
+            shot_summary: `새 샷 ${nextShotNum}`,
+            shot_character: [],
+            scene: scene.scene_title || '',
+            movement_description: {
+                action: {},
+                expression: {},
+                environment_move: "",
+                mood_emotion: ""
+            },
+            camera_movement: {
+                type: 'static',
+                speed: 'normal',
+                duration: '5s'
+            },
+            starting_frame: {
+                environment: "",
+                camera_composition: "medium shot, front view, eye level"
+            },
+            ending_frame: {
+                environment: "",
+                camera_composition: "medium shot, front view, eye level"
+            },
+            concept_art_references: scene.concept_art_references || {
+                characters: [],
+                location: '',
+                props: []
+            },
+            created_at: new Date().toISOString()
+        };
+
+        // 씬에 새 샷 추가
+        scene.shots.push(newShot);
+
+        // 샷 번호순으로 정렬
+        scene.shots.sort((a, b) => {
+            const aParts = a.shot_id.split('.').map(p => parseInt(p.replace(/\D/g, '')) || 0);
+            const bParts = b.shot_id.split('.').map(p => parseInt(p.replace(/\D/g, '')) || 0);
+
+            for (let i = 0; i < 3; i++) {
+                if (aParts[i] !== bParts[i]) {
+                    return aParts[i] - bParts[i];
+                }
+            }
+            return 0;
+        });
+
+        // 저장 및 UI 업데이트
+        this.saveToLocalStorage();
+        this.renderStoryboard();
+        this.showNotification(`샷 ${newShotId}이(가) 추가되었습니다.`, 'success');
+
+        // 새로 추가된 샷 편집 모드로 열기
+        setTimeout(() => {
+            this.editShotBlock(newShot);
+        }, 500);
+    }
+
     duplicateShot(shot) {
-        this.showNotification('샷 복제 기능은 준비 중입니다.', 'info');
+        // 현재 씬에서 샷 찾기
+        const scene = this.storyboardData.scenes.find(s =>
+            s.shots && s.shots.find(sh => sh.shot_id === shot.shot_id)
+        );
+
+        if (!scene) {
+            this.showNotification('샷이 속한 씬을 찾을 수 없습니다.', 'error');
+            return;
+        }
+
+        // shot_id 형식 파싱: S01.01.01 -> [S01, 01, 01]
+        const shotIdParts = shot.shot_id.split('.');
+        if (shotIdParts.length !== 3) {
+            this.showNotification('잘못된 샷 ID 형식입니다.', 'error');
+            return;
+        }
+
+        // 같은 씬과 시퀀스 내의 모든 샷 찾기
+        const basePattern = `${shotIdParts[0]}.${shotIdParts[1]}`;
+        const existingShots = scene.shots.filter(s =>
+            s.shot_id.startsWith(basePattern)
+        );
+
+        // 다음 샷 번호 계산
+        let nextShotNum = 1;
+        existingShots.forEach(s => {
+            const parts = s.shot_id.split('.');
+            if (parts.length === 3) {
+                const num = parseInt(parts[2]);
+                if (num >= nextShotNum) {
+                    nextShotNum = num + 1;
+                }
+            }
+        });
+
+        // 새 샷 ID 생성
+        const newShotId = `${basePattern}.${String(nextShotNum).padStart(2, '0')}`;
+
+        // 샷 복제
+        const newShot = {
+            ...shot,
+            shot_id: newShotId,
+            shot_summary: `${shot.shot_summary} (복제)`,
+            // 고유 ID를 위한 타임스탬프 추가
+            created_at: new Date().toISOString()
+        };
+
+        // 씬에 새 샷 추가
+        scene.shots.push(newShot);
+
+        // 샷 번호순으로 정렬
+        scene.shots.sort((a, b) => {
+            const aParts = a.shot_id.split('.').map(p => parseInt(p.replace(/\D/g, '')) || 0);
+            const bParts = b.shot_id.split('.').map(p => parseInt(p.replace(/\D/g, '')) || 0);
+
+            for (let i = 0; i < 3; i++) {
+                if (aParts[i] !== bParts[i]) {
+                    return aParts[i] - bParts[i];
+                }
+            }
+            return 0;
+        });
+
+        // 저장 및 UI 업데이트
+        this.saveToLocalStorage();
+        this.renderStoryboard();
+        this.showNotification(`샷 ${newShotId}이(가) 추가되었습니다.`, 'success');
     }
 
     deleteShot(shot) {
