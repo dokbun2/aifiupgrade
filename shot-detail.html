@@ -15,7 +15,30 @@
                 <h2 class="modal-title">블록 수정 및 샷 이미지 생성</h2>
             </div>
             <div class="header-right">
-                <button class="close-btn" onclick="closeShotDetail()">✕</button>
+                <button class="close-btn" onclick="closeShotDetailModal()">✕</button>
+                <script>
+                    // 즉시 사용 가능한 close 함수
+                    function closeShotDetailModal() {
+                        console.log('closeShotDetailModal called');
+                        // iframe 내부에서 실행되는지 확인
+                        if (window.parent !== window) {
+                            try {
+                                // postMessage로 부모에게 알림
+                                window.parent.postMessage({ type: 'closeShotDetail' }, '*');
+                                console.log('Sent close message to parent');
+                            } catch (error) {
+                                console.error('Failed to close modal:', error);
+                            }
+                        } else {
+                            // iframe이 아닌 경우 뒤로가기
+                            if (window.history.length > 1) {
+                                window.history.back();
+                            } else {
+                                window.location.href = '../storyboard/index.html';
+                            }
+                        }
+                    }
+                </script>
             </div>
         </div>
 

@@ -7,16 +7,35 @@ export const imageUploadManager = {
     isInitialized: false,
     currentShotId: null,
 
-    init() {
-        // 샷 ID 확인
+    init(forceShotId = null) {
+        // 샷 ID 확인 - forceShotId가 있으면 우선 사용, 없으면 URL에서 가져오기
+        const urlParams = new URLSearchParams(window.location.search);
+        const urlShotId = urlParams.get('shotId');
         const shotIdElement = document.querySelector('.shot-id');
-        const newShotId = shotIdElement?.textContent.trim();
+        const elementShotId = shotIdElement?.textContent.trim();
 
-        // 샷이 변경되었으면 이미지 배열 초기화하고 새로 로드
+        const newShotId = forceShotId || urlShotId || elementShotId;
+
+        console.log(`📸 Image Upload Manager init 호출`);
+        console.log(`  - Force Shot ID: ${forceShotId}`);
+        console.log(`  - URL Shot ID: ${urlShotId}`);
+        console.log(`  - Element Shot ID: ${elementShotId}`);
+        console.log(`  - 최종 선택된 Shot ID: ${newShotId}`);
+        console.log(`  - 현재 저장된 Shot ID: ${this.currentShotId}`);
+
+        // 샷이 변경되었으면 이미지 배열 완전히 초기화하고 새로 로드
         if (this.currentShotId !== newShotId) {
             console.log(`🔄 샷 변경 감지: ${this.currentShotId} → ${newShotId}`);
+
+            // 완전히 초기화
             this.uploadedImages = [];
             this.currentShotId = newShotId;
+
+            // 화면 먼저 초기화
+            this.renderImages();
+
+            // 새 샷의 이미지를 즉시 로드
+            this.loadFromStorage();
         }
 
         // 이벤트 리스너는 한 번만 등록
@@ -58,8 +77,10 @@ export const imageUploadManager = {
             }
         }
 
-        // 저장된 이미지 로드 (샷별로)
-        this.loadFromStorage();
+        // 이벤트 리스너 등록 후에만 저장된 이미지 로드 (샷이 변경되지 않은 경우)
+        if (this.currentShotId === newShotId && this.uploadedImages.length === 0) {
+            this.loadFromStorage();
+        }
     },
 
     // localStorage에서 이미지 로드
@@ -69,17 +90,24 @@ export const imageUploadManager = {
                 const storageKey = `uploadedImages_${this.currentShotId}`;
                 const savedData = localStorage.getItem(storageKey);
 
+                console.log(`🔍 이미지 로드 시도 - 샷 ID: ${this.currentShotId}, 스토리지 키: ${storageKey}`);
+
                 if (savedData) {
-                    this.uploadedImages = JSON.parse(savedData);
-                    console.log(`✅ 저장된 이미지 로드: ${this.uploadedImages.length}개 (${this.currentShotId})`);
+                    const parsed = JSON.parse(savedData);
+                    this.uploadedImages = parsed;
+                    console.log(`✅ 저장된 이미지 로드 성공: ${this.uploadedImages.length}개 (${this.currentShotId})`, this.uploadedImages);
                 } else {
                     this.uploadedImages = [];
                     console.log(`📭 저장된 이미지 없음 (${this.currentShotId})`);
                 }
                 this.renderImages();
+            } else {
+                console.warn(`⚠️ 샷 ID가 없어서 이미지를 로드할 수 없습니다.`);
             }
         } catch (error) {
             console.error('❌ 이미지 로드 실패:', error);
+            this.uploadedImages = [];
+            this.renderImages();
         }
     },
 
@@ -89,7 +117,9 @@ export const imageUploadManager = {
             if (this.currentShotId) {
                 const storageKey = `uploadedImages_${this.currentShotId}`;
                 localStorage.setItem(storageKey, JSON.stringify(this.uploadedImages));
-                console.log(`💾 이미지 저장됨: ${this.uploadedImages.length}개 (${this.currentShotId})`);
+                console.log(`💾 이미지 저장됨: ${this.uploadedImages.length}개 (샷: ${this.currentShotId}, 키: ${storageKey})`);
+            } else {
+                console.warn(`⚠️ 샷 ID가 없어서 이미지를 저장할 수 없습니다.`);
             }
         } catch (error) {
             console.error('❌ 이미지 저장 실패:', error);
@@ -146,9 +176,15 @@ export const imageUploadManager = {
 
     renderImages() {
         const grid = document.getElementById('imagePreviewGrid');
-        if (!grid) return;
+        if (!grid) {
+            console.warn('⚠️ imagePreviewGrid 요소를 찾을 수 없습니다.');
+            return;
+        }
 
+        // 완전히 초기화
         grid.innerHTML = '';
+
+        console.log(`🎨 이미지 렌더링 - 샷 ID: ${this.currentShotId}, 이미지 수: ${this.uploadedImages.length}`);
 
         this.uploadedImages.forEach((image, index) => {
             const item = document.createElement('div');

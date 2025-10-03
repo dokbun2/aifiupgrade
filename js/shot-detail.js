@@ -156,7 +156,13 @@ document.addEventListener('DOMContentLoaded', function() {
         });
         initializeFormEvents();
         loadShotData();
-        imageUploadManager.init();
+
+        // 현재 샷 ID를 가져와서 imageUploadManager 초기화
+        const urlParams1 = new URLSearchParams(window.location.search);
+        const currentShotId = urlParams1.get('shotId') || document.querySelector('.shot-id')?.textContent;
+        console.log(`🎬 Shot Detail 초기화 - Shot ID: ${currentShotId}`);
+
+        imageUploadManager.init(currentShotId);
         promptManager.init(); // ⚡ 즉시 실행 필요 (generateAllTabPrompts 호출 전)
 
         // ⏰ 우선순위 낮음: 브라우저 한가할 때 실행 (UI 개선용)
@@ -233,8 +239,8 @@ document.addEventListener('DOMContentLoaded', function() {
         loadCachedFilmMetadata();
 
         // URL에서 shotId 추출하여 즉시 헤더 업데이트
-        const urlParams = new URLSearchParams(window.location.search);
-        const shotId = urlParams.get('shotId');
+        const urlParams2 = new URLSearchParams(window.location.search);
+        const shotId = urlParams2.get('shotId');
         if (shotId) {
             console.log('🎯 URL에서 추출한 Shot ID:', shotId);
 
