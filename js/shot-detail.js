@@ -3423,6 +3423,19 @@ window.downloadGeneratedImage = async function() {
     }
 };
 
+// 업로드된 이미지 뷰어 함수
+window.openUploadedImageViewer = function(imageUrl, imageName, imageId) {
+    const modal = document.getElementById('imageViewerModal');
+    const modalImg = document.getElementById('modalImage');
+
+    if (modal && modalImg) {
+        modalImg.src = imageUrl;
+        modalImg.setAttribute('data-image-name', imageName);
+        modalImg.setAttribute('data-image-id', imageId);
+        modal.style.display = 'flex';
+    }
+};
+
 // ========================================
 // 프롬프트 저장 관리
 // ========================================
