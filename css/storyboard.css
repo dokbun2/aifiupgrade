@@ -385,6 +385,37 @@
     border-color: rgba(255, 107, 107, 0.4);
 }
 
+/* Delete tag special style */
+.card-tag:nth-child(4) {
+    background: rgba(239, 68, 68, 0.08);
+    border-color: rgba(239, 68, 68, 0.2);
+    color: #ef4444;
+}
+
+.card-tag:nth-child(4):hover {
+    background: rgba(239, 68, 68, 0.2);
+    border-color: rgba(239, 68, 68, 0.4);
+    color: #fff;
+    font-weight: 600;
+}
+
+/* 삭제 중 카드 애니메이션 */
+.storyboard-card.deleting {
+    animation: fadeOut 0.3s ease forwards;
+    pointer-events: none;
+}
+
+@keyframes fadeOut {
+    0% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    100% {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+}
+
 /* Scene Section */
 .scene-section {
     margin-bottom: 60px;

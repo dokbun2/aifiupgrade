@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>프롬프트 저장 테스트</title>
+    <style>
+        body {
+            font-family: 'Pretendard', -apple-system, sans-serif;
+            padding: 20px;
+            background: #f5f5f5;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: #333;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        button {
+            padding: 10px 20px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #5a6fd8;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        .success {
+            background: #e8f5e9;
+            color: #2e7d32;
+            border-left: 4px solid #4caf50;
+        }
+        .error {
+            background: #ffebee;
+            color: #c62828;
+            border-left: 4px solid #f44336;
+        }
+        .info {
+            background: #e3f2fd;
+            color: #1565c0;
+            border-left: 4px solid #2196f3;
+        }
+        .data-display {
+            background: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            padding: 15px;
+            margin: 10px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        pre {
+            margin: 0;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        .prompt-box {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            padding: 15px;
+            margin: 10px 0;
+            min-height: 100px;
+        }
+        .highlight {
+            background: yellow;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔍 프롬프트 저장 테스트</h1>
+
+    <div class="test-section">
+        <h2>1. 현재 저장된 데이터 확인</h2>
+        <button onclick="checkCurrentData()">localStorage 데이터 확인</button>
+        <button onclick="clearLocalStorage()">localStorage 초기화</button>
+        <div id="currentDataStatus"></div>
+        <div id="currentDataDisplay" class="data-display"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>2. 프롬프트 데이터 분석</h2>
+        <button onclick="analyzePromptData()">프롬프트 데이터 분석</button>
+        <div id="promptAnalysis"></div>
+
+        <h3>Universal 프롬프트:</h3>
+        <div id="universalPrompt" class="prompt-box">-</div>
+
+        <h3>Universal 번역:</h3>
+        <div id="universalTranslated" class="prompt-box">-</div>
+
+        <h3>Voice Style:</h3>
+        <div id="voiceStyle" class="prompt-box">-</div>
+    </div>
+
+    <div class="test-section">
+        <h2>3. 테스트 시나리오</h2>
+        <button onclick="simulateSavePrompt()">프롬프트 저장 시뮬레이션</button>
+        <button onclick="simulateReload()">페이지 새로고침 시뮬레이션</button>
+        <button onclick="compareBeforeAfter()">저장 전후 비교</button>
+        <div id="testResult"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>4. 실시간 모니터링</h2>
+        <button onclick="startMonitoring()">모니터링 시작</button>
+        <button onclick="stopMonitoring()">모니터링 중지</button>
+        <div id="monitorStatus"></div>
+        <div id="monitorLog" class="data-display"></div>
+    </div>
+
+    <script>
+        let monitorInterval = null;
+        let originalData = null;
+
+        // localStorage 데이터 확인
+        function checkCurrentData() {
+            const data = localStorage.getItem('conceptArtData');
+            const status = document.getElementById('currentDataStatus');
+            const display = document.getElementById('currentDataDisplay');
+
+            if (data) {
+                try {
+                    const parsed = JSON.parse(data);
+                    status.innerHTML = `<div class="status success">✅ 데이터 발견 (크기: ${data.length} bytes)</div>`;
+
+                    // 데이터 요약
+                    const summary = {
+                        universal: parsed.universal ? `있음 (${parsed.universal.length}자)` : '없음',
+                        universal_translated: parsed.universal_translated ? `있음 (${parsed.universal_translated.length}자)` : '없음',
+                        voice_style: parsed.voice_style ? '있음' : '없음',
+                        prompts: parsed.prompts ? Object.keys(parsed.prompts).length + '개' : '0개',
+                        characters: parsed.characters?.length || 0,
+                        locations: parsed.locations?.length || 0,
+                        props: parsed.props?.length || 0,
+                        images: parsed.images ? Object.keys(parsed.images).length + '개' : '0개'
+                    };
+
+                    display.innerHTML = `<pre>${JSON.stringify(summary, null, 2)}</pre>`;
+                } catch (e) {
+                    status.innerHTML = `<div class="status error">❌ 파싱 오류: ${e.message}</div>`;
+                    display.innerHTML = '';
+                }
+            } else {
+                status.innerHTML = `<div class="status info">ℹ️ 저장된 데이터 없음</div>`;
+                display.innerHTML = '';
+            }
+        }
+
+        // 프롬프트 데이터 분석
+        function analyzePromptData() {
+            const data = localStorage.getItem('conceptArtData');
+            const analysis = document.getElementById('promptAnalysis');
+
+            if (data) {
+                try {
+                    const parsed = JSON.parse(data);
+
+                    // Universal prompts 표시
+                    document.getElementById('universalPrompt').innerHTML =
+                        parsed.universal ? parsed.universal.replace(/\n/g, '<br>') : '<span style="color: #999;">없음</span>';
+
+                    document.getElementById('universalTranslated').innerHTML =
+                        parsed.universal_translated ? parsed.universal_translated.replace(/\n/g, '<br>') : '<span style="color: #999;">없음</span>';
+
+                    document.getElementById('voiceStyle').innerHTML =
+                        parsed.voice_style ? parsed.voice_style.replace(/\n/g, '<br>') : '<span style="color: #999;">없음</span>';
+
+                    // 프롬프트 분석
+                    let promptCount = 0;
+                    let promptsWithUniversal = 0;
+                    let promptsWithTranslated = 0;
+                    let promptsWithVoice = 0;
+
+                    if (parsed.prompts) {
+                        for (const [key, value] of Object.entries(parsed.prompts)) {
+                            promptCount++;
+                            if (value.universal) promptsWithUniversal++;
+                            if (value.universal_translated) promptsWithTranslated++;
+                            if (value.voice_style) promptsWithVoice++;
+                        }
+                    }
+
+                    analysis.innerHTML = `
+                        <div class="status info">
+                            📊 프롬프트 분석 결과:
+                            <ul>
+                                <li>전체 프롬프트: ${promptCount}개</li>
+                                <li>Universal 프롬프트 있는 항목: ${promptsWithUniversal}개</li>
+                                <li>번역된 프롬프트 있는 항목: ${promptsWithTranslated}개</li>
+                                <li>Voice style 있는 항목: ${promptsWithVoice}개</li>
+                                <li>현재 선택: ${parsed.currentType || '없음'}</li>
+                                <li>현재 캐릭터: ${parsed.currentCharacter || '없음'}</li>
+                                <li>현재 장소: ${parsed.currentLocation || '없음'}</li>
+                                <li>현재 소품: ${parsed.currentProps || '없음'}</li>
+                            </ul>
+                        </div>
+                    `;
+                } catch (e) {
+                    analysis.innerHTML = `<div class="status error">❌ 분석 오류: ${e.message}</div>`;
+                }
+            } else {
+                analysis.innerHTML = `<div class="status info">ℹ️ 분석할 데이터 없음</div>`;
+            }
+        }
+
+        // 프롬프트 저장 시뮬레이션
+        function simulateSavePrompt() {
+            const testPrompt = `테스트 프롬프트 ${Date.now()}
+줄바꿈 테스트
+특수문자 테스트: !@#$%^&*()`;
+
+            const data = localStorage.getItem('conceptArtData');
+            if (data) {
+                try {
+                    const parsed = JSON.parse(data);
+
+                    // 원본 저장
+                    originalData = JSON.parse(JSON.stringify(parsed));
+
+                    // 프롬프트 수정
+                    parsed.universal = testPrompt;
+                    parsed.universal_translated = `번역된 ${testPrompt}`;
+                    parsed.voice_style = `음성 스타일 ${Date.now()}`;
+
+                    // 저장
+                    localStorage.setItem('conceptArtData', JSON.stringify(parsed));
+
+                    document.getElementById('testResult').innerHTML = `
+                        <div class="status success">
+                            ✅ 프롬프트 저장 시뮬레이션 완료
+                            <br>Universal: ${testPrompt.substring(0, 50)}...
+                        </div>
+                    `;
+
+                    // 데이터 다시 확인
+                    analyzePromptData();
+                } catch (e) {
+                    document.getElementById('testResult').innerHTML = `
+                        <div class="status error">❌ 시뮬레이션 오류: ${e.message}</div>
+                    `;
+                }
+            } else {
+                // 새 데이터 생성
+                const newData = {
+                    universal: testPrompt,
+                    universal_translated: `번역된 ${testPrompt}`,
+                    voice_style: `음성 스타일 ${Date.now()}`,
+                    prompts: {},
+                    characters: [],
+                    locations: [],
+                    props: []
+                };
+
+                localStorage.setItem('conceptArtData', JSON.stringify(newData));
+                document.getElementById('testResult').innerHTML = `
+                    <div class="status success">✅ 새 데이터 생성 및 저장 완료</div>
+                `;
+
+                analyzePromptData();
+            }
+        }
+
+        // 페이지 새로고침 시뮬레이션
+        function simulateReload() {
+            const beforeData = localStorage.getItem('conceptArtData');
+
+            // 잠시 후 데이터 다시 로드
+            setTimeout(() => {
+                const afterData = localStorage.getItem('conceptArtData');
+                const result = document.getElementById('testResult');
+
+                if (beforeData === afterData) {
+                    result.innerHTML = `
+                        <div class="status success">✅ 데이터 유지됨 (새로고침 후에도 동일)</div>
+                    `;
+                } else {
+                    result.innerHTML = `
+                        <div class="status error">❌ 데이터 변경됨!</div>
+                    `;
+                }
+
+                checkCurrentData();
+                analyzePromptData();
+            }, 100);
+        }
+
+        // 저장 전후 비교
+        function compareBeforeAfter() {
+            const currentData = localStorage.getItem('conceptArtData');
+            const result = document.getElementById('testResult');
+
+            if (originalData && currentData) {
+                const current = JSON.parse(currentData);
+
+                const comparison = {
+                    universal: {
+                        before: originalData.universal || '없음',
+                        after: current.universal || '없음',
+                        changed: originalData.universal !== current.universal
+                    },
+                    universal_translated: {
+                        before: originalData.universal_translated || '없음',
+                        after: current.universal_translated || '없음',
+                        changed: originalData.universal_translated !== current.universal_translated
+                    },
+                    voice_style: {
+                        before: originalData.voice_style || '없음',
+                        after: current.voice_style || '없음',
+                        changed: originalData.voice_style !== current.voice_style
+                    }
+                };
+
+                let html = '<div class="status info"><h4>비교 결과:</h4><ul>';
+                for (const [key, value] of Object.entries(comparison)) {
+                    const status = value.changed ? '<span class="highlight">변경됨</span>' : '동일';
+                    html += `<li><strong>${key}:</strong> ${status}</li>`;
+                    if (value.changed) {
+                        html += `<ul><li>이전: ${value.before.substring(0, 50)}...</li>`;
+                        html += `<li>이후: ${value.after.substring(0, 50)}...</li></ul>`;
+                    }
+                }
+                html += '</ul></div>';
+
+                result.innerHTML = html;
+            } else {
+                result.innerHTML = `<div class="status info">ℹ️ 비교할 원본 데이터 없음</div>`;
+            }
+        }
+
+        // localStorage 초기화
+        function clearLocalStorage() {
+            if (confirm('정말 localStorage를 초기화하시겠습니까?')) {
+                localStorage.removeItem('conceptArtData');
+                localStorage.removeItem('conceptArtData_backup');
+                sessionStorage.removeItem('conceptArtData');
+
+                document.getElementById('currentDataStatus').innerHTML =
+                    `<div class="status success">✅ localStorage 초기화 완료</div>`;
+                document.getElementById('currentDataDisplay').innerHTML = '';
+
+                analyzePromptData();
+            }
+        }
+
+        // 실시간 모니터링
+        function startMonitoring() {
+            if (monitorInterval) {
+                stopMonitoring();
+            }
+
+            const log = [];
+            let lastData = localStorage.getItem('conceptArtData');
+
+            monitorInterval = setInterval(() => {
+                const currentData = localStorage.getItem('conceptArtData');
+
+                if (currentData !== lastData) {
+                    const timestamp = new Date().toLocaleTimeString();
+                    let changeType = '변경됨';
+
+                    if (!lastData && currentData) changeType = '생성됨';
+                    else if (lastData && !currentData) changeType = '삭제됨';
+
+                    log.unshift(`[${timestamp}] 데이터 ${changeType}`);
+
+                    if (log.length > 20) log.pop();
+
+                    document.getElementById('monitorLog').innerHTML =
+                        `<pre>${log.join('\n')}</pre>`;
+
+                    lastData = currentData;
+
+                    // 자동으로 데이터 분석
+                    analyzePromptData();
+                }
+            }, 1000);
+
+            document.getElementById('monitorStatus').innerHTML =
+                `<div class="status success">🔴 모니터링 중...</div>`;
+        }
+
+        function stopMonitoring() {
+            if (monitorInterval) {
+                clearInterval(monitorInterval);
+                monitorInterval = null;
+                document.getElementById('monitorStatus').innerHTML =
+                    `<div class="status info">⚫ 모니터링 중지됨</div>`;
+            }
+        }
+
+        // Storage 이벤트 리스너
+        window.addEventListener('storage', (e) => {
+            if (e.key === 'conceptArtData') {
+                console.log('Storage 이벤트 감지:', e);
+                checkCurrentData();
+                analyzePromptData();
+            }
+        });
+
+        // 초기 로드
+        window.addEventListener('DOMContentLoaded', () => {
+            checkCurrentData();
+            analyzePromptData();
+        });
+    </script>
+</body>
+</html>

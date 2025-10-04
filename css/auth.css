@@ -139,9 +139,10 @@
     width: 100%;
     height: 100%;
     background: rgba(0, 0, 0, 0.5);
-    backdrop-filter: blur(5px);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
     z-index: 9999;
-    animation: fadeIn 0.3s ease;
+    animation: fadeIn 0.2s ease;
 }
 
 .auth-modal-content {
@@ -150,12 +151,13 @@
     left: 50%;
     transform: translate(-50%, -50%);
     width: 90%;
-    max-width: 450px;
+    max-width: 420px;
     background: var(--card);
     border: 1px solid var(--border);
-    border-radius: calc(var(--radius) * 2);
-    padding: 40px;
+    border-radius: var(--radius);
+    padding: 32px;
     animation: slideUp 0.3s ease;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
 }
 
 .auth-modal-content.small {
@@ -164,17 +166,20 @@
 
 .modal-close {
     position: absolute;
-    top: 20px;
-    right: 20px;
-    width: 32px;
-    height: 32px;
+    top: 16px;
+    right: 16px;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     background: transparent;
     border: none;
-    font-size: 24px;
+    border-radius: var(--radius);
+    font-size: 18px;
     color: var(--muted-foreground);
     cursor: pointer;
-    transition: all 0.2s;
-    border-radius: var(--radius);
+    transition: all 0.2s ease;
 }
 
 .modal-close:hover {
@@ -187,19 +192,21 @@
 }
 
 .auth-header {
-    margin-bottom: 32px;
+    margin-bottom: 24px;
+    text-align: center;
 }
 
 .auth-header h2 {
-    font-size: 24px;
-    font-weight: 700;
+    font-size: 20px;
+    font-weight: 600;
     color: var(--foreground);
-    margin-bottom: 8px;
+    margin-bottom: 6px;
 }
 
 .auth-header p {
-    font-size: 14px;
+    font-size: 13px;
     color: var(--muted-foreground);
+    line-height: 1.5;
 }
 
 /* Form Styles */
@@ -471,12 +478,31 @@ body.dark .alert-error {
 
 /* Input with button */
 .input-with-button {
+    position: relative;
     display: flex;
-    gap: 8px;
+    align-items: center;
 }
 
 .input-with-button input {
     flex: 1;
+    padding-right: 40px;
+}
+
+.input-with-button .btn-icon {
+    position: absolute;
+    right: 8px;
+    padding: 6px;
+    background: transparent;
+    border: none;
+    color: var(--muted-foreground);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border-radius: 4px;
+}
+
+.input-with-button .btn-icon:hover {
+    background: var(--accent);
+    color: var(--foreground);
 }
 
 /* API Status Styles */
@@ -518,35 +544,94 @@ body.dark .alert-error {
     color: #ef4444;
 }
 
+/* API Actions */
+.api-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 16px;
+}
+
+.api-actions button {
+    flex: 1;
+    padding: 8px 16px;
+    font-size: 13px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.api-actions .btn-secondary {
+    background: var(--accent);
+    border: 1px solid var(--border);
+    color: var(--foreground);
+}
+
+.api-actions .btn-secondary:hover:not(:disabled) {
+    background: var(--muted);
+}
+
+.api-actions .btn-primary {
+    background: var(--foreground);
+    color: var(--background);
+    border: 1px solid var(--foreground);
+}
+
+.api-actions .btn-primary:hover:not(:disabled) {
+    opacity: 0.9;
+}
+
+.api-actions .btn-primary:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.api-actions .btn-primary.btn-success {
+    background: #10b981;
+    border-color: #10b981;
+}
+
 /* Test Result */
-.test-result {
-    margin-top: 20px;
-    padding: 16px;
+.test-result,
+.api-test-result {
+    margin-top: 12px;
+    padding: 10px 12px;
     background: var(--accent);
     border: 1px solid var(--border);
     border-radius: var(--radius);
-    animation: slideUp 0.3s ease;
+    font-size: 13px;
+    animation: slideUp 0.2s ease;
 }
 
-.result-content {
-    font-size: 14px;
-    line-height: 1.6;
+.api-test-result.success {
+    background: rgba(16, 185, 129, 0.1);
+    border-color: rgba(16, 185, 129, 0.2);
 }
 
-.result-content.success {
+.api-test-result.error {
+    background: rgba(239, 68, 68, 0.1);
+    border-color: rgba(239, 68, 68, 0.2);
+}
+
+.result-content,
+.test-result-content {
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.result-message {
+    color: var(--foreground);
+}
+
+.api-test-result.success .result-message {
     color: #10b981;
 }
 
-.result-content.error {
+.api-test-result.error .result-message {
     color: #ef4444;
 }
 
 /* API Models Info */
 .api-models-info {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 12px;
-    margin-bottom: 24px;
+    margin-bottom: 20px;
 }
 
 .model-info-card {
@@ -554,45 +639,40 @@ body.dark .alert-error {
     border: 1px solid var(--border);
     border-radius: var(--radius);
     padding: 12px;
-    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 12px;
     transition: all 0.2s ease;
 }
 
-.model-info-card:hover {
-    border-color: #667eea;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
-}
-
 .model-badge {
-    position: absolute;
-    top: 12px;
-    right: 12px;
-    background: linear-gradient(135deg, #667eea, #764ba2);
+    display: inline-flex;
+    align-items: center;
+    background: #ff6b6b;
     color: white;
     padding: 4px 8px;
     border-radius: 4px;
     font-size: 10px;
     font-weight: 600;
     text-transform: uppercase;
+    letter-spacing: 0.3px;
 }
 
 .model-info-card strong {
-    display: block;
-    margin-top: 20px;
-    margin-bottom: 4px;
-    color: var(--foreground);
     font-size: 14px;
+    font-weight: 500;
+    color: var(--foreground);
 }
 
 .model-info-card small {
     color: var(--muted-foreground);
     font-size: 12px;
+    margin-left: auto;
 }
 
 .field-hint {
     display: block;
-    margin-top: 8px;
+    margin-top: 6px;
     font-size: 12px;
     color: var(--muted-foreground);
 }
@@ -600,12 +680,12 @@ body.dark .alert-error {
 .field-hint a {
     color: #ff6b6b;
     text-decoration: none;
-    font-weight: 500;
-    transition: all 0.2s ease;
+    font-size: 12px;
+    transition: opacity 0.2s ease;
 }
 
 .field-hint a:hover {
-    color: #ff5252;
+    opacity: 0.8;
     text-decoration: underline;
 }
 

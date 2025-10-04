@@ -45,9 +45,12 @@ function closeAPIModal() {
         // Reset form if not connected
         const status = window.geminiAPI ? window.geminiAPI.getStatus() : {};
         if (!status.isConnected) {
-            document.getElementById('apiSettingForm').reset();
-            document.getElementById('testResult').style.display = 'none';
-            document.getElementById('apiStatus').style.display = 'none';
+            const form = document.getElementById('apiSettingForm');
+            if (form) form.reset();
+            const testResult = document.getElementById('apiTestResult');
+            if (testResult) testResult.style.display = 'none';
+            const apiStatus = document.getElementById('apiStatus');
+            if (apiStatus) apiStatus.style.display = 'none';
         }
     }
 }
@@ -63,7 +66,7 @@ function loadAPIStatus() {
 // Update API Status UI
 function updateAPIStatusUI(status) {
     const apiKeyInput = document.getElementById('apiKey');
-    const saveBtn = document.getElementById('saveBtn');
+    const saveBtn = document.getElementById('saveAPIBtn');
     const clearBtn = document.getElementById('clearBtn');
     const apiStatus = document.getElementById('apiStatus');
 
@@ -116,10 +119,15 @@ function toggleAPIKeyVisibility() {
 // Test API Connection
 async function testAPIConnection() {
     const apiKeyInput = document.getElementById('apiKey');
-    const testBtn = document.getElementById('testBtn');
-    const saveBtn = document.getElementById('saveBtn');
-    const testResult = document.getElementById('testResult');
-    const testResultContent = document.getElementById('testResultContent');
+    const testBtn = event?.currentTarget || document.querySelector('[onclick="testAPIConnection()"]');
+    const saveBtn = document.getElementById('saveAPIBtn');
+    const testResult = document.getElementById('apiTestResult');
+    const testResultContent = testResult ? testResult.querySelector('.result-message') : null;
+
+    if (!apiKeyInput || !testBtn) {
+        console.error('Required elements not found for API test');
+        return;
+    }
 
     const apiKey = apiKeyInput.value.trim();
 
@@ -134,7 +142,7 @@ async function testAPIConnection() {
     // Show loading state
     testBtn.disabled = true;
     testBtn.textContent = '테스트 중...';
-    testResult.style.display = 'none';
+    if (testResult) testResult.style.display = 'none';
 
     try {
         // Initialize API with key
@@ -145,18 +153,20 @@ async function testAPIConnection() {
 
         if (result.success) {
             // Show success
-            testResult.className = 'test-result success';
-            testResultContent.innerHTML = `
-                <strong>✅ 연결 성공!</strong><br>
-                테스트 응답: "${result.response}"<br>
-                <small>모델: gemini-2.5-flash</small>
-            `;
-            testResult.style.display = 'block';
+            if (testResult) {
+                testResult.className = 'api-test-result success';
+                testResult.style.display = 'block';
+            }
+            if (testResultContent) {
+                testResultContent.innerHTML = `✅ 연결 성공! 테스트 응답: "${result.response}"`;
+            }
 
             // Auto-save and close modal after success
-            saveBtn.disabled = false;
-            saveBtn.classList.add('btn-success');
-            saveBtn.innerHTML = `✅ 자동 저장 중...`;
+            if (saveBtn) {
+                saveBtn.disabled = false;
+                saveBtn.classList.add('btn-success');
+                saveBtn.innerHTML = `✅ 자동 저장 중...`;
+            }
 
             // Save to session automatically
             window.geminiAPI.saveToSession();
@@ -192,12 +202,13 @@ async function testAPIConnection() {
 
         } else {
             // Show error
-            testResult.className = 'test-result error';
-            testResultContent.innerHTML = `
-                <strong>❌ 연결 실패</strong><br>
-                ${result.message}
-            `;
-            testResult.style.display = 'block';
+            if (testResult) {
+                testResult.className = 'api-test-result error';
+                testResult.style.display = 'block';
+            }
+            if (testResultContent) {
+                testResultContent.innerHTML = `❌ 연결 실패: ${result.message}`;
+            }
 
             // Clear invalid key
             window.geminiAPI.clearSession();
@@ -205,16 +216,19 @@ async function testAPIConnection() {
 
     } catch (error) {
         console.error('Connection test error:', error);
-        testResult.className = 'test-result error';
-        testResultContent.innerHTML = `
-            <strong>❌ 오류 발생</strong><br>
-            ${error.message || '알 수 없는 오류가 발생했습니다'}
-        `;
-        testResult.style.display = 'block';
+        if (testResult) {
+            testResult.className = 'api-test-result error';
+            testResult.style.display = 'block';
+        }
+        if (testResultContent) {
+            testResultContent.innerHTML = `❌ 오류 발생: ${error.message || '알 수 없는 오류가 발생했습니다'}`;
+        }
     } finally {
         // Reset button
-        testBtn.disabled = false;
-        testBtn.textContent = '연결 테스트';
+        if (testBtn) {
+            testBtn.disabled = false;
+            testBtn.textContent = '연결 테스트';
+        }
     }
 }
 
@@ -250,12 +264,18 @@ function clearAPIKey() {
         window.geminiAPI.clearSession();
 
         // Reset form
-        document.getElementById('apiSettingForm').reset();
-        document.getElementById('apiKey').disabled = false;
-        document.getElementById('saveBtn').disabled = true;
-        document.getElementById('clearBtn').style.display = 'none';
-        document.getElementById('testResult').style.display = 'none';
-        document.getElementById('apiStatus').style.display = 'none';
+        const form = document.getElementById('apiSettingForm');
+        if (form) form.reset();
+        const apiKey = document.getElementById('apiKey');
+        if (apiKey) apiKey.disabled = false;
+        const saveBtn = document.getElementById('saveAPIBtn');
+        if (saveBtn) saveBtn.disabled = true;
+        const clearBtn = document.getElementById('clearBtn');
+        if (clearBtn) clearBtn.style.display = 'none';
+        const testResult = document.getElementById('apiTestResult');
+        if (testResult) testResult.style.display = 'none';
+        const apiStatus = document.getElementById('apiStatus');
+        if (apiStatus) apiStatus.style.display = 'none';
 
         // Update status
         loadAPIStatus();

@@ -1905,7 +1905,115 @@ class StoryboardManager {
     }
 
     deleteShot(shot) {
-        this.showNotification('샷 삭제 기능은 준비 중입니다.', 'info');
+        console.log('🗑️ 샷 삭제 시작:', shot.shot_id);
+
+        // 카드에 삭제 애니메이션 추가
+        const card = document.querySelector(`.storyboard-card[data-shot-id="${shot.shot_id}"]`);
+        if (card) {
+            card.classList.add('deleting');
+        }
+
+        let shotDeleted = false;
+
+        // 1. storyboardData에서 삭제 (있는 경우)
+        if (this.storyboardData && this.storyboardData.scenes) {
+            for (const scene of this.storyboardData.scenes) {
+                if (scene.shots) {
+                    const shotIndex = scene.shots.findIndex(s => s.shot_id === shot.shot_id);
+                    if (shotIndex !== -1) {
+                        scene.shots.splice(shotIndex, 1);
+                        shotDeleted = true;
+                        console.log(`✅ storyboardData에서 샷 ${shot.shot_id} 삭제됨`);
+                        break;
+                    }
+                }
+            }
+        }
+
+        // 2. mergedData에서 삭제
+        if (this.mergedData) {
+            // mergedData.scenario.scenes 구조 처리
+            if (this.mergedData.scenario && this.mergedData.scenario.scenes) {
+                for (const sequence of this.mergedData.scenario.scenes) {
+                    // sequence.scenes가 있는 경우
+                    if (sequence.scenes) {
+                        for (const scene of sequence.scenes) {
+                            if (scene.shots) {
+                                const shotIndex = scene.shots.findIndex(s => s.shot_id === shot.shot_id);
+                                if (shotIndex !== -1) {
+                                    scene.shots.splice(shotIndex, 1);
+                                    shotDeleted = true;
+                                    console.log(`✅ mergedData.scenario.scenes에서 샷 ${shot.shot_id} 삭제됨`);
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    // sequence가 직접 scene인 경우
+                    else if (sequence.shots) {
+                        const shotIndex = sequence.shots.findIndex(s => s.shot_id === shot.shot_id);
+                        if (shotIndex !== -1) {
+                            sequence.shots.splice(shotIndex, 1);
+                            shotDeleted = true;
+                            console.log(`✅ mergedData.scenario.scenes에서 샷 ${shot.shot_id} 삭제됨`);
+                            break;
+                        }
+                    }
+                    if (shotDeleted) break;
+                }
+            }
+
+            // mergedData.scenes 구조도 처리
+            if (this.mergedData.scenes) {
+                for (const scene of this.mergedData.scenes) {
+                    if (scene.shots) {
+                        const shotIndex = scene.shots.findIndex(s => s.shot_id === shot.shot_id);
+                        if (shotIndex !== -1) {
+                            scene.shots.splice(shotIndex, 1);
+                            shotDeleted = true;
+                            console.log(`✅ mergedData.scenes에서 샷 ${shot.shot_id} 삭제됨`);
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        if (shotDeleted) {
+            // 3. sessionStorage에서 삭제
+            sessionStorage.removeItem(`shot_${shot.shot_id}`);
+            console.log(`✅ sessionStorage에서 shot_${shot.shot_id} 삭제됨`);
+
+            // 4. shotThumbnails에서 해당 샷의 썸네일 삭제
+            const thumbnails = localStorage.getItem('shotThumbnails');
+            if (thumbnails) {
+                try {
+                    const thumbData = JSON.parse(thumbnails);
+                    if (thumbData[shot.shot_id]) {
+                        delete thumbData[shot.shot_id];
+                        localStorage.setItem('shotThumbnails', JSON.stringify(thumbData));
+                        console.log(`✅ 썸네일 데이터에서 ${shot.shot_id} 삭제됨`);
+                    }
+                } catch (e) {
+                    console.error('썸네일 삭제 중 오류:', e);
+                }
+            }
+
+            // 5. localStorage에 전체 데이터 저장
+            this.saveToLocalStorage();
+            console.log('✅ localStorage 업데이트 완료');
+
+            // 6. 애니메이션이 끝난 후 UI 다시 렌더링
+            setTimeout(() => {
+                this.renderStoryboard();
+            }, 300);
+
+            // 7. 성공 메시지 표시
+            this.showNotification(`샷 ${shot.shot_id}이(가) 삭제되었습니다.`, 'success');
+        } else {
+            this.showNotification(`샷 ${shot.shot_id}을(를) 찾을 수 없습니다.`, 'error');
+            console.error(`❌ 샷 ${shot.shot_id}을(를) 찾을 수 없습니다.`);
+        }
     }
 
     showShotDetails(shot) {
