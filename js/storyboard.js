@@ -1657,6 +1657,14 @@ class StoryboardManager {
             }
         }
 
+        // 현재 씬 찾기 (concept_art_references를 가져오기 위해)
+        let currentScene = null;
+        if (this.mergedData && this.mergedData.scenes) {
+            currentScene = this.mergedData.scenes.find(scene =>
+                scene.shots && scene.shots.some(s => s.shot_id === shot.shot_id)
+            );
+        }
+
         // 현재 씬과 시퀀스 정보 포함하여 확장된 샷 데이터 생성
         const extendedShot = {
             ...shot,
@@ -1664,7 +1672,9 @@ class StoryboardManager {
             scene_id: this.currentScene,
             sequence_id: this.currentSequence,
             merged_data: this.mergedData, // 병합된 전체 데이터 포함
-            concept_art_references: shot.concept_art_references // concept_art_references 명시적 포함
+            // shot에 concept_art_references가 없으면 scene에서 가져오기
+            concept_art_references: shot.concept_art_references ||
+                                  (currentScene ? currentScene.concept_art_references : null)
         };
 
         // 디버깅: extendedShot 구조 확인
@@ -2032,10 +2042,24 @@ class StoryboardManager {
             }
         }
 
+        // 현재 씬 찾기 (concept_art_references를 가져오기 위해)
+        let currentScene = null;
+        if (this.mergedData && this.mergedData.scenes) {
+            currentScene = this.mergedData.scenes.find(scene =>
+                scene.shots && scene.shots.some(s => s.shot_id === shot.shot_id)
+            );
+        }
+
         // Stage2 scene 필드를 포함한 샷 데이터 생성
         const extendedShot = {
             ...shot,
-            ...stage2Data // Stage2의 scene 필드 포함
+            ...stage2Data, // Stage2의 scene 필드 포함
+            scene_id: this.currentScene,
+            sequence_id: this.currentSequence,
+            merged_data: this.mergedData,
+            // shot에 concept_art_references가 없으면 scene에서 가져오기
+            concept_art_references: shot.concept_art_references ||
+                                  (currentScene ? currentScene.concept_art_references : null)
         };
 
         console.log('💾 sessionStorage 저장:', `shot_${shot.shot_id}`, extendedShot);

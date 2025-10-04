@@ -43,6 +43,12 @@ window.savePrompt = savePrompt;
 window.copyPrompt = copyPrompt;
 window.deletePrompt = deletePrompt;
 
+// Expose shot detail functions (defined later in the file)
+// These will be assigned after the functions are defined
+window.loadShotById = null;
+window.extractAndMapShotSpecificData = null;
+window.applyConceptArtFiltering = null;
+
 // Gemini Chat 관련 함수
 window.toggleChatSize = function() {
     const chatSection = document.querySelector('.gemini-chat-section');
@@ -943,8 +949,9 @@ function extractAndMapShotSpecificData(shotData) {
                 mapCharacterBlock(charactersToShow, allCharacters);
             }
         } else {
-            console.log('⚠️ concept_art_references.characters가 없어 모든 캐릭터 표시');
-            mapCharacterBlock(allCharacters, allCharacters);
+            console.log('⚠️ concept_art_references.characters가 없어 캐릭터 표시 안 함');
+            // concept_art_references가 없으면 캐릭터를 표시하지 않음 (빈 배열 전달)
+            mapCharacterBlock([], allCharacters);
         }
     }
 
@@ -980,8 +987,8 @@ function extractAndMapShotSpecificData(shotData) {
                 mapLocationBlock(stage1Data.visual_blocks.locations[0], 0);
             }
         } else {
-            console.log('⚠️ concept_art_references.location이 없어 첫 번째 장소 표시');
-            mapLocationBlock(stage1Data.visual_blocks.locations[0], 0);
+            console.log('⚠️ concept_art_references.location이 없어 장소 표시 안 함');
+            // concept_art_references가 없으면 장소를 표시하지 않음
         }
     } else {
         console.warn('⚠️ Stage1에 장소 데이터가 없음');
@@ -1007,8 +1014,9 @@ function extractAndMapShotSpecificData(shotData) {
                 mapPropsBlock([]);
             }
         } else {
-            console.log('⚠️ concept_art_references.props가 없어 모든 소품 표시');
-            mapPropsBlock(stage1Data.visual_blocks.props);
+            console.log('⚠️ concept_art_references.props가 없어 소품 표시 안 함');
+            // concept_art_references가 없으면 소품을 표시하지 않음
+            mapPropsBlock([]);
         }
     }
 
@@ -2725,6 +2733,31 @@ window.shotDetail = {
     // Stage 1 JSON 로드
     loadStage1JSON: function(jsonData) {
         console.log('🔵 loadStage1JSON 호출됨:', jsonData);
+
+        // Stage2 데이터가 이미 로드되었는지 확인
+        const urlParams = new URLSearchParams(window.location.search);
+        const shotId = urlParams.get('shotId');
+        console.log('🔍 shotId:', shotId);
+
+        if (shotId) {
+            const shotDataStr = sessionStorage.getItem(`shot_${shotId}`);
+            console.log('🔍 shotDataStr:', shotDataStr ? `${shotDataStr.substring(0, 100)}...` : null);
+
+            if (shotDataStr && shotDataStr !== 'null') {
+                const shotData = JSON.parse(shotDataStr);
+                console.log('🔍 shotData:', {
+                    hasMergedData: !!shotData.merged_data,
+                    hasConceptArtRefs: !!shotData.concept_art_references
+                });
+
+                if (shotData && shotData.merged_data && shotData.concept_art_references) {
+                    console.log('⏭️ Stage2 데이터가 이미 로드되어 loadStage1JSON 스킵');
+                    return;
+                }
+            }
+        }
+
+        console.log('💡 세션 스토리지에 Stage2 데이터가 없습니다.');
         if (jsonData) {
             shotDetailManager.stage1Data = jsonData;
             mapStage1DataToBlocks(jsonData);
@@ -3661,3 +3694,10 @@ window.parsePromptWithoutProps = function() {
     console.log('✅ 파싱 완료 (PROPS 제외):', combinedPrompt.substring(0, 100) + '...');
     alert('파싱이 완료되었습니다! (소품 블록 제외)');
 };
+
+// ============================================================
+// Expose functions to window for external access
+// ============================================================
+window.loadShotById = loadShotById;
+window.extractAndMapShotSpecificData = extractAndMapShotSpecificData;
+window.applyConceptArtFiltering = applyConceptArtFiltering;
