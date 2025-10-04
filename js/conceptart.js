@@ -66,8 +66,20 @@ function showNotification(message, type = 'info') {
 document.addEventListener('DOMContentLoaded', () => {
     console.log('=== DOMContentLoaded - Initializing ConceptArt page ===');
 
-    // 우선순위: conceptArtData (스토리보드에서 변환한 데이터) > mergedData > storyboardData
-    const savedConceptData = localStorage.getItem('conceptArtData');
+    // 우선순위: sessionStorage > localStorage > mergedData > storyboardData
+    // sessionStorage는 새로고침에도 유지됨 (탭/브라우저 닫기 전까지)
+    let savedConceptData = sessionStorage.getItem('conceptArtData');
+    
+    if (!savedConceptData) {
+        // sessionStorage에 없으면 localStorage 체크
+        savedConceptData = localStorage.getItem('conceptArtData');
+        if (savedConceptData) {
+            // localStorage 데이터를 sessionStorage로 복원
+            sessionStorage.setItem('conceptArtData', savedConceptData);
+            console.log('📦 localStorage → sessionStorage 복원 완료');
+        }
+    }
+    
     const storyboardData = localStorage.getItem('mergedData') || localStorage.getItem('storyboardData');
 
     if (savedConceptData) {
@@ -155,10 +167,22 @@ function setDefaultDropdownValues() {
     }
 }
 
-// Load saved data from localStorage
+// Load saved data from localStorage and sessionStorage
 function loadSavedData() {
-    const saved = localStorage.getItem('conceptArtData');
-    console.log('loadSavedData - Raw data from localStorage:', saved ? 'Found' : 'Not found');
+    // 우선 sessionStorage 체크 (새로고침 시에도 유지)
+    let saved = sessionStorage.getItem('conceptArtData');
+    
+    if (!saved) {
+        // sessionStorage에 없으면 localStorage 체크
+        saved = localStorage.getItem('conceptArtData');
+        if (saved) {
+            // localStorage 데이터를 sessionStorage로 복원
+            sessionStorage.setItem('conceptArtData', saved);
+            console.log('📦 loadSavedData - localStorage → sessionStorage 복원');
+        }
+    }
+    
+    console.log('loadSavedData - Raw data from storage:', saved ? 'Found' : 'Not found');
     if (saved) {
         try {
             conceptData = JSON.parse(saved);
@@ -413,8 +437,15 @@ function saveData() {
 
         const dataToSave = JSON.stringify(conceptData);
         console.log('saveData - Saving data, size:', dataToSave.length, 'bytes');
+        
+        // sessionStorage와 localStorage 모두에 저장 (이중 백업)
+        sessionStorage.setItem('conceptArtData', dataToSave);
+        console.log('✅ saveData - sessionStorage 저장 완료');
+        
         localStorage.setItem('conceptArtData', dataToSave);
-        console.log('saveData - Data saved successfully');
+        console.log('✅ saveData - localStorage 저장 완료');
+        
+        console.log('💾 saveData - 이중 저장 완료 (sessionStorage + localStorage)');
 
         // ConceptArtManager와 동기화
         if (window.conceptArtManager) {
@@ -2465,6 +2496,13 @@ function addNewSection() {
         universal_translated: '',
         voice_style: ''
     };
+
+    // prompts 객체에 저장 (중요: 이게 없으면 프롬프트가 복원 안 됨!)
+    if (!conceptData.prompts) {
+        conceptData.prompts = {};
+    }
+    conceptData.prompts[trimmedName] = newPromptData;
+    console.log(`✅ prompts["${trimmedName}"] 저장 완료:`, newPromptData);
 
     // 데이터에 추가
     if (sectionType === 'character') {
