@@ -2078,6 +2078,11 @@ class StoryboardManager {
         // 모달을 즉시 표시
         newModalContainer.style.display = 'flex';
 
+        // 페이지 상단으로 스크롤 (모달이 화면 중앙에 표시되도록) - instant로 즉시 이동
+        window.scrollTo({ top: 0, behavior: 'instant' });
+        document.body.scrollTop = 0; // Safari용
+        document.documentElement.scrollTop = 0;
+
         // 모달 컨테이너 생성
         newModalContainer.innerHTML = `
             <div class="shot-detail-modal-wrapper">
@@ -2092,6 +2097,19 @@ class StoryboardManager {
         const iframe = document.getElementById('shotDetailFrame');
         if (iframe) {
             iframe.onload = () => {
+                // iframe 내부 스크롤을 최상단으로 이동 (즉시 실행)
+                try {
+                    if (iframe.contentWindow) {
+                        iframe.contentWindow.scrollTo(0, 0);
+                        // 약간의 지연 후 한 번 더 실행하여 확실하게 처리
+                        setTimeout(() => {
+                            iframe.contentWindow.scrollTo(0, 0);
+                        }, 100);
+                    }
+                } catch (error) {
+                    console.log('iframe 스크롤 설정 오류:', error);
+                }
+
                 const stage1Data = sessionStorage.getItem('stage1ParsedData');
 
                 if (!stage1Data) {

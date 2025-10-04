@@ -994,30 +994,60 @@ function extractAndMapShotSpecificData(shotData) {
         console.warn('⚠️ Stage1에 장소 데이터가 없음');
     }
 
-    // 소품 블록 - Stage2 씬의 소품만 필터링
+    // 소품 블록 - Stage2 씬의 소품만 필터링 (또는 모든 소품 표시)
     if (stage1Data.visual_blocks && stage1Data.visual_blocks.props) {
-        if (shotData.concept_art_references && shotData.concept_art_references.props) {
-            const sceneProps = shotData.concept_art_references.props;
-            console.log('🎭 씬에서 사용하는 소품:', sceneProps);
+        console.log('🎨 [소품 필터링] Stage1 전체 소품:', stage1Data.visual_blocks.props);
 
-            // Stage1 소품 중에서 씬의 소품과 매칭되는 것만 필터링
-            const filteredProps = stage1Data.visual_blocks.props.filter(prop => {
-                return sceneProps.includes(prop.name) || sceneProps.includes(prop.id);
+        if (shotData.concept_art_references && shotData.concept_art_references.props && shotData.concept_art_references.props.length > 0) {
+            const sceneProps = shotData.concept_art_references.props;
+            console.log('🎭 [소품 필터링] 씬에 등장하는 소품:', sceneProps);
+            console.log('🔍 [소품 필터링] shotData 전체 구조:', {
+                shot_id: shotData.shot_id,
+                hasConceptArtRefs: !!shotData.concept_art_references,
+                conceptArtRefsKeys: shotData.concept_art_references ? Object.keys(shotData.concept_art_references) : [],
+                propsCount: sceneProps.length
             });
 
-            console.log(`📊 소품 필터링 결과: ${filteredProps.length}/${stage1Data.visual_blocks.props.length}개`);
+            // Stage1 소품 중에서 씬의 소품과 매칭되는 것만 필터링 (상세 매칭)
+            const filteredPropsWithIndex = [];
 
-            if (filteredProps.length > 0) {
-                mapPropsBlock(filteredProps);
+            stage1Data.visual_blocks.props.forEach((stage1Prop, index) => {
+                // Stage2의 각 소품과 비교
+                const isMatched = sceneProps.some(stage2PropName => {
+                    const nameMatch = stage1Prop.name === stage2PropName;
+                    const idMatch = stage1Prop.id === stage2PropName;
+
+                    console.log(`  비교중: Stage1="${stage1Prop.name}" vs Stage2="${stage2PropName}" -> name:${nameMatch}, id:${idMatch}`);
+
+                    if (nameMatch || idMatch) {
+                        console.log(`  ✅ 최종 매칭됨: ${stage1Prop.name}`);
+                        return true;
+                    }
+                    console.log(`  ❌ 최종 매칭 안됨: ${stage1Prop.name}`);
+                    return false;
+                });
+
+                if (isMatched) {
+                    filteredPropsWithIndex.push({ prop: stage1Prop, index: index + 1 }); // 1-based index
+                }
+            });
+
+            console.log(`📊 필터링 결과: ${filteredPropsWithIndex.length}/${stage1Data.visual_blocks.props.length}개 소품만 표시`);
+            console.log('  표시할 소품:', filteredPropsWithIndex.map(item => item.prop.name));
+
+            if (filteredPropsWithIndex.length > 0) {
+                mapPropsBlock(filteredPropsWithIndex.map(item => item.prop), filteredPropsWithIndex.map(item => item.index));
             } else {
-                console.warn('⚠️ 매칭되는 소품이 없습니다');
-                mapPropsBlock([]);
+                console.warn('⚠️ 매칭되는 소품이 없습니다 - 모든 소품 표시');
+                mapPropsBlock(stage1Data.visual_blocks.props);
             }
         } else {
-            console.log('⚠️ concept_art_references.props가 없어 소품 표시 안 함');
-            // concept_art_references가 없으면 소품을 표시하지 않음
-            mapPropsBlock([]);
+            console.log('⚠️ concept_art_references.props가 없음 - 모든 소품 표시');
+            // concept_art_references가 없으면 모든 소품 표시
+            mapPropsBlock(stage1Data.visual_blocks.props);
         }
+    } else {
+        console.warn('⚠️ Stage1에 소품 데이터가 없음');
     }
 
     console.log('✅ [통합파싱] 샷 데이터 처리 완료:', shotData.shot_id);
@@ -2395,48 +2425,86 @@ function mapLocationBlock(locationData, locationIndex) {
 }
 
 // 소품블록 데이터 매칭
-function mapPropsBlock(propsDataArray) {
+function mapPropsBlock(propsDataArray, propIndices = null) {
     if (!propsDataArray || propsDataArray.length === 0) {
         console.log('❌ 소품 데이터가 없습니다.');
         return;
     }
 
-    console.log('🎭 소품 데이터 매칭 시작:', propsDataArray);
+    console.log('🎭 소품 블록 매핑 시작:', propsDataArray.length, '개');
 
-    // 1. 소품 셀렉터 업데이트
-    const propsForSelector = propsDataArray.map((prop, index) => ({
-        index: index + 1,
-        name: prop.name || `소품 ${index + 1}`,
-        itemName: prop.blocks?.itemName || '',
-        propDetail: prop.detail || ''
-    }));
+    // sessionStorage에서 Stage1 전체 소품 데이터 가져오기
+    const stage1DataStr = sessionStorage.getItem('stage1ParsedData');
+    const stage1Props = stage1DataStr ? JSON.parse(stage1DataStr).visual_blocks?.props : [];
 
-    console.log('🔄 소품 셀렉터 데이터:', propsForSelector);
-    updatePropsSelector(propsForSelector);
+    console.log('📦 Stage1 원본 소품 데이터 (전체):', stage1Props);
 
-    // 2. 파싱된 소품 데이터를 전역 변수에 저장
-    parsedPropsData = {};
-    propsDataArray.forEach((prop, index) => {
-        const propNum = index + 1;
-        parsedPropsData[propNum] = {
-            name: prop.name || `소품 ${propNum}`,
-            itemName: prop.blocks?.itemName || '',
-            propDetail: prop.detail || ''
-        };
-    });
-    console.log('💾 소품 데이터 저장 완료:', parsedPropsData);
+    // propIndices가 제공되면 특정 소품만, 아니면 전체 표시
+    if (propIndices && propIndices.length > 0) {
+        console.log('📍 특정 소품만 표시:', propsDataArray.map(p => p.name));
 
-    // 3. addedProps Set을 초기화하고 모든 소품 추가
-    addedProps.clear();
-    propsDataArray.forEach((_, index) => {
-        addedProps.add(index + 1);
-    });
+        // 셀렉터에는 전체 소품 표시
+        const allPropsForSelector = stage1Props.map((prop, index) => ({
+            index: index + 1,
+            name: prop.name || `소품 ${index + 1}`,
+            itemName: prop.blocks?.['5_ITEM_NAME'] || '',
+            propDetail: prop.prop_detail || ''
+        }));
+        updatePropsSelector(allPropsForSelector);
 
-    // 4. 소품 리스트 및 컨테이너 업데이트
+        // 전체 소품 데이터 저장
+        parsedPropsData = {};
+        stage1Props.forEach((prop, index) => {
+            const propNum = index + 1;
+            parsedPropsData[propNum] = {
+                name: prop.name || `소품 ${propNum}`,
+                itemName: prop.blocks?.['5_ITEM_NAME'] || '',
+                propDetail: prop.prop_detail || ''
+            };
+        });
+
+        // addedProps는 필터링된 소품만 추가
+        addedProps.clear();
+        propIndices.forEach(idx => {
+            addedProps.add(idx);
+        });
+
+        console.log(`✅ 소품 ${propIndices.length}개 자동 추가:`, propIndices);
+        console.log(`✅ 소품 필터링 완료: ${propsDataArray.map(p => p.name).join(', ')} 만 표시`);
+    } else {
+        // propIndices가 없으면 모든 소품 표시 (Stage1 파일 업로드 시)
+        const propsForSelector = propsDataArray.map((prop, index) => ({
+            index: index + 1,
+            name: prop.name || `소품 ${index + 1}`,
+            itemName: prop.blocks?.['5_ITEM_NAME'] || '',
+            propDetail: prop.prop_detail || ''
+        }));
+        updatePropsSelector(propsForSelector);
+
+        parsedPropsData = {};
+        propsDataArray.forEach((prop, index) => {
+            const propNum = index + 1;
+            parsedPropsData[propNum] = {
+                name: prop.name || `소품 ${propNum}`,
+                itemName: prop.blocks?.['5_ITEM_NAME'] || '',
+                propDetail: prop.prop_detail || ''
+            };
+        });
+
+        addedProps.clear();
+        propsDataArray.forEach((_, index) => {
+            addedProps.add(index + 1);
+        });
+
+        console.log(`✅ 소품 ${addedProps.size}개 모두 표시`);
+    }
+
+    // 소품 리스트 및 컨테이너 업데이트
     updatePropsList();
     updatePropsContainers();
 
-    console.log('✅ 소품 블록 매칭 완료');
+    console.log('Selected props:', Array.from(addedProps));
+    console.log('✅ 소품 블록 매핑 완료');
 }
 
 // Stage 1 JSON 업로드 버튼 추가를 위한 전역 함수
@@ -3194,6 +3262,10 @@ function updatePropsContainers() {
         if (!promptValue && parsedPropsData[num]) {
             const { itemName, propDetail } = parsedPropsData[num];
             promptValue = [itemName, propDetail].filter(Boolean).join(', ');
+            console.log(`🔍 [소품${num}] 원본 데이터:`, { itemName, propDetail });
+            console.log(`📝 [소품${num}] 추출된 값:`, promptValue);
+        } else if (!promptValue) {
+            console.warn(`⚠️ [소품${num}] 데이터 없음 - parsedPropsData:`, parsedPropsData);
         }
 
         promptItem.innerHTML = `

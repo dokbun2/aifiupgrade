@@ -5,6 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>샷 상세 편집 - S01.01.01</title>
     <link rel="stylesheet" href="css/shot-detail.css">
+    <script>
+        // 스크롤 복원 방지 및 강제 최상단 이동
+        if ('scrollRestoration' in history) {
+            history.scrollRestoration = 'manual';
+        }
+        // 페이지 로드 전 즉시 스크롤 0으로 설정
+        window.scrollTo(0, 0);
+    </script>
 </head>
 <body>
     <div class="shot-detail-modal">
@@ -17,6 +25,13 @@
             <div class="header-right">
                 <button class="close-btn" onclick="closeShotDetailModal()">✕</button>
                 <script>
+                    // 페이지 로드 시 스크롤을 최상단으로 이동
+                    window.addEventListener('DOMContentLoaded', function() {
+                        window.scrollTo(0, 0);
+                        document.documentElement.scrollTop = 0;
+                        document.body.scrollTop = 0;
+                    });
+
                     // 즉시 사용 가능한 close 함수
                     function closeShotDetailModal() {
                         console.log('closeShotDetailModal called');
