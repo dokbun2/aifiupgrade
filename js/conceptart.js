@@ -170,8 +170,17 @@ function loadSavedData() {
                 prompts: Object.keys(conceptData.prompts || {}).length + '개',
                 characters: conceptData.characters?.length || 0,
                 locations: conceptData.locations?.length || 0,
-                props: conceptData.props?.length || 0
+                props: conceptData.props?.length || 0,
+                currentCharacter: conceptData.currentCharacter || '없음',
+                currentLocation: conceptData.currentLocation || '없음',
+                currentProps: conceptData.currentProps || '없음',
+                currentType: conceptData.currentType || '없음'
             });
+
+            // prompts 키 목록 출력
+            if (conceptData.prompts && Object.keys(conceptData.prompts).length > 0) {
+                console.log('loadSavedData - prompts 키 목록:', Object.keys(conceptData.prompts).join(', '));
+            }
 
             // Rebuild dropdowns if data exists
             if (conceptData.characters && conceptData.characters.length > 0) {
