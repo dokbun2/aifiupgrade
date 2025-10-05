@@ -204,6 +204,17 @@ function loadSavedData() {
             // prompts 키 목록 출력
             if (conceptData.prompts && Object.keys(conceptData.prompts).length > 0) {
                 console.log('loadSavedData - prompts 키 목록:', Object.keys(conceptData.prompts).join(', '));
+                // 각 prompts의 상세 내용 로깅
+                Object.keys(conceptData.prompts).forEach(key => {
+                    const prompt = conceptData.prompts[key];
+                    console.log(`📋 prompts["${key}"]:`, {
+                        universal: prompt.universal ? `${prompt.universal.substring(0, 30)}...` : '없음',
+                        universal_translated: prompt.universal_translated ? `${prompt.universal_translated.substring(0, 30)}...` : '없음',
+                        voice_style: prompt.voice_style ? '있음' : '없음'
+                    });
+                });
+            } else {
+                console.warn('⚠️ loadSavedData - prompts 객체가 비어있거나 없습니다!');
             }
 
             // Rebuild dropdowns if data exists
