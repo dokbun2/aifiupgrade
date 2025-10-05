@@ -33,6 +33,9 @@ class ConceptArtManager {
         // 기존 데이터 체크
         let data = this.getData();
 
+        // Stage1 데이터가 sessionStorage에 있는지 확인
+        const hasStage1Data = sessionStorage.getItem('stage1OriginalData');
+
         if (!data || !data.version) {
             console.log('📦 ConceptArt 데이터 초기화 중...');
 
@@ -47,6 +50,23 @@ class ConceptArtManager {
             this.saveData(data);
 
             console.log('✅ ConceptArt 데이터 초기화 완료');
+        } else if (hasStage1Data) {
+            // 기존 데이터가 있지만 Stage1이 새로 업로드된 경우 재파싱
+            console.log('📦 기존 ConceptArt 데이터 로드:', data);
+            console.log('🔄 Stage1 데이터 감지 - 자동 재파싱 체크');
+
+            // Stage1 데이터 재파싱
+            const stage1Data = this.parseStage1Data();
+
+            // 사용자가 추가한 데이터 유지
+            const userData = this.loadUserData();
+
+            // 병합 (중복 제거)
+            const mergedData = this.mergeData(stage1Data, userData);
+            this.saveData(mergedData);
+
+            console.log('✅ Stage1 데이터 재파싱 완료');
+            data = mergedData;
         } else {
             console.log('📦 기존 ConceptArt 데이터 로드:', data);
         }
