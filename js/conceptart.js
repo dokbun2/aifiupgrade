@@ -1848,8 +1848,10 @@ function resetData() {
             universalTransElement.textContent = '번역된 프롬프트가 여기에 표시됩니다...';
         }
 
-        // Clear localStorage
+        // Clear localStorage and sessionStorage
         localStorage.removeItem('conceptArtData');
+        sessionStorage.removeItem('conceptArtData');
+        console.log('✅ localStorage와 sessionStorage 초기화 완료');
 
         updatePromptDisplay();
         updateImageGallery();
