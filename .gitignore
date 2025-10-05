@@ -62,3 +62,7 @@ test-supabase.html
 # Backup files
 *.backup
 *.bak
+
+# Archive files (too large for Cloudflare Pages)
+archive/
+*.zip
