@@ -103,10 +103,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // ConceptArtManager와 초기 동기화
+    // ConceptArtManager와 초기 동기화 (Stage1 데이터 가져오기만)
     if (window.conceptArtManager) {
         console.log('🔄 ConceptArtManager와 초기 동기화 시작...');
-        syncWithConceptArtManager();
+        syncFromConceptArtManager();  // Stage1 → conceptart.js
         window.conceptArtManager.syncAll();
         console.log('✅ ConceptArtManager 초기 동기화 완료');
     }
@@ -458,9 +458,10 @@ function saveData() {
         
         console.log('💾 saveData - 이중 저장 완료 (sessionStorage + localStorage)');
 
-        // ConceptArtManager와 동기화
+        // ConceptArtManager와 동기화 - conceptart.js → ConceptArtManager 방향으로만
+        // (ConceptArtManager → conceptart.js 방향 동기화는 초기 로드 시에만 실행)
         if (window.conceptArtManager) {
-            syncWithConceptArtManager();
+            syncToConceptArtManager();
         }
     } catch (e) {
         console.error('Failed to save data:', e);
@@ -470,20 +471,16 @@ function saveData() {
     }
 }
 
-// ConceptArtManager와 데이터 동기화
-function syncWithConceptArtManager() {
+// ConceptArtManager → conceptart.js 방향 동기화 (초기 로드 시에만)
+function syncFromConceptArtManager() {
     if (!window.conceptArtManager) {
         console.warn('ConceptArtManager not available');
         return;
     }
 
-    console.log('🔄 ConceptArtManager와 동기화 시작...');
+    console.log('📥 ConceptArtManager → conceptart.js 동기화 시작 (Stage1 데이터 가져오기)...');
 
-    // 현재 conceptData의 캐릭터, 장소, 소품을 ConceptArtManager에 추가
     const currentData = window.conceptArtManager.getData() || { characters: [], locations: [], props: [] };
-
-    // ConceptArtManager → conceptart.js 방향 동기화 (Stage1 prompt 데이터 매핑)
-    console.log('📥 ConceptArtManager에서 prompt 데이터 가져오는 중...');
 
     // 캐릭터 prompt 매핑 (기존 데이터가 있으면 유지, 없으면 Stage1에서 가져오기)
     currentData.characters.forEach(char => {
@@ -605,7 +602,19 @@ function syncWithConceptArtManager() {
         }
     });
 
-    console.log('📦 prompt 매핑 완료, prompts 객체:', Object.keys(conceptData.prompts || {}).length, '개 항목');
+    console.log('📦 Stage1 prompt 매핑 완료, prompts 객체:', Object.keys(conceptData.prompts || {}).length, '개 항목');
+}
+
+// conceptart.js → ConceptArtManager 방향 동기화 (저장 시마다)
+function syncToConceptArtManager() {
+    if (!window.conceptArtManager) {
+        console.warn('ConceptArtManager not available');
+        return;
+    }
+
+    console.log('📤 conceptart.js → ConceptArtManager 동기화 시작...');
+
+    const currentData = window.conceptArtManager.getData() || { characters: [], locations: [], props: [] };
 
     // 캐릭터 동기화
     if (conceptData.characters && Array.isArray(conceptData.characters)) {
@@ -665,7 +674,7 @@ function syncWithConceptArtManager() {
         });
     }
 
-    console.log('✅ ConceptArtManager 동기화 완료');
+    console.log('✅ conceptart.js → ConceptArtManager 동기화 완료');
 }
 
 // 드래그 앤 드롭 초기화 함수
