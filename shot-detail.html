@@ -6,26 +6,26 @@
     <title>샷 상세 편집 - S01.01.01</title>
     <link rel="stylesheet" href="css/shot-detail.css">
     <style>
-        /* 스크롤 방지 강제 적용 */
-        html, body {
-            position: fixed !important;
-            top: 0 !important;
-            left: 0 !important;
-            width: 100% !important;
-            height: 100% !important;
+        /* 스크롤 방지 - 레이아웃 shift 없이 */
+        html {
             overflow: hidden !important;
+            height: 100% !important;
+        }
+        body {
+            overflow: hidden !important;
+            height: 100vh !important;
             margin: 0 !important;
             padding: 0 !important;
         }
         .shot-detail-modal {
-            position: fixed !important;
-            top: 0 !important;
-            left: 0 !important;
             width: 100% !important;
             height: 100vh !important;
             overflow: hidden !important;
+            display: flex !important;
+            flex-direction: column !important;
         }
         .modal-body {
+            flex: 1 !important;
             overflow-y: auto !important;
             overflow-x: hidden !important;
             scroll-behavior: auto !important;
@@ -49,6 +49,41 @@
             document.body.scrollTop = 0;
         };
 
+        // 페이지 로드 후 modal-body의 scrollTop 강제 고정
+        window.addEventListener('DOMContentLoaded', function() {
+            const modalBody = document.querySelector('.modal-body');
+
+            if (modalBody) {
+                // 초기 스크롤 위치를 0으로 설정
+                modalBody.scrollTop = 0;
+
+                // 2초간 modal-body 스크롤 차단
+                let scrollPreventCount = 0;
+                const preventModalScroll = setInterval(() => {
+                    modalBody.scrollTop = 0;
+                    scrollPreventCount++;
+                    if (scrollPreventCount > 66) { // 2초 (30ms * 66)
+                        clearInterval(preventModalScroll);
+                    }
+                }, 30);
+
+                // scroll 이벤트도 차단
+                const blockScroll = (e) => {
+                    if (e.target === modalBody) {
+                        modalBody.scrollTop = 0;
+                        e.preventDefault();
+                        return false;
+                    }
+                };
+
+                modalBody.addEventListener('scroll', blockScroll, { passive: false });
+
+                setTimeout(() => {
+                    modalBody.removeEventListener('scroll', blockScroll);
+                }, 2000);
+            }
+        });
+
         // 페이지 로드 후 2초간 스크롤 잠금 (더 강력하게)
         window.addEventListener('load', function() {
             lockScroll();
@@ -57,24 +92,6 @@
                 clearInterval(scrollLockTimeout);
             }, 2000);
         });
-
-        // 스크롤 이벤트 완전 차단 (초기 로드 시)
-        const preventScroll = (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            lockScroll();
-            return false;
-        };
-
-        // 모든 스크롤 이벤트 차단
-        window.addEventListener('scroll', preventScroll, { passive: false, capture: true });
-        document.addEventListener('scroll', preventScroll, { passive: false, capture: true });
-
-        // 2초 후 스크롤 이벤트 차단 해제 (modal-body는 스크롤 가능)
-        setTimeout(() => {
-            window.removeEventListener('scroll', preventScroll, { capture: true });
-            document.removeEventListener('scroll', preventScroll, { capture: true });
-        }, 2000);
     </script>
 </head>
 <body>
@@ -1330,7 +1347,8 @@
                             frameborder="0"
                             allow="clipboard-write; clipboard-read; microphone"
                             allowfullscreen
-                            loading="lazy">
+                            loading="lazy"
+                            style="pointer-events: none;">
                         </iframe>
                         <div class="chat-loading" id="chatLoading">
                             <div class="loading-spinner"></div>
@@ -1340,6 +1358,7 @@
                     <script>
                         // iframe 로드 시 스크롤 방지 및 focus 방지
                         const geminiIframe = document.getElementById('geminiChatIframe');
+                        const modalBody = document.querySelector('.modal-body');
 
                         // iframe이 focus를 가져가지 못하도록 설정
                         geminiIframe.setAttribute('tabindex', '-1');
@@ -1350,8 +1369,15 @@
                             document.documentElement.scrollTop = 0;
                             document.body.scrollTop = 0;
 
-                            // 부모 컨테이너에 focus를 유지
-                            document.querySelector('.modal-header').focus();
+                            // modal-body도 최상단으로
+                            if (modalBody) {
+                                modalBody.scrollTop = 0;
+                            }
+
+                            // 2초 후 pointer-events 활성화 (사용자가 iframe과 상호작용 가능하게)
+                            setTimeout(() => {
+                                geminiIframe.style.pointerEvents = 'auto';
+                            }, 2000);
                         });
 
                         // iframe이 focus를 받으려고 할 때 차단
@@ -1360,8 +1386,7 @@
                             this.blur();
                             // 상단으로 강제 이동
                             window.scrollTo(0, 0);
-                            document.documentElement.scrollTop = 0;
-                            document.body.scrollTop = 0;
+                            if (modalBody) modalBody.scrollTop = 0;
                         }, true);
                     </script>
                 </div>
