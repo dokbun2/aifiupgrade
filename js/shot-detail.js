@@ -23,12 +23,12 @@ const debugError = DEBUG_MODE ? console.error.bind(console) : () => {};
 
 // Stage 1 JSON 파서 스크립트 로드
 const script1 = document.createElement('script');
-script1.src = '../js/stage1-parser.js';
+script1.src = './js/stage1-parser.js';
 document.head.appendChild(script1);
 
 // Stage 2 JSON 파서 스크립트 로드
 const script2 = document.createElement('script');
-script2.src = '../js/stage2-parser.js';
+script2.src = './js/stage2-parser.js';
 document.head.appendChild(script2);
 
 // Expose functions to window for HTML onclick handlers
