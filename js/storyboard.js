@@ -2079,9 +2079,12 @@ class StoryboardManager {
         newModalContainer.style.display = 'flex';
 
         // 페이지 상단으로 스크롤 (모달이 화면 중앙에 표시되도록) - instant로 즉시 이동
-        window.scrollTo({ top: 0, behavior: 'instant' });
-        document.body.scrollTop = 0; // Safari용
-        document.documentElement.scrollTop = 0;
+        const scrollToTop = () => {
+            window.scrollTo(0, 0);
+            document.body.scrollTop = 0;
+            document.documentElement.scrollTop = 0;
+        };
+        scrollToTop();
 
         // 모달 컨테이너 생성
         newModalContainer.innerHTML = `
@@ -2093,22 +2096,33 @@ class StoryboardManager {
             </div>
         `;
 
+        // 스크롤 잠금 타이머 (1.5초간 최상단 유지)
+        let scrollLockCount = 0;
+        const scrollLockInterval = setInterval(() => {
+            scrollToTop();
+            scrollLockCount++;
+            if (scrollLockCount > 30) { // 1.5초 (50ms * 30)
+                clearInterval(scrollLockInterval);
+            }
+        }, 50);
+
         // iframe 로드 완료 후 Stage 1 데이터 전달
         const iframe = document.getElementById('shotDetailFrame');
         if (iframe) {
             iframe.onload = () => {
-                // iframe 내부 스크롤을 최상단으로 이동 (즉시 실행)
+                // iframe 내부 스크롤을 최상단으로 이동
                 try {
                     if (iframe.contentWindow) {
                         iframe.contentWindow.scrollTo(0, 0);
-                        // 약간의 지연 후 한 번 더 실행하여 확실하게 처리
-                        setTimeout(() => {
-                            iframe.contentWindow.scrollTo(0, 0);
-                        }, 100);
+                        iframe.contentWindow.document.documentElement.scrollTop = 0;
+                        iframe.contentWindow.document.body.scrollTop = 0;
                     }
                 } catch (error) {
                     console.log('iframe 스크롤 설정 오류:', error);
                 }
+
+                // 부모 윈도우도 계속 최상단 유지
+                scrollToTop();
 
                 const stage1Data = sessionStorage.getItem('stage1ParsedData');
 
