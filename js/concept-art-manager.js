@@ -386,13 +386,27 @@ class ConceptArtManager {
     }
 
     /**
-     * 데이터 초기화
+     * 데이터 초기화 (Stage1 데이터 포함 완전 삭제)
      */
     clearAllData() {
         sessionStorage.removeItem(this.dataKey);
         localStorage.removeItem(this.backupKey);
-        console.log('🗑️ 모든 ConceptArt 데이터 삭제됨');
-        this.initializeData();
+
+        // Stage1 원본 데이터도 삭제 (선택적)
+        sessionStorage.removeItem('stage1OriginalData');
+        sessionStorage.removeItem('stage1ParsedData');
+
+        console.log('🗑️ 모든 ConceptArt 데이터 삭제됨 (Stage1 포함)');
+
+        // 빈 데이터로 초기화 (Stage1 재파싱 안함)
+        const emptyData = {
+            version: this.version,
+            characters: [],
+            locations: [],
+            props: [],
+            lastUpdated: Date.now()
+        };
+        this.saveData(emptyData);
     }
 
     /**

@@ -1864,6 +1864,12 @@ function resetData() {
         sessionStorage.removeItem('conceptArtData');
         console.log('✅ localStorage와 sessionStorage 초기화 완료');
 
+        // ConceptArtManager 데이터도 초기화
+        if (window.conceptArtManager) {
+            window.conceptArtManager.clearAllData();
+            console.log('✅ ConceptArtManager 데이터 초기화 완료');
+        }
+
         updatePromptDisplay();
         updateImageGallery();
 
