@@ -162,14 +162,29 @@ class ConceptArtManager {
     }
 
     /**
-     * 데이터 병합
+     * 데이터 병합 (중복 제거)
      */
     mergeData(stage1Data, userData) {
+        // 중복 제거 함수
+        const removeDuplicates = (arr) => {
+            const seen = new Set();
+            return arr.filter(item => {
+                // ID 또는 이름으로 중복 체크
+                const key = item.id || item.name;
+                if (seen.has(key)) {
+                    console.log(`⚠️ 중복 제거: ${key}`);
+                    return false;
+                }
+                seen.add(key);
+                return true;
+            });
+        };
+
         return {
             version: this.version,
-            characters: [...stage1Data.characters, ...userData.characters],
-            locations: [...stage1Data.locations, ...userData.locations],
-            props: [...stage1Data.props, ...userData.props],
+            characters: removeDuplicates([...stage1Data.characters, ...userData.characters]),
+            locations: removeDuplicates([...stage1Data.locations, ...userData.locations]),
+            props: removeDuplicates([...stage1Data.props, ...userData.props]),
             lastUpdated: Date.now()
         };
     }
