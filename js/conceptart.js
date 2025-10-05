@@ -487,62 +487,103 @@ function syncWithConceptArtManager() {
 
     // 캐릭터 prompt 매핑
     currentData.characters.forEach(char => {
-        if (char.prompt && char.id) {
+        if (char.id) {
             if (!conceptData.prompts) {
                 conceptData.prompts = {};
             }
 
-            // prompt가 이미 객체 형태라면 그대로 사용, 문자열이라면 universal로 저장
-            if (typeof char.prompt === 'string') {
+            // prompt가 블록 객체인 경우
+            if (char.prompt && typeof char.prompt === 'object' && !Array.isArray(char.prompt)) {
+                conceptData.prompts[char.id] = {
+                    ...char.prompt,
+                    character_detail: char.appearance || char.description || null,
+                    voice_style: char.voice_style || null
+                };
+            }
+            // prompt가 문자열인 경우
+            else if (typeof char.prompt === 'string') {
                 conceptData.prompts[char.id] = {
                     universal: char.prompt,
-                    universal_translated: char.description || null
+                    universal_translated: char.description || null,
+                    character_detail: char.appearance || null,
+                    voice_style: char.voice_style || null
                 };
-            } else {
-                conceptData.prompts[char.id] = char.prompt;
+            }
+            // prompt가 없지만 다른 필드가 있는 경우
+            else {
+                conceptData.prompts[char.id] = {
+                    character_detail: char.appearance || char.description || null,
+                    voice_style: char.voice_style || null
+                };
             }
 
-            console.log(`✅ 캐릭터 "${char.name}" (${char.id}) prompt 매핑 완료`);
+            console.log(`✅ 캐릭터 "${char.name}" (${char.id}) prompt 매핑 완료 - character_detail: ${!!conceptData.prompts[char.id].character_detail}, voice_style: ${!!conceptData.prompts[char.id].voice_style}`);
         }
     });
 
     // 장소 prompt 매핑
     currentData.locations.forEach(loc => {
-        if (loc.prompt && loc.id) {
+        if (loc.id) {
             if (!conceptData.prompts) {
                 conceptData.prompts = {};
             }
 
-            if (typeof loc.prompt === 'string') {
+            // prompt가 블록 객체인 경우
+            if (loc.prompt && typeof loc.prompt === 'object' && !Array.isArray(loc.prompt)) {
+                conceptData.prompts[loc.id] = {
+                    ...loc.prompt,
+                    character_detail: loc.atmosphere || loc.description || null
+                };
+            }
+            // prompt가 문자열인 경우
+            else if (typeof loc.prompt === 'string') {
                 conceptData.prompts[loc.id] = {
                     universal: loc.prompt,
-                    universal_translated: loc.description || null
+                    universal_translated: loc.description || null,
+                    character_detail: loc.atmosphere || null
                 };
-            } else {
-                conceptData.prompts[loc.id] = loc.prompt;
+            }
+            // prompt가 없지만 다른 필드가 있는 경우
+            else {
+                conceptData.prompts[loc.id] = {
+                    character_detail: loc.atmosphere || loc.description || null
+                };
             }
 
-            console.log(`✅ 장소 "${loc.name}" (${loc.id}) prompt 매핑 완료`);
+            console.log(`✅ 장소 "${loc.name}" (${loc.id}) prompt 매핑 완료 - character_detail: ${!!conceptData.prompts[loc.id].character_detail}`);
         }
     });
 
     // 소품 prompt 매핑
     currentData.props.forEach(prop => {
-        if (prop.prompt && prop.id) {
+        if (prop.id) {
             if (!conceptData.prompts) {
                 conceptData.prompts = {};
             }
 
-            if (typeof prop.prompt === 'string') {
+            // prompt가 블록 객체인 경우
+            if (prop.prompt && typeof prop.prompt === 'object' && !Array.isArray(prop.prompt)) {
+                conceptData.prompts[prop.id] = {
+                    ...prop.prompt,
+                    character_detail: prop.function || prop.description || null
+                };
+            }
+            // prompt가 문자열인 경우
+            else if (typeof prop.prompt === 'string') {
                 conceptData.prompts[prop.id] = {
                     universal: prop.prompt,
-                    universal_translated: prop.description || null
+                    universal_translated: prop.description || null,
+                    character_detail: prop.function || null
                 };
-            } else {
-                conceptData.prompts[prop.id] = prop.prompt;
+            }
+            // prompt가 없지만 다른 필드가 있는 경우
+            else {
+                conceptData.prompts[prop.id] = {
+                    character_detail: prop.function || prop.description || null
+                };
             }
 
-            console.log(`✅ 소품 "${prop.name}" (${prop.id}) prompt 매핑 완료`);
+            console.log(`✅ 소품 "${prop.name}" (${prop.id}) prompt 매핑 완료 - character_detail: ${!!conceptData.prompts[prop.id].character_detail}`);
         }
     });
 
