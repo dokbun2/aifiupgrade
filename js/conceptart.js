@@ -485,11 +485,17 @@ function syncWithConceptArtManager() {
     // ConceptArtManager → conceptart.js 방향 동기화 (Stage1 prompt 데이터 매핑)
     console.log('📥 ConceptArtManager에서 prompt 데이터 가져오는 중...');
 
-    // 캐릭터 prompt 매핑
+    // 캐릭터 prompt 매핑 (기존 데이터가 있으면 유지, 없으면 Stage1에서 가져오기)
     currentData.characters.forEach(char => {
         if (char.id) {
             if (!conceptData.prompts) {
                 conceptData.prompts = {};
+            }
+
+            // 이미 사용자가 수정한 prompt가 있으면 건너뛰기
+            if (conceptData.prompts[char.id]) {
+                console.log(`⏭️ 캐릭터 "${char.name}" (${char.id}) - 기존 사용자 데이터 유지`);
+                return;
             }
 
             // prompt가 블록 객체인 경우
@@ -521,11 +527,17 @@ function syncWithConceptArtManager() {
         }
     });
 
-    // 장소 prompt 매핑
+    // 장소 prompt 매핑 (기존 데이터가 있으면 유지, 없으면 Stage1에서 가져오기)
     currentData.locations.forEach(loc => {
         if (loc.id) {
             if (!conceptData.prompts) {
                 conceptData.prompts = {};
+            }
+
+            // 이미 사용자가 수정한 prompt가 있으면 건너뛰기
+            if (conceptData.prompts[loc.id]) {
+                console.log(`⏭️ 장소 "${loc.name}" (${loc.id}) - 기존 사용자 데이터 유지`);
+                return;
             }
 
             // prompt가 블록 객체인 경우
@@ -554,11 +566,17 @@ function syncWithConceptArtManager() {
         }
     });
 
-    // 소품 prompt 매핑
+    // 소품 prompt 매핑 (기존 데이터가 있으면 유지, 없으면 Stage1에서 가져오기)
     currentData.props.forEach(prop => {
         if (prop.id) {
             if (!conceptData.prompts) {
                 conceptData.prompts = {};
+            }
+
+            // 이미 사용자가 수정한 prompt가 있으면 건너뛰기
+            if (conceptData.prompts[prop.id]) {
+                console.log(`⏭️ 소품 "${prop.name}" (${prop.id}) - 기존 사용자 데이터 유지`);
+                return;
             }
 
             // prompt가 블록 객체인 경우
