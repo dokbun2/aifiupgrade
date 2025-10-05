@@ -482,6 +482,72 @@ function syncWithConceptArtManager() {
     // 현재 conceptData의 캐릭터, 장소, 소품을 ConceptArtManager에 추가
     const currentData = window.conceptArtManager.getData() || { characters: [], locations: [], props: [] };
 
+    // ConceptArtManager → conceptart.js 방향 동기화 (Stage1 prompt 데이터 매핑)
+    console.log('📥 ConceptArtManager에서 prompt 데이터 가져오는 중...');
+
+    // 캐릭터 prompt 매핑
+    currentData.characters.forEach(char => {
+        if (char.prompt && char.id) {
+            if (!conceptData.prompts) {
+                conceptData.prompts = {};
+            }
+
+            // prompt가 이미 객체 형태라면 그대로 사용, 문자열이라면 universal로 저장
+            if (typeof char.prompt === 'string') {
+                conceptData.prompts[char.id] = {
+                    universal: char.prompt,
+                    universal_translated: char.description || null
+                };
+            } else {
+                conceptData.prompts[char.id] = char.prompt;
+            }
+
+            console.log(`✅ 캐릭터 "${char.name}" (${char.id}) prompt 매핑 완료`);
+        }
+    });
+
+    // 장소 prompt 매핑
+    currentData.locations.forEach(loc => {
+        if (loc.prompt && loc.id) {
+            if (!conceptData.prompts) {
+                conceptData.prompts = {};
+            }
+
+            if (typeof loc.prompt === 'string') {
+                conceptData.prompts[loc.id] = {
+                    universal: loc.prompt,
+                    universal_translated: loc.description || null
+                };
+            } else {
+                conceptData.prompts[loc.id] = loc.prompt;
+            }
+
+            console.log(`✅ 장소 "${loc.name}" (${loc.id}) prompt 매핑 완료`);
+        }
+    });
+
+    // 소품 prompt 매핑
+    currentData.props.forEach(prop => {
+        if (prop.prompt && prop.id) {
+            if (!conceptData.prompts) {
+                conceptData.prompts = {};
+            }
+
+            if (typeof prop.prompt === 'string') {
+                conceptData.prompts[prop.id] = {
+                    universal: prop.prompt,
+                    universal_translated: prop.description || null
+                };
+            } else {
+                conceptData.prompts[prop.id] = prop.prompt;
+            }
+
+            console.log(`✅ 소품 "${prop.name}" (${prop.id}) prompt 매핑 완료`);
+        }
+    });
+
+    console.log('📦 prompt 매핑 완료, prompts 객체:', Object.keys(conceptData.prompts || {}).length, '개 항목');
+
     // 캐릭터 동기화
     if (conceptData.characters && Array.isArray(conceptData.characters)) {
         conceptData.characters.forEach(char => {

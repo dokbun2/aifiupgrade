@@ -97,12 +97,17 @@ class ConceptArtManager {
             // visual_blocks에서 캐릭터 추출
             if (stage1.visual_blocks?.characters) {
                 stage1.visual_blocks.characters.forEach((char, index) => {
+                    // blocks 객체 자체를 prompt로 저장 (loadDataByTypeAndId에서 블록 처리)
+                    const promptBlocks = char.blocks || {};
+
                     data.characters.push({
                         id: `stage1_char_${index}`,
                         name: char.name || `Character ${index + 1}`,
-                        description: char.description || '',
-                        appearance: char.appearance || '',
-                        personality: char.personality || '',
+                        description: char.appearance_summary || '',
+                        appearance: char.appearance_summary || '',
+                        personality: char.blocks?.['6_MOOD_PERSONALITY'] || '',
+                        voice_style: char.voice_style || '',
+                        prompt: promptBlocks, // 블록 객체 자체 저장
                         image: char.generated_image || '',
                         source: 'stage1',
                         created_at: Date.now()
@@ -113,11 +118,15 @@ class ConceptArtManager {
             // visual_blocks에서 장소 추출
             if (stage1.visual_blocks?.locations) {
                 stage1.visual_blocks.locations.forEach((loc, index) => {
+                    // blocks 객체 자체를 prompt로 저장
+                    const promptBlocks = loc.blocks || {};
+
                     data.locations.push({
                         id: `stage1_loc_${index}`,
                         name: loc.name || `Location ${index + 1}`,
-                        description: loc.description || '',
-                        atmosphere: loc.atmosphere || '',
+                        description: loc.atmosphere_summary || loc.blocks?.['9_ATMOSPHERE'] || '',
+                        atmosphere: loc.blocks?.['9_ATMOSPHERE'] || '',
+                        prompt: promptBlocks, // 블록 객체 자체 저장
                         image: loc.generated_image || '',
                         source: 'stage1',
                         created_at: Date.now()
@@ -128,11 +137,15 @@ class ConceptArtManager {
             // visual_blocks에서 소품 추출
             if (stage1.visual_blocks?.props) {
                 stage1.visual_blocks.props.forEach((prop, index) => {
+                    // blocks 객체 자체를 prompt로 저장
+                    const promptBlocks = prop.blocks || {};
+
                     data.props.push({
                         id: `stage1_prop_${index}`,
                         name: prop.name || `Prop ${index + 1}`,
-                        description: prop.description || '',
-                        function: prop.function || '',
+                        description: prop.function_summary || prop.blocks?.['6_PURPOSE'] || '',
+                        function: prop.blocks?.['6_PURPOSE'] || '',
+                        prompt: promptBlocks, // 블록 객체 자체 저장
                         image: prop.generated_image || '',
                         source: 'stage1',
                         created_at: Date.now()
@@ -510,6 +523,36 @@ class ConceptArtManager {
             }
         });
         return Array.from(seen.values());
+    }
+
+    /**
+     * blocks 객체를 프롬프트 문자열로 조합
+     */
+    combineBlocks(blocks) {
+        if (!blocks || typeof blocks !== 'object') {
+            return '';
+        }
+
+        // 번호 순서대로 정렬
+        const sortedKeys = Object.keys(blocks).sort((a, b) => {
+            const numA = parseInt(a.split('_')[0]);
+            const numB = parseInt(b.split('_')[0]);
+            return numA - numB;
+        });
+
+        // 각 블록을 한 줄씩 조합
+        const promptLines = sortedKeys
+            .map(key => {
+                const value = blocks[key];
+                if (!value || value === '') return null;
+
+                // 키 이름에서 번호 제거 (예: "1_STYLE" → "STYLE")
+                const label = key.replace(/^\d+_/, '');
+                return `${label}: ${value}`;
+            })
+            .filter(line => line !== null);
+
+        return promptLines.join('\n');
     }
 }
 
