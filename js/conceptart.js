@@ -104,11 +104,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ConceptArtManager와 초기 동기화 (Stage1 데이터 가져오기만)
-    if (window.conceptArtManager) {
-        console.log('🔄 ConceptArtManager와 초기 동기화 시작...');
+    // 저장된 conceptArt 데이터가 없을 때만 Stage1 데이터를 가져옴
+    if (window.conceptArtManager && !savedConceptData) {
+        console.log('🔄 ConceptArtManager와 초기 동기화 시작 (Stage1 데이터 가져오기)...');
         syncFromConceptArtManager();  // Stage1 → conceptart.js
         window.conceptArtManager.syncAll();
         console.log('✅ ConceptArtManager 초기 동기화 완료');
+    } else if (savedConceptData) {
+        console.log('⏭️ 저장된 conceptArt 데이터가 있어 Stage1 동기화 건너뜀');
     }
 
     console.log('After data load - conceptData summary:', {
