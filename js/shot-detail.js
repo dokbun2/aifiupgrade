@@ -3773,3 +3773,24 @@ window.parsePromptWithoutProps = function() {
 window.loadShotById = loadShotById;
 window.extractAndMapShotSpecificData = extractAndMapShotSpecificData;
 window.applyConceptArtFiltering = applyConceptArtFiltering;
+
+// Expose utility functions from modules
+window.showNotification = showNotification;
+window.autoResizeTextarea = autoResizeTextarea;
+window.copyToClipboard = copyToClipboard;
+
+// Expose image upload functions
+window.clearAllImages = clearAllImages;
+window.toggleUrlInput = toggleUrlInput;
+window.addImageFromUrl = addImageFromUrl;
+
+// Expose tab functions
+window.switchToTab = switchToTab;
+
+// Expose prompt functions
+window.savePrompt = savePrompt;
+window.copyPrompt = copyPrompt;
+window.copyFinalPrompt = copyFinalPrompt;
+
+// Expose other shot-detail functions
+window.parsePromptWithoutProps = parsePromptWithoutProps;
