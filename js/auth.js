@@ -402,8 +402,26 @@ async function handleStartClick(event) {
         }
     }
 
-    // User is not logged in, show auth modal
-    openAuthModal();
+    // User is not logged in, show maintenance notice
+    showMaintenanceNotice();
+}
+
+// Show maintenance notice modal
+function showMaintenanceNotice() {
+    const modal = document.getElementById('authModal');
+    if (modal) {
+        modal.style.display = 'block';
+
+        // Hide all forms
+        document.getElementById('loginForm').style.display = 'none';
+        document.getElementById('signupForm').style.display = 'none';
+        document.getElementById('forgotForm').style.display = 'none';
+
+        // Update modal content
+        document.getElementById('authTitle').textContent = '시스템 점검 중';
+        document.getElementById('authDescription').textContent = '현재 시스템 점검 중입니다. 잠시 후 다시 이용해 주세요.';
+        document.getElementById('authFooter').innerHTML = '';
+    }
 }
 
 // Export functions for global use
@@ -417,3 +435,4 @@ window.showForgotPassword = showForgotPassword;
 window.toggleUserMenu = toggleUserMenu;
 window.handleLogout = handleLogout;
 window.handleStartClick = handleStartClick;
+window.showMaintenanceNotice = showMaintenanceNotice;
