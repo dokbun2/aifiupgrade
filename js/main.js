@@ -412,9 +412,9 @@ async function handleLogoClick(event) {
         if (window.supabaseAuth && window.supabaseAuth.getUser) {
             const user = await window.supabaseAuth.getUser();
             if (!user) {
-                // User is not actually logged in, show login modal
-                if (typeof openAuthModal === 'function') {
-                    openAuthModal();
+                // User is not actually logged in, show maintenance notice
+                if (typeof showMaintenanceNotice === 'function') {
+                    showMaintenanceNotice();
                 }
                 return;
             }
@@ -435,11 +435,11 @@ async function handleLogoClick(event) {
             window.location.href = '../start/index.html';
         }
     } else {
-        // If not logged in, show login modal if available
-        if (typeof openAuthModal === 'function') {
-            openAuthModal();
+        // If not logged in, show maintenance notice if available
+        if (typeof showMaintenanceNotice === 'function') {
+            showMaintenanceNotice();
         } else {
-            // Fallback: navigate to main page if openAuthModal is not available
+            // Fallback: navigate to main page if showMaintenanceNotice is not available
             const currentPath = window.location.pathname;
             if (currentPath === '/' || currentPath.endsWith('/index.html')) {
                 // Already at root
